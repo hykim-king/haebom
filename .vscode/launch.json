@@ -2,6 +2,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "TestUpload",
+            "request": "launch",
+            "mainClass": "com.pcwk.ehr.TestUpload",
+            "projectName": "sb03-8"
+        },
+        {
+            "type": "java",
+            "name": "HaebomApplication",
+            "request": "launch",
+            "mainClass": "com.pcwk.ehr.HaebomApplication",
+            "projectName": "sb03-8"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-HaebomApplication<haebom>",
             "request": "launch",
             "cwd": "${workspaceFolder}",

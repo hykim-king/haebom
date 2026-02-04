@@ -3,6 +3,7 @@ package com.pcwk.ehr.config;
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.type.JdbcType;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -11,7 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan("com.pcwk.ehr.mapper")
+@MapperScan("com.pcwk.ehr")
+
 public class MyBatisConfig {
 
 	@Bean
@@ -23,8 +25,8 @@ public class MyBatisConfig {
 		//Mybatis Configuration 설정
 		org.apache.ibatis.session.Configuration
 		mybatisConfig =new org.apache.ibatis.session.Configuration();
-		//mybatis.configuration.map-underscore-to-camel-case=true    
 		mybatisConfig.setMapUnderscoreToCamelCase(true);
+		mybatisConfig.setJdbcTypeForNull(JdbcType.NULL); // NULL 처리
 		factory.setConfiguration(mybatisConfig);
 		
 		
@@ -33,9 +35,8 @@ public class MyBatisConfig {
             applicationContext.getResources("classpath:mapper/*.xml")
         );
         //alias
-        factory.setTypeAliasesPackage("com.pcwk.ehr.domain");
-        
-        
+        factory.setTypeAliasesPackage("com.pcwk.ehr");
+
 		return factory.getObject();
 
 	}

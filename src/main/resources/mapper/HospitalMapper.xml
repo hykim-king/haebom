@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pcwk.ehr.hospital.HospitalMapper">
+
+    <!-- 병원 등록 -->
+    <insert id="doSave" parameterType="com.pcwk.ehr.hospital.HospitalVO">
+        INSERT INTO hospital (
+            hp_id,
+            hp_name,
+            hp_add,
+            hp_ems,
+            hp_tel1,
+            hp_tel2,
+            hp_mapx,
+            hp_mapy,
+            hp_open,
+            hp_close,
+            hp_holiday
+        ) VALUES (
+            #{hpId},
+            #{hpName},
+            #{hpAdd},
+            #{hpEms},
+            #{hpTel1},
+            #{hpTel2},
+            #{hpMapx},
+            #{hpMapy},
+            #{hpOpen},
+            #{hpClose},
+            #{hpHoliday}
+        )
+    </insert>
+
+    <!-- 병원 삭제 -->
+    <delete id="doDelete" parameterType="com.pcwk.ehr.hospital.HospitalVO">
+        DELETE FROM hospital
+        WHERE hp_id = #{hpId}
+    </delete>
+
+    <!-- 전체 삭제 -->
+    <delete id="deleteAll">
+        DELETE FROM hospital
+    </delete>
+
+    <!-- 건수 조회 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM hospital
+    </select>
+
+</mapper>

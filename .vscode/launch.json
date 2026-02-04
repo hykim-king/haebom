@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-HaebomApplication<haebom>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.pcwk.ehr.HaebomApplication",
+            "projectName": "haebom",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

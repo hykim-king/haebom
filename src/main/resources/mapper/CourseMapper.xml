@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.mapper.CourseMapper">
+
+    <insert id="doSave" parameterType="CourseVO">
+        <selectKey keyProperty="courseId" order="BEFORE" resultType="int">
+            SELECT COURSE_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO course (
+            course_id, course_name, course_overview, course_img,
+            course_distance, course_tasktime, trip_id
+        ) VALUES (
+            #{courseId}, #{courseName}, #{courseOverview}, #{courseImg},
+            #{courseDistance}, #{courseTasktime}, #{tripId}
+        )
+    </insert>
+
+    <select id="doSelectOne" parameterType="CourseVO" resultType="CourseVO">
+        SELECT * FROM course WHERE course_id = #{courseId}
+    </select>
+
+    <update id="doUpdate" parameterType="CourseVO">
+        UPDATE course
+        SET course_name = #{courseName},
+            course_overview = #{courseOverview},
+            course_distance = #{courseDistance},
+            course_tasktime = #{courseTasktime}
+        WHERE course_id = #{courseId}
+    </update>
+
+    <delete id="doDelete" parameterType="CourseVO">
+        DELETE FROM course WHERE course_id = #{courseId}
+    </delete>
+
+    <delete id="deleteAll">
+        DELETE FROM course
+    </delete>
+
+    <select id="getCount" parameterType="CourseVO" resultType="int">
+        SELECT COUNT(*) FROM course
+    </select>
+
+</mapper>

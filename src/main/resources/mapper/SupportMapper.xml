@@ -1,3 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper.NoticeMapper"></mapper>
+<mapper namespace="com.pcwk.ehr.support.SupportMapper">
+
+    <select id="getCount" resultType="int" parameterType="com.pcwk.ehr.support.SupportVO">
+        SELECT COUNT(*) FROM SUPPORT
+        WHERE 1=1
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM SUPPORT
+    </delete>
+
+    <insert id="saveAll" parameterType="java.util.Map">
+        INSERT INTO SUPPORT
+        SELECT SUPPORT_SEQ.NEXTVAL AS sup_id,
+               N'문의사항 내용' || LEVEL AS sup_content,
+               N'문의사항 답변 내용' || LEVEL AS sup_answer,
+               (SYSDATE - LEVEL) AS sup_answer_reg,
+               (SYSDATE - LEVEL) AS reg_dt,
+               #{regId}
+        FROM dual
+        <![CDATA[CONNECT BY LEVEL <= #{saveSupportDataCount}]]>
+    </insert>
+</mapper>

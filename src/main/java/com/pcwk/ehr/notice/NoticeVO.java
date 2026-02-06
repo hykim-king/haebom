@@ -11,11 +11,10 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 public class NoticeVO extends DTO{
 
-	public int notice_sid;					// 공지사항 고유번호
-	public int notice_title;				// 공지사항 제목
-	public String notice_content;			// 공지사항 내용
-	public LocalDateTime notice_reg;		// 공지사항 등록일
-	public LocalDateTime notice_mog;		// 공지사항 수정일
-	// public int user_sid;					// 사용자 고유번호
-
+	public int noticeId;					// 공지사항 고유번호
+	public String noticeTitle;				// 공지사항 제목
+	public String noticeContent;			// 공지사항 내용
+	public LocalDateTime regDt;				// 공지사항 등록일
+	public int regId;						// 공지사항 등록자
+	public int modDt;						// 공지사항 수정일
 }

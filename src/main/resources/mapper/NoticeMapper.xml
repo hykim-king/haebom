@@ -1,3 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper.NoticeMapper"></mapper>
+<mapper namespace="com.pcwk.ehr.notice.NoticeMapper">
+
+    <insert id="doSave" parameterType="com.pcwk.ehr.notice.NoticeVO">
+        insert into notice(
+            notice_id,
+            notice_title,
+            notice_content,
+            reg_dt,
+            reg_id,
+            mod_dt
+        ) values (
+                #{noticeId},
+                #{noticeTitle},
+                #{noticeContent},
+                SYSDATE,
+                #{regId},
+                SYSDATE
+                         )
+    </insert>
+
+    <delete id="doDelete">
+        DELETE FROM NOTICE
+        WHERE notice_id = #{noticeId}
+    </delete>
+
+    <select id="getCount" resultType="int" parameterType="com.pcwk.ehr.notice.NoticeVO">
+        SELECT COUNT(*) FROM NOTICE
+        WHERE 1=1
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM NOTICE
+    </delete>
+
+    <insert id="saveAll" parameterType="java.util.Map">
+        INSERT INTO NOTICE
+        SELECT NOTICE_SEQ.NEXTVAL AS notice_id,
+               N'공지사항 제목' || LEVEL AS notice_title,
+               N'공지사항 내용' || LEVEL AS notice_content,
+               (SYSDATE - LEVEL) AS reg_dt,
+               #{regId},
+               (SYSDATE - LEVEL) AS mod_dt
+        FROM dual
+        <![CDATA[CONNECT BY LEVEL <= #{saveNoticeDataCount}]]>
+    </insert>
+</mapper>

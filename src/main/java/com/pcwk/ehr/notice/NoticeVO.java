@@ -1,6 +1,7 @@
 package com.pcwk.ehr.notice;
 import com.pcwk.ehr.cmn.DTO;
 import lombok.*;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
@@ -16,5 +17,5 @@ public class NoticeVO extends DTO{
 	public String noticeContent;			// 공지사항 내용
 	public LocalDateTime regDt;				// 공지사항 등록일
 	public int regId;						// 공지사항 등록자
-	public int modDt;						// 공지사항 수정일
+	public LocalDateTime modDt;				// 공지사항 수정일
 }

@@ -23,6 +23,34 @@ public class NoticeController {
         return "";
     }
 
+    @PostMapping("/doDelete.do")
+    @ResponseBody
+    public String doDelete() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doDelete()               │");
+        log.info("└──────────────────────────┘");
 
+        return "";
+    }
+
+    @PostMapping("/doSelectOne.do")
+    @ResponseBody
+    public String doSelectOne() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doSelectOne()            │");
+        log.info("└──────────────────────────┘");
+
+        return "";
+    }
+
+    @PostMapping("/doUpdate.do")
+    @ResponseBody
+    public String doUpdate() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doUpdate()               │");
+        log.info("└──────────────────────────┘");
+
+        return "";
+    }
 
 }

@@ -8,11 +8,13 @@ import java.util.List;
 @Mapper
 public interface NoticeMapper extends WorkDiv<NoticeVO> {
 
-    int getCount();     // 전체 건수 조회
+    int getCount();                 // 전체 건수 조회
 
-    int deleteAll();    // 전체 삭제
+    List<NoticeVO> getAll();        // 전체 선택
 
-    int saveAll();      // 전체 저장
+    int deleteAll();                // 전체 삭제
+
+    int saveAll();                  // 전체 저장
 
     /**
      * 목록조회 (검색 + 페이징)

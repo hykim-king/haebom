@@ -71,6 +71,23 @@
                TO_CHAR(mod_dt, 'YYYY-MM-DD HH24:MI:SS') AS mod_dt
         FROM NOTICE
     </select>
+    <select id="doRetrieve" resultType="com.pcwk.ehr.notice.NoticeVO">
+        SELECT A.*, B.*
+        FROM (SELECT TT1.notice_id,
+                     TT1.notice_title,
+                     TT1.notice_content,
+                     TO_CHAR(TT1.reg_dt, 'YYYY-MM-DD HH24:MI:SS') AS reg_dt,
+                     TT1.reg_id,
+                     TO_CHAR(TT1.mod_dt, 'YYYY-MM-DD HH24:MI:SS') AS mod_dt,
+                     -- 전체 건수 (페이징 처리)
+                     COUNT(*) OVER() AS total_count,
+                     -- 번호 (최신글 1번)
+                     ROW_NUMBER() OVER (ORDER BY TT1.notice_id DESC) AS rnum
+              FROM NOTICE TT1
+              WHERE 1 = 1) A CROSS JOIN (SELECT 'x' FROM dual) B
+            WHERE rnum BETWEEN (#{pageSize} * #{pageNo} - #{pageSize} + 1) AND (#{pageSize} * #{pageNo})
+             )
+    </select>
 
     <delete id="deleteAll">
         DELETE FROM NOTICE

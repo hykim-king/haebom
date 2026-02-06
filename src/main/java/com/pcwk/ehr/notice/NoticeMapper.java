@@ -1,5 +1,6 @@
 package com.pcwk.ehr.notice;
 
+import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.cmn.WorkDiv;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -8,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface NoticeMapper extends WorkDiv<NoticeVO> {
 
-    int getCount();                 // 전체 건수 조회
+    int getCount(NoticeVO param);                 // 전체 건수 조회
 
     List<NoticeVO> getAll();        // 전체 선택
 
@@ -21,5 +22,5 @@ public interface NoticeMapper extends WorkDiv<NoticeVO> {
      * @param dto (검색조건, 페이지 정보)
      * @return List<NoticeVO>
      */
-    // List<NoticeVO> doRetrieve(DTO dto);
+     List<NoticeVO> doRetrieve(DTO dto);
 }

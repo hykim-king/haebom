@@ -53,4 +53,13 @@ public class NoticeController {
         return "";
     }
 
+    @PostMapping( "/doRetrieve.do")
+    @ResponseBody
+    public String doRetrieve() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doRetrieve()             │");
+        log.info("└──────────────────────────┘");
+
+        return "";
+    }
 }

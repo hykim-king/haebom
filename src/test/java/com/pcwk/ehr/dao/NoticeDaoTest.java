@@ -1,5 +1,6 @@
 package com.pcwk.ehr.dao;
 
+import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.notice.NoticeMapper;
 import com.pcwk.ehr.notice.NoticeVO;
 import org.apache.logging.log4j.LogManager;
@@ -9,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,6 +46,28 @@ class NoticeDaoTest {
         log.info("┌──────────────────────────┐");
         log.info("│─tearDown()               │");
         log.info("└──────────────────────────┘");
+    }
+
+    @Test
+    @DisplayName("검색 확인")
+    void doRetrieve(){
+        log.info("┌──────────────────────────┐");
+        log.info("│─doRetrieve()             │");
+        log.info("└──────────────────────────┘");
+
+        // 초기화
+        int count = this.noticeMapper.getCount(notice01);
+        assertEquals(0,count);
+
+        final int saveDataCount = 20;
+        Map<String, Integer> param = new HashMap<>();
+        param.put("saveDataCount", saveDataCount);
+
+        // 대량 등록
+        count = noticeMapper.saveAll(param);
+        assertEquals(saveDataCount,count);
+
+
     }
 
     @Test

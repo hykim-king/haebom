@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.mapper.CourseMapper">
 
+    
+
+
     <insert id="doSave" parameterType="CourseVO">
-        <selectKey keyProperty="courseId" order="BEFORE" resultType="int">
-            SELECT COURSE_SEQ.NEXTVAL FROM DUAL
-        </selectKey>
         INSERT INTO course (
             course_id, course_name, course_overview, course_img,
             course_distance, course_tasktime, trip_id

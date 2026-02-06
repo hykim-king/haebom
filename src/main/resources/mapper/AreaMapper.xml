@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.area.AreaMapper">
+
+    <resultMap type="AreaVO" id="areaMap">
+        <id column="AREA_ID" property="areaId" />
+        <result column="AREA_SIDO" property="areaSido"/>
+        <result column="AREA_SIDO_NAME" property="areaSidoName"/>
+        <result column="AREA_GUNGU" property="areaGungu"/>
+        <result column="AREA_GUNGU_NAME" property="areaGunguName"/>
+    </resultMap>
+
+    <!-- 지역 데이터 저장 (시도) -->
+    <insert id="doSave" parameterType="AreaVO">
+        INSERT INTO area (
+            area_id, area_sido, area_sido_name, area_gungu, area_gungu_name
+        ) VALUES (
+            SEQ_AREA.NEXTVAL, #{areaSido}, #{areaSidoName}, #{areaGungu}, #{areaGunguName}
+        )
+    </insert>
+
+    <!-- 단건 조회 -->
+    <select id="doSelectOne" parameterType="AreaVO" resultMap="areaMap">
+        SELECT * FROM area 
+        WHERE area_id = #{areaId}
+    </select>
+
+    <!-- 지역 정보 수정 -->
+    <update id="doUpdate" parameterType="AreaVO">
+        UPDATE area
+        SET area_sido_name = #{areaSidoName},
+            area_gungu = #{areaGungu},
+            area_gungu_name = #{areaGunguName}
+        WHERE area_id = #{areaId}
+    </update>
+
+    <!-- 지역 정보 삭제 -->
+    <delete id="doDelete" parameterType="AreaVO">
+        DELETE FROM area WHERE area_id = #{areaId}
+    </delete>
+
+    <!-- 전체 삭제 -->
+    <delete id="deleteAll">
+        DELETE FROM area
+    </delete>
+
+    <!-- 전체 건수 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM area
+    </select>
+
+    <!-- 시도 목록 (중복 제거) -->
+    <select id="getSidoList" resultMap="areaMap">
+        SELECT DISTINCT area_sido, area_sido_name
+        FROM area
+        WHERE area_gungu IS NULL OR area_gungu = 0
+        ORDER BY area_sido
+    </select>
+
+    <!-- 특정 시도의 군구 목록 -->
+    <select id="getGunguListBySido" parameterType="int" resultMap="areaMap">
+        SELECT * FROM area
+        WHERE area_sido = #{areaSido}
+        AND area_gungu IS NOT NULL
+        AND area_gungu != 0
+        ORDER BY area_gungu
+    </select>
+
+    <!-- 목록 조회 (페이징) -->
+    <select id="doRetrieve" parameterType="map" resultMap="areaMap">
+        SELECT * FROM area
+        ORDER BY area_sido, area_gungu
+    </select>
+
+</mapper>

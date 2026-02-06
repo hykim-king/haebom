@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.drug.DrugMapper">
+
+        <resultMap id="DrugResultMap" type="com.pcwk.ehr.drug.DrugVO">
+        <id property="dsId" column="DS_ID" />
+        <result property="dsName" column="DS_NAME" />
+        <result property="dsAdd" column="DS_ADD" />
+        <result property="dsTel" column="DS_TEL" />
+        <result property="dsMapx" column="DS_MAPX" />
+        <result property="dsMapy" column="DS_MAPY" />
+        <result property="dsOpen" column="DS_OPEN" />
+        <result property="dsClose" column="DS_CLOSE" />
+        <result property="dsHoliday" column="DS_HOLIDAY" />
+    </resultMap>
+
+
+        <!--약국 등록-->
+        <insert id="doSave" parameterType="DrugVO">
+                INSERT INTO drug (
+                ds_id,
+                ds_name,
+                ds_add,
+                ds_tel,
+                ds_mapx,
+                ds_mapy,
+                ds_open,
+                ds_close,
+                ds_holiday
+               ) VALUES (
+                #{dsId},
+                #{dsName},
+                #{dsAdd},
+                #{dsTel},
+                #{dsMapx},
+                #{dsMapy},
+                #{dsOpen},
+                #{dsClose},
+                #{dsHoliday}
+                )
+        </insert>
+
+        <!--대량 데이터 등록-->
+        <insert id="saveAll">
+        INSERT INTO drug (
+                ds_id,
+                ds_name,
+                ds_add,
+                ds_tel,
+                ds_mapx,
+                ds_mapy,
+                ds_open,
+                ds_close,
+                ds_holiday
+        )
+        SELECT
+                LEVEL AS ds_id,                              /* ID: 1부터 1002까지 */
+                '테스트 약국 ' || LEVEL AS ds_name,           /* 이름: 테스트 약국 1... */
+                '서울시 강남구 역삼동 ' || LEVEL AS ds_add,    /* 주소: 주소 1... */
+                '02-1234-' || LPAD(LEVEL, 4, '0') AS ds_tel, /* 전화번호: 02-1234-0001... */
+                127.123456 + (LEVEL * 0.0001) AS ds_mapx,
+                37.123456 + (LEVEL * 0.0001) AS ds_mapy,
+                '09:00' AS ds_open,
+                '18:00' AS ds_close,
+                CASE MOD(LEVEL, 7) WHEN 0 THEN 'Y' ELSE 'N' END AS ds_holiday /* 7개마다 하나씩 휴무 */
+        FROM dual
+        CONNECT BY LEVEL <![CDATA[ <= ]]> 1002
+        </insert>
+
+        <!--전체 목록 조회 (페이징)-->
+	<select id="doRetrieve" parameterType="DrugVO" resultMap="DrugResultMap">
+        SELECT * FROM (
+                SELECT 
+                ROWNUM AS rnum, 
+                A.*
+                FROM (  
+                SELECT *
+                FROM drug
+                WHERE 1=1
+                <if test="searchWord != null and searchWord != ''">
+                        AND ds_name LIKE '%' || #{searchWord} || '%'
+                </if>
+                ORDER BY ds_id DESC
+                ) A
+                WHERE ROWNUM <![CDATA[ <= ]]> #{pageSize} * #{pageNum}
+        )
+        WHERE rnum <![CDATA[ > ]]> #{pageSize} * (#{pageNum} - 1)
+        </select>
+
+       
+
+        <!--단건 조회-->
+        <select id="doSelectOne" parameterType="DrugVO" resultMap="DrugResultMap">
+                SELECT
+                        ds_id,
+                        ds_name,
+                        ds_add,
+                        ds_tel,
+                        ds_mapx,
+                        ds_mapy,
+                        ds_open,
+                        ds_close,
+                        ds_holiday
+                FROM drug
+                WHERE ds_id = #{dsId}
+        </select>
+
+        <!-- 건수 조회 -->
+        <select id="getCount" resultType="int">
+                SELECT COUNT(*) FROM drug
+        </select>
+
+         <!-- 약국 삭제 -->
+        <delete id="doDelete" parameterType="DrugVO">
+                DELETE FROM drug
+                WHERE ds_id = #{dsId}
+        </delete>
+
+        <!-- 전체 삭제 -->
+        <delete id="deleteAll">
+                DELETE FROM drug
+        </delete>
+
+        
+
+</mapper>

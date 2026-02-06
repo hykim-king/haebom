@@ -5,6 +5,12 @@ public class DTO {
     private int no; // 글 번호
     private int totalCnt;// 총 글수
 
+    private int pageSize;// 페이지 사이즈
+	private int pageNo;// 페이지 번호
+
+	private String searchDiv;// 검색구분
+	private String searchWord;// 검색어
+
     private String loginUserId;// sessionId
 
     private String htmlContent;
@@ -74,10 +80,47 @@ public class DTO {
         this.totalCnt = totalCnt;
     }
 
+    
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public int getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(int pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public String getSearchDiv() {
+        return searchDiv;
+    }
+
+    public void setSearchDiv(String searchDiv) {
+        this.searchDiv = searchDiv;
+    }
+
+    public String getSearchWord() {
+        return searchWord;
+    }
+
+    public void setSearchWord(String searchWord) {
+        this.searchWord = searchWord;
+    }
+
     @Override
     public String toString() {
-        return "DTO [no=" + no + ", totalCnt=" + totalCnt + ", loginUserId=" + loginUserId + ", htmlContent="
-                + htmlContent + "]";
+        return "DTO [no=" + no + ", totalCnt=" + totalCnt + ", pageSize=" + pageSize + ", pageNo=" + pageNo
+                + ", searchDiv=" + searchDiv + ", searchWord=" + searchWord + ", loginUserId=" + loginUserId
+                + ", htmlContent=" + htmlContent + ", toString()=" + super.toString() + "]";
     }
+
+ 
 
 }

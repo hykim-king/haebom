@@ -1,4 +1,4 @@
-package com.pcwk.ehr.domain;
+package com.pcwk.ehr.course;
 
 import com.pcwk.ehr.cmn.DTO;
 import lombok.AllArgsConstructor;

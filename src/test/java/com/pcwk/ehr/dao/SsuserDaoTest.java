@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.pcwk.ehr.domain.SsuserVO;
-import com.pcwk.ehr.mapper.SsuserMapper;
+import com.pcwk.ehr.user.SsuserVO;
+import com.pcwk.ehr.user.SsuserMapper;
 
 @SpringBootTest
 class SsuserDaoTest {

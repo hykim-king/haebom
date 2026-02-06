@@ -1,8 +1,8 @@
-package com.pcwk.ehr.mapper;
+package com.pcwk.ehr.user;
 
 import org.apache.ibatis.annotations.Mapper;
 import com.pcwk.ehr.cmn.WorkDiv;
-import com.pcwk.ehr.domain.SsuserVO;
+import com.pcwk.ehr.user.SsuserVO;
 
 @Mapper
 public interface SsuserMapper extends WorkDiv<SsuserVO> {

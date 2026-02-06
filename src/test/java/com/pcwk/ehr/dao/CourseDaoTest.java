@@ -9,8 +9,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import com.pcwk.ehr.domain.CourseVO;
-import com.pcwk.ehr.mapper.CourseMapper;
+
+import com.pcwk.ehr.course.CourseMapper;
+import com.pcwk.ehr.course.CourseVO;
 
 @SpringBootTest
 class CourseDaoTest {

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SsuserVO extends DTO {
+public class UserVO extends DTO {
     
     private int    userId;     // 사용자 고유번호 (PK)
     private String email;      // 이메일

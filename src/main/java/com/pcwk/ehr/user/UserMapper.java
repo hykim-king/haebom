@@ -2,10 +2,10 @@ package com.pcwk.ehr.user;
 
 import org.apache.ibatis.annotations.Mapper;
 import com.pcwk.ehr.cmn.WorkDiv;
-import com.pcwk.ehr.user.SsuserVO;
+import com.pcwk.ehr.user.UserVO;
 
 @Mapper
-public interface SsuserMapper extends WorkDiv<SsuserVO> {
+public interface UserMapper extends WorkDiv<UserVO> {
     
     /** 전체 삭제 (테스트 초기화용) */
     int deleteAll();

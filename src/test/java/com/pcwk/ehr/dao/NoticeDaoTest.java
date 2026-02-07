@@ -35,8 +35,7 @@ class NoticeDaoTest {
 
         int seq = 0;
         LocalDateTime localDateTime = null;
-        notice01 = new NoticeVO(seq,"제목01","내용10",localDateTime,5,localDateTime);
-
+        notice01 = new NoticeVO(seq,"제목01","내용10", null,5, null);
         noticeMapper.deleteAll();
 
     }
@@ -55,20 +54,36 @@ class NoticeDaoTest {
         log.info("│─doRetrieve()             │");
         log.info("└──────────────────────────┘");
 
-        // 초기화
-        int count = this.noticeMapper.getCount(notice01);
-        assertEquals(0,count);
+        // 1. 기존 데이터 삭제
+        noticeMapper.deleteAll();
 
-        final int saveDataCount = 20;
+        // 2. 테스트 데이터 10건 생성 (saveAll 호출)
         Map<String, Integer> param = new HashMap<>();
-        param.put("saveDataCount", saveDataCount);
+        param.put("regId", 5);
+        param.put("saveNoticeDataCount", 30);
 
-        // 대량 등록
-        count = noticeMapper.saveAll(param);
-        assertEquals(saveDataCount,count);
+        int flag = noticeMapper.saveAll(param);
+        assertEquals(30, flag);
 
+        // 페이징 조회
+        NoticeVO searchVO = new NoticeVO();
+        searchVO.setPageNo(2);
+        searchVO.setPageSize(10);
+        searchVO.setSearchDiv("10");
+        searchVO.setSearchWord("공지사항 제목");
 
-    }
+        // 실행
+        List<NoticeVO> list = noticeMapper.doRetrieve(searchVO);
+        
+        // 결과 확인
+        for(NoticeVO vo : list){
+            log.info(vo);
+        }
+
+        assertEquals(10, list.size());
+        
+        log.info("전체 건수 : {}", list.get(0).toString());
+     }
 
     @Test
     @DisplayName("수정 확인")

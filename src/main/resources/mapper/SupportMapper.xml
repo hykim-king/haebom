@@ -2,6 +2,66 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.support.SupportMapper">
 
+    <resultMap id="supportResultMap" type="com.pcwk.ehr.support.SupportVO">
+        <id property="supId" column="sup_id" />
+        <result property="supContent" column="sup_content" />
+        <result property="supAnswer" column="sup_answer" />
+        <result property="supAnswerReg" column="sup_answer_reg" />
+        <result property="regDt" column="reg_dt" />
+        <result property="regId" column="reg_id" />
+    </resultMap>
+
+    <insert id="doSave"  parameterType="com.pcwk.ehr.support.SupportVO">
+        INSERT INTO SUPPORT
+        (sup_id, sup_content, sup_answer, sup_answer_reg, reg_dt, reg_id)
+        VALUES
+        (#{supId}, #{supContent}, #{supAnswer}, SYSDATE, SYSDATE, #{regId})
+    </insert>
+
+    <delete id="doDelete">
+        DELETE FROM SUPPORT
+        WHERE sup_id = #{supId}
+    </delete>
+
+    <select id="doSelectOne" parameterType="com.pcwk.ehr.support.SupportVO" resultMap="supportResultMap">
+        SELECT
+            sup_id,
+            sup_content,
+            sup_answer,
+            sup_answer_reg,
+            reg_dt,
+            reg_id
+        FROM SUPPORT
+        WHERE sup_id = #{supId}
+    </select>
+
+    <update id="doUpdate" parameterType="com.pcwk.ehr.support.SupportVO">
+        UPDATE SUPPORT
+        SET
+            sup_content = #{supContent},
+            sup_answer = #{supAnswer},
+            sup_answer_reg = SYSDATE,
+            reg_dt = SYSDATE,
+        WHERE sup_id = #{supId}
+    </update>
+
+    <select id="doRetrieve" parameterType="com.pcwk.ehr.support.SupportVO">
+        SELECT A.*, B.*
+        FROM (SELECT TT1.sup_id,
+                     TT1.sup_content,
+                     TT1.sup_answer,
+                     TO_CHAR(TT1.reg_dt, 'YYYY-MM-DD HH24:MI:SS') AS reg_dt,
+                     TT1.reg_id,
+                     TO_CHAR(TT1.mod_dt, 'YYYY-MM-DD HH24:MI:SS') AS mod_dt,
+                     -- 전체 건수 (페이징 처리)
+                     COUNT(*) OVER() AS total_count,
+                     -- 번호 (최신글 1번)
+                  ROW_NUMBER() OVER (ORDER BY TT1.notice_id DESC) AS rnum
+              FROM NOTICE TT1
+              WHERE 1 = 1) A CROSS JOIN (SELECT 'x' FROM dual) B
+        WHERE rnum BETWEEN (#{pageSize} * #{pageNo} - #{pageSize} + 1) AND (#{pageSize} * #{pageNo})
+    </select>
+
     <select id="getCount" resultType="int" parameterType="com.pcwk.ehr.support.SupportVO">
         SELECT COUNT(*) FROM SUPPORT
         WHERE 1=1
@@ -13,7 +73,7 @@
 
     <insert id="saveAll" parameterType="java.util.Map">
         INSERT INTO SUPPORT
-        SELECT SUPPORT_SEQ.NEXTVAL AS sup_id,
+        SELECT LEVEL AS sup_id,
                N'문의사항 내용' || LEVEL AS sup_content,
                N'문의사항 답변 내용' || LEVEL AS sup_answer,
                (SYSDATE - LEVEL) AS sup_answer_reg,

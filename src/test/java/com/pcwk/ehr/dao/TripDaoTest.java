@@ -108,7 +108,6 @@ void setUp() throws Exception {
     searchMap.put("searchWord", "정서진"); // 검색어
     searchMap.put("tripType", "12");  // 종류
 
-    searchVO.setTripType(12);
     List<TripVO> list = tripMapper.doRetrieve(searchMap);
 	log.info("조회 결과 : "+list);
      }

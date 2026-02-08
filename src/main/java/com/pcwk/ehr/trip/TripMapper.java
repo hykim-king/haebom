@@ -4,6 +4,6 @@ import com.pcwk.ehr.cmn.WorkDiv;
 
 public interface TripMapper extends WorkDiv<TripVO> {
 	
-	int deleteAll();
+
 
 }

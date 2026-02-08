@@ -3,42 +3,8 @@
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.trip.TripMapper">
 
-	<insert id="doSave" parameterType="com.pcwk.ehr.trip.TripVO">
-
-	INSERT INTO trip (
-		trip_id,
-		trip_name,
-		trip_img,
-		trip_add,
-		trip_mapx,
-		trip_mapy,
-		trip_tag,
-		trip_type,
-		trip_sido,
-		trip_gungu,
-		trip_viewcnt
-		) VALUES (
-		#{trip_id},
-		#{trip_name},
-		#{trip_img},
-		#{trip_add},
-		#{trip_mapx},
-		#{trip_mapy},
-		#{trip_tag},
-		#{trip_type},
-		#{trip_sido},
-		#{trip_gungu},
-		#{trip_viewcnt}
-		)
-	</insert>
-	
-	<delete id="deleteAll">
-	DELETE FROM trip;
-	</delete>
-	
-	<select id="doSelectOne" parameterType="com.pcwk.ehr.trip.TripVO" 
-	resultType="com.pcwk.ehr.trip.TripVO">
-    SELECT
+<insert id="doSave" parameterType="com.pcwk.ehr.trip.TripVO" >
+    INSERT INTO trip (
         trip_id,
         trip_name,
         trip_img,
@@ -49,9 +15,100 @@
         trip_type,
         trip_sido,
         trip_gungu,
-        trip_viewcnt
+        trip_viewcnt,
+        trip_content
+    ) VALUES (
+        #{tripId},
+        #{tripName},
+        #{tripImg},
+        #{tripAdd},
+        #{tripMapx},
+        #{tripMapy},
+        #{tripTag},
+        #{tripType},
+        #{tripSido},
+        #{tripGungu},
+        #{tripViewcnt},
+        #{tripContent}
+    )
+</insert>
+	
+	<delete id="doDelete">
+	DELETE FROM trip where trip_id =#{tripId}
+	</delete>
+	
+	<select id="doSelectOne" parameterType="com.pcwk.ehr.trip.TripVO" 
+	resultType="com.pcwk.ehr.trip.TripVO">
+    SELECT
+		trip_id,
+		trip_name,
+		trip_img,
+		trip_add,
+		trip_mapx,
+		trip_mapy,
+		trip_tag,
+		trip_type,
+		trip_sido,
+		trip_gungu,
+		trip_viewcnt,
+		trip_content
     FROM trip
-    WHERE trip_id = #{trip_id}
+    WHERE trip_id = #{tripId}
+</select>
+
+<sql id="tripWhere">
+    <if test="'12' == searchDiv or '14' == searchDiv">
+        AND trip_type = #{searchDiv}
+    </if>
+
+    <if test="null != searchWord and '' != searchWord">
+        <choose>
+            <when test="'10' == searchDiv">
+                AND trip_name LIKE '%' || #{searchWord} || '%'
+            </when>
+            <when test="'20' == searchDiv">
+                AND trip_add LIKE '%' || #{searchWord} || '%'
+            </when>
+        </choose>
+    </if>
+</sql>
+
+<select id="doRetrieve" parameterType="com.pcwk.ehr.trip.TripDTO" 
+        resultType="com.pcwk.ehr.trip.TripVO">
+    SELECT A.*, B.* FROM (
+        SELECT tt1.rnum,
+               tt1.trip_id,
+               tt1.trip_name,
+               tt1.trip_img,
+               tt1.trip_add,
+               tt1.trip_mapx,
+               tt1.trip_mapy,
+               tt1.trip_tag,
+               tt1.trip_type,
+               tt1.trip_sido,
+               tt1.trip_gungu,
+               tt1.trip_viewcnt,
+               tt1.trip_content
+        FROM (
+            SELECT ROWNUM AS rnum, t1.*
+            FROM (
+                SELECT *
+                  FROM trip
+                 WHERE 1=1
+                 <include refid="tripWhere"></include>
+                 ORDER BY trip_id DESC
+            ) T1 
+            WHERE ROWNUM <![CDATA[ <= ]]> (#{pageSize} * (#{pageNo} - 1) + #{pageSize}) 
+        ) TT1
+        WHERE TT1.RNUM <![CDATA[ >= ]]> (#{pageSize} * (#{pageNo} - 1) + 1)      
+    ) A
+    CROSS JOIN
+    (
+        SELECT COUNT(*) totalCnt 
+          FROM trip    
+         WHERE 1=1
+         <include refid="tripWhere"></include>          
+    ) B
 </select>
 	
 

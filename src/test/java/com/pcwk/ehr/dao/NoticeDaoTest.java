@@ -150,16 +150,16 @@ class NoticeDaoTest {
         log.info("│ doDelete()               │");
         log.info("└──────────────────────────┘");
 
-        // 초기화 확인
-        int count = this.noticeMapper.getCount();
-        assertEquals(0,count);
-        log.info("초기화 확인 - 전체 건수: {}", count);
+        noticeMapper.deleteAll();
+        noticeMapper.doSave(notice01);
 
-        // 단건 등록
-        int flag = noticeMapper.doSave(notice01);
+        List<NoticeVO> list = noticeMapper.getAll();
+        NoticeVO outVO = list.get(0);
+
+        int flag = noticeMapper.doDelete(outVO);
         assertEquals(1, flag);
 
-        log.info("단건 등록 - 결과: {}", flag);
+        assertEquals(0, noticeMapper.getCount());
 
     }
 

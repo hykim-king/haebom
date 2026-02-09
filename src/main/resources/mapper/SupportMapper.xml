@@ -15,10 +15,10 @@
         INSERT INTO SUPPORT
         (sup_id, sup_content, sup_answer, sup_answer_reg, reg_dt, reg_id)
         VALUES
-        (#{supId}, #{supContent}, #{supAnswer}, SYSDATE, SYSDATE, #{regId})
+        (SUP_ID_SEQ.NEXTVAL, #{supContent}, #{supAnswer}, SYSDATE, SYSDATE, #{regId})
     </insert>
 
-    <delete id="doDelete">
+    <delete id="doDelete" parameterType="com.pcwk.ehr.support.SupportVO">
         DELETE FROM SUPPORT
         WHERE sup_id = #{supId}
     </delete>
@@ -41,23 +41,23 @@
             sup_content = #{supContent},
             sup_answer = #{supAnswer},
             sup_answer_reg = SYSDATE,
-            reg_dt = SYSDATE,
+            reg_dt = SYSDATE
         WHERE sup_id = #{supId}
     </update>
 
-    <select id="doRetrieve" parameterType="com.pcwk.ehr.support.SupportVO">
+    <select id="doRetrieve" resultType="com.pcwk.ehr.support.SupportVO">
         SELECT A.*, B.*
         FROM (SELECT TT1.sup_id,
                      TT1.sup_content,
                      TT1.sup_answer,
                      TO_CHAR(TT1.reg_dt, 'YYYY-MM-DD HH24:MI:SS') AS reg_dt,
+                     TO_CHAR(TT1.sup_answer_reg, 'YYYY-MM-DD HH24:MI:SS') AS sup_answer_reg,
                      TT1.reg_id,
-                     TO_CHAR(TT1.mod_dt, 'YYYY-MM-DD HH24:MI:SS') AS mod_dt,
                      -- 전체 건수 (페이징 처리)
                      COUNT(*) OVER() AS total_count,
                      -- 번호 (최신글 1번)
-                  ROW_NUMBER() OVER (ORDER BY TT1.notice_id DESC) AS rnum
-              FROM NOTICE TT1
+                  ROW_NUMBER() OVER (ORDER BY TT1.sup_id DESC) AS rnum
+              FROM SUPPORT TT1
               WHERE 1 = 1) A CROSS JOIN (SELECT 'x' FROM dual) B
         WHERE rnum BETWEEN (#{pageSize} * #{pageNo} - #{pageSize} + 1) AND (#{pageSize} * #{pageNo})
     </select>
@@ -65,6 +65,15 @@
     <select id="getCount" resultType="int" parameterType="com.pcwk.ehr.support.SupportVO">
         SELECT COUNT(*) FROM SUPPORT
         WHERE 1=1
+    </select>
+    <select id="getAll" resultType="com.pcwk.ehr.support.SupportVO">
+        SELECT sup_id,
+               sup_content,
+               sup_answer,
+               TO_CHAR(sup_answer_reg, 'YYYY-MM-DD HH24:MI:SS') AS sup_answer_reg,
+               TO_CHAR(reg_dt, 'YYYY-MM-DD HH24:MI:SS') AS reg_dt,
+            reg_id
+        FROM SUPPORT
     </select>
 
     <delete id="deleteAll">

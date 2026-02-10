@@ -1,7 +1,5 @@
 package com.pcwk.ehr.trip;
 
-import com.pcwk.ehr.cmn.DTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.pcwk.ehr.trip.TripDTO;
 import com.pcwk.ehr.trip.TripMapper;
@@ -97,7 +96,7 @@ void setUp() throws Exception {
      tripMapper.doSave(tripVO01);
      tripMapper.doSave(tripVO02);
      tripMapper.doSave(tripVO03);
-		TripVO searchVO = new TripVO();
+		
 
    Map<String, String> searchMap = new HashMap<>();
     

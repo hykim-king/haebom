@@ -3,106 +3,121 @@
 <mapper namespace="com.pcwk.ehr.notice.NoticeMapper">
 
     <resultMap id="noticeResultMap" type="com.pcwk.ehr.notice.NoticeVO">
-        <id property="noticeId" column="notice_id" />
-        <result property="noticeTitle" column="notice_title" />
-        <result property="noticeContent" column="notice_content" />
-        <result property="regDt" column="reg_dt" />
-        <result property="modDt" column="mod_dt" />
-        <result property="regId" column="reg_id" />
+        <id property="ntcNo" column="ntc_no"/>
+        <result property="ntcTtl" column="ntc_ttl"/>
+        <result property="ntcCn" column="ntc_cn"/>
+        <result property="ntcReg" column="ntc_reg"/>
+        <result property="ntcMod" column="ntc_mod"/>
+        <result property="regNo" column="reg_no"/>
+        <result property="modNo" column="mod_no"/>
     </resultMap>
 
     <insert id="doSave" parameterType="com.pcwk.ehr.notice.NoticeVO">
-        <selectKey keyProperty="noticeId" resultType="int" order="BEFORE">
-            SELECT NOTICE_SEQ.NEXTVAL FROM DUAL
+        <selectKey keyProperty="ntcNo" resultType="int" order="BEFORE">
+            SELECT NOTICE_SEQ.NEXTVAL AS ntcNo FROM DUAL
         </selectKey>
-        insert into notice(
-            notice_id,
-            notice_title,
-            notice_content,
-            reg_dt,
-            reg_id,
-            mod_dt
-        ) values (
-                #{noticeId},
-                #{noticeTitle},
-                #{noticeContent},
-                SYSDATE,
-                #{regId},
-                SYSDATE
+        INSERT INTO notice (
+        ntc_no,
+        ntc_ttl,
+        ntc_cn,
+        ntc_reg,
+        ntc_mod,
+        reg_no,
+        mod_no
+        ) VALUES (
+        #{ntcNo},
+        #{ntcTtl},
+        #{ntcCn},
+        SYSDATE,
+        SYSDATE,
+        #{regNo},
+        #{modNo}
         )
     </insert>
 
-    <delete id="doDelete">
-        DELETE FROM NOTICE
-        WHERE notice_id = #{noticeId}
-    </delete>
-
     <select id="doSelectOne" parameterType="com.pcwk.ehr.notice.NoticeVO" resultMap="noticeResultMap">
-        SELECT
-               notice_id,
-               notice_title,
-               notice_content,
-               reg_dt,
-               reg_id,
-               mod_dt
+        SELECT ntc_no  AS ntc_no,
+               ntc_ttl AS ntc_ttl,
+               ntc_cn  AS ntc_cn,
+               ntc_reg AS ntc_reg,
+               ntc_mod AS ntc_mod,
+               reg_no  AS reg_no,
+               mod_no  AS mod_no
         FROM NOTICE
-        WHERE notice_id = #{noticeId}
+        WHERE ntc_no = #{ntcNo}
     </select>
 
-    <update id="doUpdate" parameterType="com.pcwk.ehr.notice.NoticeVO" >
+    <select id="doRetrieve" parameterType="com.pcwk.ehr.notice.NoticeVO" resultMap="noticeResultMap">
+        SELECT *
+        FROM (SELECT TT1.ntc_no                                    AS ntc_no,
+                     TT1.ntc_ttl                                   AS ntc_ttl,
+                     TT1.ntc_cn                                    AS ntc_cn,
+                     TO_CHAR(TT1.ntc_reg, 'YYYY-MM-DD HH24:MI:SS') AS ntc_reg,
+                     TT1.reg_no                                    AS reg_no,
+                     TO_CHAR(TT1.ntc_mod, 'YYYY-MM-DD HH24:MI:SS') AS ntc_mod,
+                     TT1.mod_no                                    AS mod_no,
+                     ROW_NUMBER()                                     OVER (ORDER BY TT1.ntc_no DESC) AS rnum, COUNT(*) OVER() AS total_count
+              FROM NOTICE TT1
+              WHERE 1 = 1) A
+        WHERE A.rnum BETWEEN (#{pageSize} * (#{pageNo} - 1) + 1) AND (#{pageSize} * #{pageNo})
+    </select>
+
+    <update id="doUpdate" parameterType="com.pcwk.ehr.notice.NoticeVO">
         UPDATE NOTICE
-        SET notice_title = #{noticeTitle},
-            notice_content = #{noticeContent},
-            reg_dt = SYSDATE,
-            mod_dt = SYSDATE
-        WHERE notice_id = #{noticeId}
+        SET ntc_ttl = #{ntcTtl},
+            ntc_cn  = #{ntcCn},
+            ntc_mod = SYSDATE,
+            mod_no  = #{modNo}
+        WHERE ntc_no = #{ntcNo}
     </update>
 
-    <select id="doRetrieve" resultType="com.pcwk.ehr.notice.NoticeVO">
-        SELECT A.*, B.*
-        FROM (SELECT TT1.notice_id,
-                     TT1.notice_title,
-                     TT1.notice_content,
-                     TO_CHAR(TT1.reg_dt, 'YYYY-MM-DD HH24:MI:SS') AS reg_dt,
-                     TT1.reg_id,
-                     TO_CHAR(TT1.mod_dt, 'YYYY-MM-DD HH24:MI:SS') AS mod_dt,
-                     -- 전체 건수 (페이징 처리)
-                     COUNT(*) OVER() AS total_count,
-                     -- 번호 (최신글 1번)
-                  ROW_NUMBER() OVER (ORDER BY TT1.notice_id DESC) AS rnum
-              FROM NOTICE TT1
-              WHERE 1 = 1) A CROSS JOIN (SELECT 'x' FROM dual) B
-        WHERE rnum BETWEEN (#{pageSize} * #{pageNo} - #{pageSize} + 1) AND (#{pageSize} * #{pageNo})
-    </select>
+    <delete id="doDelete" parameterType="com.pcwk.ehr.notice.NoticeVO">
+        DELETE
+        FROM NOTICE
+        WHERE ntc_no = #{ntcNo}
+    </delete>
 
-    <select id="getCount" resultType="int" parameterType="com.pcwk.ehr.notice.NoticeVO">
-        SELECT COUNT(*) FROM NOTICE
-        WHERE 1=1
-    </select>
+    <delete id="deleteAll">
+        DELETE
+        FROM NOTICE
+    </delete>
 
-    <select id="getAll" resultType="com.pcwk.ehr.notice.NoticeVO">
-        SELECT notice_id,
-               notice_title,
-               notice_content,
-               TO_CHAR(reg_dt, 'YYYY-MM-DD HH24:MI:SS') AS reg_dt,
-               reg_id,
-               TO_CHAR(mod_dt, 'YYYY-MM-DD HH24:MI:SS') AS mod_dt
+    <select id="getAll" resultMap="noticeResultMap">
+        SELECT ntc_no                                    AS ntc_no,
+               ntc_ttl                                   AS ntc_ttl,
+               ntc_cn                                    AS ntc_cn,
+               TO_CHAR(ntc_reg, 'YYYY-MM-DD HH24:MI:SS') AS ntc_reg,
+               TO_CHAR(ntc_mod, 'YYYY-MM-DD HH24:MI:SS') AS ntc_mod,
+               reg_no                                    AS reg_no,
+               mod_no                                    AS mod_no
+        FROM NOTICE
+        ORDER BY ntc_no DESC
+    </select>
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
         FROM NOTICE
     </select>
 
-    <delete id="deleteAll">
-        DELETE FROM NOTICE
-    </delete>
-
     <insert id="saveAll" parameterType="java.util.Map">
-        INSERT INTO NOTICE
-        SELECT NOTICE_SEQ.NEXTVAL AS notice_id,
-               N'공지사항 제목' || LEVEL AS notice_title,
-               N'공지사항 내용' || LEVEL AS notice_content,
-               (SYSDATE - LEVEL) AS reg_dt,
-               #{regId},
-               (SYSDATE - LEVEL) AS mod_dt
+        INSERT INTO NOTICE (ntc_no,
+                            ntc_ttl,
+                            ntc_cn,
+                            ntc_reg,
+                            ntc_mod, -- 순서 주의: 날짜 컬럼들 먼저
+                            reg_no,
+                            mod_no -- 숫자 컬럼들 나중에
+        )
+        SELECT NOTICE_SEQ.NEXTVAL AS ntc_no,
+               '공지사항 제목' || LEVEL AS ntc_ttl,
+               '공지사항 내용' || LEVEL AS ntc_cn,
+               (SYSDATE - LEVEL)  AS ntc_reg,
+               (SYSDATE - LEVEL)  AS ntc_mod,
+               #{regNo}           AS reg_no, -- 파라미터 맵의 키값 확인 (regNo)
+               #{modNo}           AS mod_no  -- 파라미터 맵의 키값 확인 (modNo)
         FROM dual
-        <![CDATA[CONNECT BY LEVEL <= #{saveNoticeDataCount}]]>
+    <![CDATA[
+            CONNECT BY LEVEL <= #{saveNoticeDataCount}
+        ]]>
     </insert>
+
 </mapper>

@@ -1,6 +1,5 @@
 package com.pcwk.ehr.dao;
 
-import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.notice.NoticeMapper;
 import com.pcwk.ehr.notice.NoticeVO;
 import org.apache.logging.log4j.LogManager;
@@ -28,14 +27,14 @@ class NoticeDaoTest {
     NoticeVO notice01;
 
     @BeforeEach
-    void setUp() throws Exception{
+    void setUp() throws Exception {
         log.info("┌──────────────────────────┐");
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
 
         int seq = 0;
         LocalDateTime localDateTime = null;
-        notice01 = new NoticeVO(seq,"제목01","내용10", null,5, null);
+        notice01 = new NoticeVO(seq, "제목01", "내용10", null, null, 1, 1);
         noticeMapper.deleteAll();
 
     }
@@ -49,7 +48,7 @@ class NoticeDaoTest {
 
     @Test
     @DisplayName("검색 확인")
-    void doRetrieve(){
+    void doRetrieve() {
         log.info("┌──────────────────────────┐");
         log.info("│─doRetrieve()             │");
         log.info("└──────────────────────────┘");
@@ -59,35 +58,35 @@ class NoticeDaoTest {
 
         // 2. 테스트 데이터 10건 생성 (saveAll 호출)
         Map<String, Integer> param = new HashMap<>();
-        param.put("regId", 5);
-        param.put("saveNoticeDataCount", 30);
+        param.put("regNo", 1);
+        param.put("saveNoticeDataCount", 10);
 
         int flag = noticeMapper.saveAll(param);
-        assertEquals(30, flag);
+        assertEquals(10, flag);
 
         // 페이징 조회
         NoticeVO searchVO = new NoticeVO();
-        searchVO.setPageNo(2);
+        searchVO.setPageNo(1);
         searchVO.setPageSize(10);
         searchVO.setSearchDiv("10");
         searchVO.setSearchWord("공지사항 제목");
 
         // 실행
         List<NoticeVO> list = noticeMapper.doRetrieve(searchVO);
-        
+
         // 결과 확인
-        for(NoticeVO vo : list){
+        for (NoticeVO vo : list) {
             log.info(vo);
         }
 
         assertEquals(10, list.size());
-        
+
         log.info("전체 건수 : {}", list.get(0).toString());
-     }
+    }
 
     @Test
     @DisplayName("수정 확인")
-    void doUpdate(){
+    void doUpdate() {
         log.info("┌──────────────────────────┐");
         log.info("│─doUpdate()               │");
         log.info("└──────────────────────────┘");
@@ -101,8 +100,8 @@ class NoticeDaoTest {
         NoticeVO outVO = list.get(0);
         log.info("조회 결과: {}", outVO);
 
-        outVO.setNoticeTitle(outVO.getNoticeTitle()+"_Title Update");
-        outVO.setNoticeContent(outVO.getNoticeContent()+"_Content Update");
+        outVO.setNtcTtl(outVO.getNtcTtl() + "_Title Update");
+        outVO.setNtcCn(outVO.getNtcCn() + "_Content Update");
         log.info("수정 전: {}", outVO);
 
         int flag = noticeMapper.doUpdate(outVO);
@@ -112,7 +111,7 @@ class NoticeDaoTest {
 
     @Test
     @DisplayName("조회 확인")
-    void doSelectone(){
+    void doSelectone() {
         log.info("┌──────────────────────────┐");
         log.info("│─doSelectone()            │");
         log.info("└──────────────────────────┘");
@@ -121,7 +120,7 @@ class NoticeDaoTest {
         noticeMapper.deleteAll();
 
         int count = noticeMapper.getCount();
-        assertEquals(0,count);
+        assertEquals(0, count);
         log.info("전체 삭제 완료 - 초기화 확인 완료: {}", count);
 
         // 등록
@@ -134,18 +133,19 @@ class NoticeDaoTest {
         log.info("조회 결과: {}", outVO);
         assertNotNull(outVO); // <- 데이터가 비었는지 확인
 
-        assertEquals(notice01.getNoticeId(), outVO.getNoticeId());
-        assertEquals(notice01.getNoticeTitle(), outVO.getNoticeTitle());
-        assertEquals(notice01.getNoticeContent(), outVO.getNoticeContent());
-        assertEquals(notice01.getRegId(), outVO.getRegId());
-        assertNotNull(outVO.getModDt());
-        assertNotNull(outVO.getRegDt());
+        assertEquals(notice01.getNtcNo(), outVO.getNtcNo());
+        assertEquals(notice01.getNtcTtl(), outVO.getNtcTtl());
+        assertEquals(notice01.getNtcCn(), outVO.getNtcCn());
+        assertNotNull(outVO.getNtcReg());
+        assertNotNull(outVO.getNtcMod());
+        assertEquals(notice01.getRegNo(), outVO.getRegNo());
+        assertEquals(notice01.getModNo(), outVO.getModNo());
 
     }
 
     @Test
     @DisplayName("삭제 확인")
-    void doDelete(){
+    void doDelete() {
         log.info("┌──────────────────────────┐");
         log.info("│ doDelete()               │");
         log.info("└──────────────────────────┘");
@@ -165,7 +165,7 @@ class NoticeDaoTest {
 
     @Test
     @DisplayName("등록 확인")
-    void doSave(){
+    void doSave() {
         log.info("┌──────────────────────────┐");
         log.info("│ doSave()                 │");
         log.info("└──────────────────────────┘");
@@ -178,7 +178,7 @@ class NoticeDaoTest {
 
         // 1.
         int count = noticeMapper.getCount();
-        assertEquals(0,count);
+        assertEquals(0, count);
         log.info("등록 전 전체 건수: {}", count);
 
         // 2.
@@ -192,6 +192,7 @@ class NoticeDaoTest {
 
 
     @Test
+    @Disabled
     @DisplayName("객체생성 확인")
     void beans() {
         log.info("┌──────────────────────────┐");

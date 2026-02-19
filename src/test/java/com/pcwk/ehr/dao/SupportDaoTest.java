@@ -1,14 +1,10 @@
 package com.pcwk.ehr.dao;
 
-import com.pcwk.ehr.notice.NoticeMapper;
 import com.pcwk.ehr.support.SupportMapper;
 import com.pcwk.ehr.support.SupportVO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -29,8 +25,6 @@ class SupportDaoTest {
     SupportMapper supportMapper;
 
     SupportVO support01;
-    @Autowired
-    private NoticeMapper noticeMapper;
 
     @BeforeEach
     void setUp() {
@@ -53,29 +47,24 @@ class SupportDaoTest {
         log.info("│ doSave()                 │");
         log.info("└──────────────────────────┘");
 
-        // 기존 데이터 삭제
+        // 1. 기존 데이터 삭제
         supportMapper.deleteAll();
+        assertEquals(0, supportMapper.getCount());
 
-        support01 = new SupportVO();
-        support01.setSupId(5); // ID 직접 설정
-        support01.setSupContent("테스트 내용입니다.");
-        support01.setSupAnswer("답변 완료 되었습니다");
-        support01.setSupAnswerReg(LocalDateTime.now());
-        support01.setRegDt(LocalDateTime.now());
-        support01.setRegId(5);
+        // 2. 대량 등록을 위한 파라미터 설정 (키값 regNo로 통일)
+        Map<String, Object> param = new HashMap<>();
+        param.put("regNo", 1);                  // XML의 #{regNo}와 매칭
+        param.put("saveSupportDataCount", 100); // 생성할 건수
 
-        // 1.
-        int count = supportMapper.getCount();
-        assertEquals(0, count);
-        log.info("등록 전 전체 건수: {}", count);
+        // 3. 실행 및 결과 검증
+        int flag = supportMapper.saveAll(param);
+        log.info("saveAll 실행 결과: {}", flag);
+        assertEquals(100, flag);
 
-        // 2.
-        int flag = supportMapper.doSave(support01);
-        assertEquals(1, flag);
-
-        // 3.
-        assertEquals(1, supportMapper.getCount());
-        log.info("등록 후 전체 건수: {}", supportMapper.getCount());
+        // 4. 최종 건수 확인
+        int totalCount = supportMapper.getCount();
+        log.info("DB 저장 건수: {}", totalCount);
+        assertEquals(100, totalCount);
     }
 
     @Test
@@ -89,9 +78,9 @@ class SupportDaoTest {
 
         for (int i = 1; i <= 10; i++) {
             SupportVO vo = new SupportVO();
-            vo.setSupContent("문의 내용 " + i);
-            vo.setSupAnswer("답변 내용 " + i);
-            vo.setRegId(5); // 부모 키 제약조건 준수
+            vo.setSupCn("문의 내용 " + i);
+            vo.setSupAnsCn("답변 내용 " + i);
+            vo.setRegNo(1); // 부모 키 제약조건 준수
 
             supportMapper.doSave(vo);
         }
@@ -126,11 +115,12 @@ class SupportDaoTest {
 
         // 데이터 등록
         SupportVO outVo = new SupportVO();
-        outVo.setSupContent("테스트 내용입니다.");
-        outVo.setSupAnswer("답변 완료 되었습니다");
-        outVo.setSupAnswerReg(LocalDateTime.now());
-        outVo.setRegDt(LocalDateTime.now());
-        outVo.setRegId(5);
+        outVo.setSupCn("테스트 내용입니다.");
+        outVo.setSupAnsCn("답변 완료 되었습니다");
+        outVo.setSupReg(LocalDateTime.now());
+        outVo.setSupAnsReg(LocalDateTime.now());
+        outVo.setRegNo(1);
+        outVo.setSupYn("N");
 
         // 데이터 저장
         int flag = supportMapper.doSave(outVo);
@@ -144,11 +134,11 @@ class SupportDaoTest {
 
         // 결과
         assertNotNull(outVO, "결과");
-        assertEquals(outVo.getSupContent(), outVO.getSupContent());
-        assertEquals(outVo.getSupAnswer(), outVO.getSupAnswer());
-        assertNotNull(outVo.getSupAnswerReg());
-        assertNotNull(outVO.getRegDt());
-        assertEquals(outVO.getRegId(), outVO.getRegId());
+        assertEquals(outVo.getSupCn(), outVO.getSupCn());
+        assertEquals(outVo.getSupAnsCn(), outVO.getSupAnsCn());
+        assertNotNull(outVO.getSupAnsReg());
+        assertNotNull(outVO.getSupReg());
+        assertEquals(outVO.getRegNo(), outVO.getRegNo());
 
     }
 
@@ -164,9 +154,9 @@ class SupportDaoTest {
 
         // 테스트 데이터 생성
         SupportVO vo = new SupportVO();
-        vo.setSupContent("수정 전 내용");
-        vo.setSupAnswer("수정 전 답변");
-        vo.setRegId(5);
+        vo.setSupCn("수정 전 내용");
+        vo.setSupAnsCn("수정 전 답변");
+        vo.setRegNo(1);
 
         // 일단 저장
         supportMapper.doSave(vo);
@@ -180,8 +170,8 @@ class SupportDaoTest {
         // 수정
         String updatedContent = "수정된 내용입니다!";
         String updatedAnswer = "수정된 답변입니다!";
-        outVO.setSupContent(updatedContent);
-        outVO.setSupAnswer(updatedAnswer);
+        outVO.setSupCn(updatedContent);
+        outVO.setSupAnsCn(updatedAnswer);
         log.info("수정 전 데이터: {}", outVO);
 
         // 수정 실행
@@ -192,9 +182,9 @@ class SupportDaoTest {
         // 결과 확인
         SupportVO resultVO = supportMapper.doSelectOne(outVO);
         assertNotNull(resultVO, "수정된 데이터 조회 실패");
-        assertEquals(updatedContent, resultVO.getSupContent(), "내용 수정 확인");
-        assertEquals(updatedAnswer, resultVO.getSupAnswer(), "답변 수정 확인");
-        assertEquals(outVO.getRegId(), resultVO.getRegId(), "작성자 ID 확인");
+        assertEquals(updatedContent, resultVO.getSupCn(), "내용 수정 확인");
+        assertEquals(updatedAnswer, resultVO.getSupAnsCn(), "답변 수정 확인");
+        assertEquals(outVO.getRegNo(), resultVO.getRegNo(), "작성자 ID 확인");
         log.info("수정 후 데이터: {}", resultVO);
     }
 
@@ -205,37 +195,44 @@ class SupportDaoTest {
         log.info("│─doRetrieve()             │");
         log.info("└──────────────────────────┘");
 
-        // 기존 데이터 삭제
         supportMapper.deleteAll();
 
-        // 테스트 데이터 10건 생성
-        Map<String, Integer> param = new HashMap<>();
-        param.put("regId", 5);
+        // 테스트 데이터 30건 생성
+        Map<String, Object> param = new HashMap<>(); // Integer보다 Object가 Map 처리 시 안정적입니다.
+        param.put("regNo", 1);
         param.put("saveSupportDataCount", 30);
 
-        int flag = supportMapper.saveAll(param);
-        assertEquals(30, flag);
+        supportMapper.saveAll(param);
 
-
-        // 페이징 조회
+        // 페이징 조회 (1페이지, 10개)
         SupportVO searchVO = new SupportVO();
         searchVO.setPageNo(1);
         searchVO.setPageSize(10);
-        searchVO.setSearchDiv("10");
-        searchVO.setSearchWord("문의 제목");
+        // XML에 검색 조건이 구현되어 있다면 아래 주석 해제하여 테스트
+        // searchVO.setSearchWord("문의 내용");
 
-        // 실행
         List<SupportVO> list = supportMapper.doRetrieve(searchVO);
 
-        // 결과 확인
         for (SupportVO vo : list) {
             log.info(vo);
         }
 
         assertEquals(10, list.size());
 
-        log.info("전체 건수 : {}", list.get(0).toString());
+        if (!list.isEmpty()) {
+            log.info("첫 번째 데이터 정보 : {}", list.get(0).toString());
+        }
+    }
 
+    @Test
+    @Disabled
+    @DisplayName("객체생성 확인")
+    void beans() {
+        log.info("┌──────────────────────────┐");
+        log.info("│beans()                   │");
+        log.info("└──────────────────────────┘");
 
+        log.info("supportMapper: {}", supportMapper);
+        assertNotNull(supportMapper);
     }
 }

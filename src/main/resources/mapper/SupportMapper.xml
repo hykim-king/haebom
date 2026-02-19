@@ -3,92 +3,115 @@
 <mapper namespace="com.pcwk.ehr.support.SupportMapper">
 
     <resultMap id="supportResultMap" type="com.pcwk.ehr.support.SupportVO">
-        <id property="supId" column="sup_id" />
-        <result property="supContent" column="sup_content" />
-        <result property="supAnswer" column="sup_answer" />
-        <result property="supAnswerReg" column="sup_answer_reg" />
-        <result property="regDt" column="reg_dt" />
-        <result property="regId" column="reg_id" />
+        <id property="supNo" column="sup_no"/>
+        <result property="supCn" column="sup_cn"/>
+        <result property="supAnsCn" column="sup_ans_cn"/>
+        <result property="supReg" column="sup_reg"/>
+        <result property="supAnsReg" column="sup_ans_reg"/>
+        <result property="regNo" column="reg_no"/>
+        <result property="supYn" column="sup_yn"/>
     </resultMap>
 
-    <insert id="doSave"  parameterType="com.pcwk.ehr.support.SupportVO">
-        INSERT INTO SUPPORT
-        (sup_id, sup_content, sup_answer, sup_answer_reg, reg_dt, reg_id)
-        VALUES
-        (SUP_ID_SEQ.NEXTVAL, #{supContent}, #{supAnswer}, SYSDATE, SYSDATE, #{regId})
+    <insert id="doSave" parameterType="com.pcwk.ehr.support.SupportVO">
+        INSERT INTO SUPPORT (sup_no, sup_cn, sup_ans_cn, sup_reg, sup_ans_reg, reg_no, sup_yn)
+        VALUES (SUP_ID_SEQ.NEXTVAL,
+                #{supCn},
+                #{supAnsCn},
+                SYSDATE,
+                #{supAnsReg},
+                #{regNo},
+                'N')
     </insert>
 
-    <delete id="doDelete" parameterType="com.pcwk.ehr.support.SupportVO">
-        DELETE FROM SUPPORT
-        WHERE sup_id = #{supId}
-    </delete>
-
     <select id="doSelectOne" parameterType="com.pcwk.ehr.support.SupportVO" resultMap="supportResultMap">
-        SELECT
-            sup_id,
-            sup_content,
-            sup_answer,
-            sup_answer_reg,
-            reg_dt,
-            reg_id
+        SELECT sup_no      AS sup_no,
+               sup_cn      AS sup_cn,
+               sup_ans_cn  AS sup_ans_cn,
+               sup_reg     AS sup_reg,
+               sup_ans_reg AS sup_ans_reg,
+               reg_no      AS reg_no,
+               sup_yn      AS sup_yn
         FROM SUPPORT
-        WHERE sup_id = #{supId}
+        WHERE sup_no = #{supNo}
+    </select>
+
+    <select id="doRetrieve" parameterType="com.pcwk.ehr.support.SupportVO" resultMap="supportResultMap">
+        SELECT * FROM (
+        SELECT
+        TT1.sup_no AS sup_no,
+        TT1.sup_cn AS sup_cn,
+        TT1.sup_ans_cn AS sup_ans_cn,
+        TT1.sup_reg AS sup_reg,
+        TT1.sup_ans_reg AS sup_ans_reg,
+        TT1.reg_no AS reg_no,
+        TT1.sup_yn AS sup_yn,
+        ROW_NUMBER() OVER (ORDER BY TT1.sup_no DESC) AS rnum,
+        COUNT(*) OVER() AS total_count
+        FROM SUPPORT TT1
+        WHERE 1 = 1
+        <if test="searchWord != null and searchWord != ''">
+            AND (TT1.sup_cn LIKE '%' || #{searchWord} || '%' OR TT1.sup_ans_cn LIKE '%' || #{searchWord} || '%')
+        </if>
+        ) A
+        WHERE A.rnum BETWEEN (#{pageSize} * (#{pageNo} - 1) + 1) AND (#{pageSize} * #{pageNo})
     </select>
 
     <update id="doUpdate" parameterType="com.pcwk.ehr.support.SupportVO">
         UPDATE SUPPORT
-        SET
-            sup_content = #{supContent},
-            sup_answer = #{supAnswer},
-            sup_answer_reg = SYSDATE,
-            reg_dt = SYSDATE
-        WHERE sup_id = #{supId}
+        SET sup_cn      = #{supCn},
+            sup_ans_cn  = #{supAnsCn},
+            sup_ans_reg = SYSDATE,
+            sup_yn      = 'Y'
+        WHERE sup_no = #{supNo}
     </update>
 
-    <select id="doRetrieve" resultType="com.pcwk.ehr.support.SupportVO">
-        SELECT A.*, B.*
-        FROM (SELECT TT1.sup_id,
-                     TT1.sup_content,
-                     TT1.sup_answer,
-                     TO_CHAR(TT1.reg_dt, 'YYYY-MM-DD HH24:MI:SS') AS reg_dt,
-                     TO_CHAR(TT1.sup_answer_reg, 'YYYY-MM-DD HH24:MI:SS') AS sup_answer_reg,
-                     TT1.reg_id,
-                     -- 전체 건수 (페이징 처리)
-                     COUNT(*) OVER() AS total_count,
-                     -- 번호 (최신글 1번)
-                  ROW_NUMBER() OVER (ORDER BY TT1.sup_id DESC) AS rnum
-              FROM SUPPORT TT1
-              WHERE 1 = 1) A CROSS JOIN (SELECT 'x' FROM dual) B
-        WHERE rnum BETWEEN (#{pageSize} * #{pageNo} - #{pageSize} + 1) AND (#{pageSize} * #{pageNo})
+    <select id="getAll" resultMap="supportResultMap">
+        SELECT sup_no      AS sup_no,
+               sup_cn      AS sup_cn,
+               sup_ans_cn  AS sup_ans_cn,
+               sup_reg     AS sup_reg,
+               sup_ans_reg AS sup_ans_reg,
+               reg_no      AS reg_no,
+               sup_yn      AS sup_yn
+        FROM SUPPORT
+        ORDER BY sup_no DESC
     </select>
 
-    <select id="getCount" resultType="int" parameterType="com.pcwk.ehr.support.SupportVO">
-        SELECT COUNT(*) FROM SUPPORT
-        WHERE 1=1
-    </select>
-    <select id="getAll" resultType="com.pcwk.ehr.support.SupportVO">
-        SELECT sup_id,
-               sup_content,
-               sup_answer,
-               TO_CHAR(sup_answer_reg, 'YYYY-MM-DD HH24:MI:SS') AS sup_answer_reg,
-               TO_CHAR(reg_dt, 'YYYY-MM-DD HH24:MI:SS') AS reg_dt,
-            reg_id
+    <insert id="saveAll" parameterType="java.util.Map">
+        INSERT INTO SUPPORT (sup_no,
+                             sup_cn,
+                             sup_ans_cn,
+                             sup_reg,
+                             sup_ans_reg,
+                             reg_no,
+                             sup_yn)
+        SELECT SUP_ID_SEQ.NEXTVAL     AS sup_no,
+               '문의사항 내용 ' || LEVEL    AS sup_cn,
+               '답변 완료 ' || LEVEL      AS sup_ans_cn,
+               (SYSDATE - LEVEL / 24) AS sup_reg,
+               (SYSDATE - LEVEL / 24) AS sup_ans_reg,
+               #{regNo}               AS reg_no,
+               'Y'                    AS sup_yn
+        FROM dual
+    <![CDATA[
+            CONNECT BY LEVEL <= #{saveSupportDataCount}
+        ]]>
+    </insert>
+
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) AS total_cnt
         FROM SUPPORT
     </select>
 
     <delete id="deleteAll">
-        DELETE FROM SUPPORT
+        DELETE
+        FROM SUPPORT
     </delete>
 
-    <insert id="saveAll" parameterType="java.util.Map">
-        INSERT INTO SUPPORT
-        SELECT LEVEL AS sup_id,
-               N'문의사항 내용' || LEVEL AS sup_content,
-               N'문의사항 답변 내용' || LEVEL AS sup_answer,
-               (SYSDATE - LEVEL) AS sup_answer_reg,
-               (SYSDATE - LEVEL) AS reg_dt,
-               #{regId}
-        FROM dual
-        <![CDATA[CONNECT BY LEVEL <= #{saveSupportDataCount}]]>
-    </insert>
+    <delete id="doDelete" parameterType="com.pcwk.ehr.support.SupportVO">
+        DELETE
+        FROM SUPPORT
+        WHERE sup_no = #{supNo}
+    </delete>
+
 </mapper>

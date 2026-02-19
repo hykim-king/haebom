@@ -18,12 +18,7 @@ public interface NoticeMapper extends WorkDiv<NoticeVO> {
 
     int saveAll(Map<String, Integer> param);                  // 전체 저장
 
-    /**
-     * 목록조회 (검색 + 페이징)
-     * @param dto (검색조건, 페이지 정보)
-     * @return List<NoticeVO>
-     */
-     List<NoticeVO> doRetrieve(DTO dto);
+    List<NoticeVO> doRetrieve(DTO dto);
 
 
 }

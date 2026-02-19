@@ -15,15 +15,15 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class HospitalVO extends DTO {
 
-    private Long   hpId;      // 병원 ID
-    private String hpName;    // 병원명
-    private String hpAdd;     // 주소
-    private String hpEms;     // 응급실 여부
-    private String hpTel1;    // 전화번호1
-    private String hpTel2;    // 전화번호2
-    private Double hpMapx;    // 경도
-    private Double hpMapy;    // 위도
-    private String hpOpen;    // 영업 시작
-    private String hpClose;   // 영업 종료
-    private String hpHoliday; // 휴일 여부
+    private int    hpNo;         // 병원 고유번호
+    private String hpNm;         // 병원명
+    private String hpAddr;       // 병원 주소
+    private String hpEmrmYn;     // 응급실여부
+    private String hpTelno1;     // 병원 전화번호
+    private String hpTelno2;     // 응급실 전화번호
+    private double hpLat;        // 병원 위도
+    private double hpLot;        // 병원 경도
+    private String hpOpTm;       // 평일 오픈 시간
+    private String hpEndTm;      // 평일 닫는 시간
+    private String hpWkndOpenYn; // 주말 운영 여부
 }

@@ -7,36 +7,36 @@
     <!-- 병원 등록 -->
     <insert id="doSave" parameterType="com.pcwk.ehr.hospital.HospitalVO">
         INSERT INTO hospital (
-            hp_id,
-            hp_name,
-            hp_add,
-            hp_ems,
-            hp_tel1,
-            hp_tel2,
-            hp_mapx,
-            hp_mapy,
-            hp_open,
-            hp_close,
-            hp_holiday
+            hp_no,
+            hp_nm,
+            hp_addr,
+            hp_emrm_yn,
+            hp_telno1,
+            hp_telno2,
+            hp_lat,
+            hp_lot,
+            hp_op_tm,
+            hp_end_tm,
+            hp_wknd_open_yn
         ) VALUES (
-            #{hpId},
-            #{hpName},
-            #{hpAdd},
-            #{hpEms},
-            #{hpTel1},
-            #{hpTel2},
-            #{hpMapx},
-            #{hpMapy},
-            #{hpOpen},
-            #{hpClose},
-            #{hpHoliday}
+            #{hpNo},
+            #{hpNm},
+            #{hpAddr},
+            #{hpEmrmYn},
+            #{hpTelno1},
+            #{hpTelno2},
+            #{hpLat},
+            #{hpLot},
+            #{hpOpTm},
+            #{hpEndTm},
+            #{hpWkndOpenYn}
         )
     </insert>
 
     <!-- 병원 삭제 -->
     <delete id="doDelete" parameterType="com.pcwk.ehr.hospital.HospitalVO">
         DELETE FROM hospital
-        WHERE hp_id = #{hpId}
+        WHERE hp_no = #{hpNo}
     </delete>
 
     <!-- 전체 삭제 -->
@@ -47,6 +47,23 @@
     <!-- 건수 조회 -->
     <select id="getCount" resultType="int">
         SELECT COUNT(*) FROM hospital
+    </select>
+
+    <select id="doSelectOne" parameterType="com.pcwk.ehr.hospital.HospitalVO" resultType="com.pcwk.ehr.hospital.HospitalVO">
+        SELECT
+            hp_no,
+            hp_nm,
+            hp_addr,
+            hp_emrm_yn,
+            hp_telno1,
+            hp_telno2,
+            hp_lat,
+            hp_lot,
+            hp_op_tm,
+            hp_end_tm,
+            hp_wknd_open_yn
+        FROM hospital
+        WHERE hp_no = #{hpNo}
     </select>
 
 </mapper>

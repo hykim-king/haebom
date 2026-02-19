@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pcwk.ehr.user.UserMapper">
+
+    <!-- 사용자 등록 -->
+    <insert id="doSave" parameterType="com.pcwk.ehr.user.UserVO">
+        INSERT INTO ss_user (
+            user_no,
+            user_eml_addr,
+            user_enpswd,
+            user_nm,
+            user_brdt,
+            user_telno,
+            user_gndr,
+            user_mngr_yn,
+            user_reg,
+            user_del_yn
+        ) VALUES (
+            SEQ_USER_NO.NEXTVAL,
+            #{userEmlAddr},
+            #{userEnpswd},
+            #{userNm},
+            #{userBrdt},
+            #{userTelno},
+            #{userGndr},
+            #{userMngrYn},
+            SYSDATE,
+            #{userDelYn}
+        )
+    </insert>
+
+    <!-- 전체 삭제 -->
+    <delete id="deleteAll">
+        DELETE FROM ss_user
+    </delete>
+
+    <!-- 건수 조회 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM ss_user
+    </select>
+
+</mapper>

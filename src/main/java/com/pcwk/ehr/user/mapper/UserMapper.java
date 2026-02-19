@@ -1,8 +1,9 @@
-package com.pcwk.ehr.user;
+package com.pcwk.ehr.user.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 
 import com.pcwk.ehr.cmn.WorkDiv;
+import com.pcwk.ehr.user.UserVO;
 
 @Mapper
 public interface UserMapper extends WorkDiv<UserVO> {

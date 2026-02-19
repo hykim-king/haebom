@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.pcwk.ehr</groupId>
-	<artifactId>sb03-8</artifactId>
+	<artifactId>haebom</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>sb03-1</name>
+	<name>haebom</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -30,22 +30,33 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
-		<!-- Spring Security Core -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		
-		<!-- Thymeleaf + Spring Security -->
-		<dependency>
-			<groupId>org.thymeleaf.extras</groupId>
-			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>nz.net.ultraq.thymeleaf</groupId>
-			<artifactId>thymeleaf-layout-dialect</artifactId>
-		</dependency>
+	  <!--JPA-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>	  
+    <!-- Spring Security Core -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    
+    <!-- Thymeleaf + Spring Security -->
+    <dependency>
+        <groupId>org.thymeleaf.extras</groupId>
+        <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+    </dependency>
+    
+    <!-- 비밀번호 암호화 : 이미 있음 -->
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-crypto</artifactId>
+    </dependency>    	
+	
+    <dependency>
+        <groupId>nz.net.ultraq.thymeleaf</groupId>
+        <artifactId>thymeleaf-layout-dialect</artifactId>
+    </dependency>	
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-lang3</artifactId>
@@ -55,7 +66,7 @@
 		    <artifactId>commonmark-ext-gfm-tables</artifactId>
 		    <version>0.27.1</version>
 		    <scope>compile</scope>
-		</dependency>
+		</dependency>	
 		<!-- Source: https://mvnrepository.com/artifact/org.commonmark/commonmark -->
 		<dependency>
 		    <groupId>org.commonmark</groupId>
@@ -63,10 +74,7 @@
 		    <version>0.27.1</version>
 		    <scope>compile</scope>
 		</dependency>	
-		<dependency>
-		    <groupId>org.springframework.security</groupId>
-		    <artifactId>spring-security-crypto</artifactId>
-		</dependency>
+
 	
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

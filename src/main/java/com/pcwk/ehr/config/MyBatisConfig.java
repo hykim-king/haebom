@@ -12,8 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan("com.pcwk.ehr")
-
+@MapperScan(basePackages = "com.pcwk.ehr.user.mapper")
 public class MyBatisConfig {
 
 	@Bean

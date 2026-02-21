@@ -5,7 +5,7 @@
 <mapper namespace="com.pcwk.ehr.user.UserMapper">
 
     <!-- 사용자 등록 -->
-    <insert id="doSave" parameterType="com.pcwk.ehr.user.UserVO">
+    <insert id="doSave" parameterType="UserVO">
         INSERT INTO ss_user (
             user_no,
             user_eml_addr,

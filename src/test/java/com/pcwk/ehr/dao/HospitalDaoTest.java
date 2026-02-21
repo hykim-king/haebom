@@ -2,6 +2,9 @@ package com.pcwk.ehr.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.domain.HospitalVO;
 import com.pcwk.ehr.hospital.HospitalMapper;
 
@@ -154,6 +158,41 @@ class HospitalDaoTest {
         assertEquals(hospital01.getHpAddr(), outVO.getHpAddr());
 
         log.info("outVO: {}", outVO);
+    }
+
+    @Test
+    @DisplayName("목록 조회")
+    void doRetrieve() {
+        log.info("┌──────────────────────────┐");
+        log.info("│doRetrieve()              │");
+        log.info("└──────────────────────────┘");
+
+        // 1. 데이터 등록
+        // 2. 목록 조회
+        // 3. 결과 확인
+
+        // 1.
+        hospitalMapper.doSave(hospital01);
+        hospitalMapper.doSave(hospital02);
+        hospitalMapper.doSave(hospital03);
+        assertEquals(3, hospitalMapper.getCount());
+
+        // 2.
+        DTO searchParam = new DTO();
+        searchParam.setPageNo(1);
+        searchParam.setPageSize(10);
+        searchParam.setSearchDiv("");
+        searchParam.setSearchWord("");
+
+        List<HospitalVO> list = hospitalMapper.doRetrieve(searchParam);
+
+        // 3.
+        assertNotNull(list);
+        assertTrue(list.size() > 0);
+
+        for (HospitalVO vo : list) {
+            log.info("vo: {}", vo);
+        }
     }
 
     @Disabled

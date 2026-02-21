@@ -35,7 +35,10 @@ public class MyBatisConfig {
             applicationContext.getResources("classpath:mapper/*.xml")
         );
         //alias
-        factory.setTypeAliasesPackage("com.pcwk.ehr");
+        factory.setTypeAliasesPackage(
+              "com.pcwk.ehr.domain"
+            + ",com.pcwk.ehr.cmn"
+        );
 
 		return factory.getObject();
 

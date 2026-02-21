@@ -1,4 +1,4 @@
-package com.pcwk.ehr.user;
+package com.pcwk.ehr.domain;
 
 import com.pcwk.ehr.cmn.DTO;
 

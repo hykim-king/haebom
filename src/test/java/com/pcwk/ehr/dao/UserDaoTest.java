@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.user.UserMapper;
-import com.pcwk.ehr.user.UserVO;
 
 @SpringBootTest
 class UserDaoTest {

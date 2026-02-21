@@ -1,4 +1,4 @@
-package com.pcwk.ehr.comment;
+package com.pcwk.ehr.domain;
 
 import com.pcwk.ehr.cmn.DTO;
 

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.pcwk.ehr.comment.CommentMapper;
-import com.pcwk.ehr.comment.CommentVO;
+import com.pcwk.ehr.domain.CommentVO;
 
 @SpringBootTest
 class CommentDaoTest {

@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.pcwk.ehr.domain.HospitalVO;
 import com.pcwk.ehr.hospital.HospitalMapper;
-import com.pcwk.ehr.hospital.HospitalVO;
 
 @SpringBootTest
 class HospitalDaoTest {

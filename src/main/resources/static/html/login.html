@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 해봄트립</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="css/login.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-screen w-full bg-orange-50/30 overflow-hidden flex items-center justify-center">
+
+    <!-- Login Container -->
+    <div class="w-full h-full md:h-auto md:w-[1000px] md:rounded-3xl bg-white shadow-2xl overflow-hidden flex relative">
+        
+        <!-- Left Side: Image & Branding -->
+        <div class="hidden md:flex md:w-1/2 relative bg-orange-100 items-center justify-center overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1642840580793-6920cbc8f9b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXJtJTIwY296eSUyMHRyYXZlbCUyMGtvcmVhJTIwc2NlbmVyeSUyMHN1bnNldHxlbnwxfHx8fDE3NzA4MDIxNzR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" alt="Travel Mood" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-orange-900/40 backdrop-blur-[2px]"></div>
+            
+            <div class="relative z-10 text-center p-10 text-white">
+                <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-6 border border-white/30 shadow-lg">
+                    <span class="text-4xl">🐯</span>
+                </div>
+                <h2 class="text-3xl font-bold mb-4">만나서 반가워요!</h2>
+                <p class="text-orange-100 text-lg leading-relaxed">
+                    함께 설레는 여행 계획을 세워볼까요?
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-white relative">
+            
+            <!-- Home Link -->
+            <a href="../html/main_Org.html" class="absolute top-8 right-8 text-slate-400 hover:text-orange-600 transition-colors flex items-center gap-1 text-sm font-medium">
+                <i data-lucide="home" class="w-4 h-4"></i> 홈으로
+            </a>
+
+            <!-- Logo (Mobile only) -->
+            <div class="md:hidden mb-8 text-center">
+                <span class="text-3xl font-black text-orange-600 tracking-tighter">해봄트립</span>
+            </div>
+
+            <div class="mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">로그인</h1>
+                <p class="text-slate-500">계정이 없으신가요? <a href="../html/signup.html" class="text-orange-600 font-bold hover:underline">회원가입</a></p>
+            </div>
+
+            <form id="login-form" class="space-y-5">
+                <!-- Email Input -->
+                <div class="space-y-1.5">
+                    <label for="email" class="text-sm font-bold text-slate-700">이메일</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="mail" class="text-slate-400 h-5 w-5"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="email" 
+                            class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all bg-slate-50 focus:bg-white" 
+                            placeholder="이메일 입력하세요"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label for="password" class="text-sm font-bold text-slate-700">비밀번호</label>
+                        <a href="#" class="text-xs text-orange-600 font-medium hover:underline">비밀번호 찾기</a>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="lock" class="text-slate-400 h-5 w-5"></i>
+                        </div>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            class="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all bg-slate-50 focus:bg-white" 
+                            placeholder="••••••••"
+                            required
+                        >
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                            <i data-lucide="eye" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-base font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all shadow-orange-200">
+                    로그인
+                </button>
+            </form>
+
+            <!-- Social Login Divider -->
+            <div class="relative mt-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-slate-100"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-slate-400">간편 로그인</span>
+                </div>
+            </div>
+
+           <!-- Social Buttons -->
+            <div class="mt-6 flex justify-center">
+                <button class="w-full flex items-center justify-center px-4 py-3 border border-slate-200 rounded-xl shadow-sm bg-white hover:bg-slate-50 transition-colors">
+                    <span class="text-slate-600 font-bold text-sm flex items-center gap-2">
+                        <i data-lucide="smile" class="w-4 h-4"></i>
+                        소셜 로그인(미정)
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div> 
+
+    <!-- Script -->
+    <script src="../javascript/login.js"></script>
+</body>
+</html>

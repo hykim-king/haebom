@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상세 정보 - 해봄트립 문화시설</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/culturedetail.css">
+    <!-- Reusing some basic utility classes if needed, or inline -->
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    colors: {
+                        orange: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316',
+                            600: '#ea580c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-white">
+
+  <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Image (Full Width) -->
+        <div class="w-full h-[50vh] md:h-[60vh] bg-slate-100 relative overflow-hidden group">
+            <img id="detail-image" src="" alt="Facility Image" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            
+            <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white">
+                <div class="container mx-auto max-w-5xl">
+                    <span id="detail-category" class="inline-block px-3 py-1 bg-orange-600 text-white text-xs font-bold rounded-full mb-4">
+                        <!-- Category -->
+                    </span>
+                    <h1 id="detail-name" class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+                        <!-- Name -->
+                    </h1>
+                    <div class="flex items-center gap-2 text-white/80 text-sm md:text-base">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i>
+                        <span id="detail-address-hero"><!-- Address --></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mx-auto max-w-5xl px-4 py-12">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                
+                <!-- Left: Description -->
+                <div class="lg:col-span-2 space-y-8">
+                    <section>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-4">소개</h2>
+                        <p id="detail-desc" class="text-slate-600 leading-relaxed text-lg whitespace-pre-line">
+                            <!-- Description -->
+                        </p>
+                    </section>
+
+                    <!-- Gallery Grid (Static Mock) -->
+                    <section>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-4">갤러리</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="aspect-square bg-slate-100 rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1545989253-02cc26577f88?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer">
+                            </div>
+                            <div class="aspect-square bg-slate-100 rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1518998053901-5348d3969105?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer">
+                            </div>
+                            <div class="aspect-square bg-slate-100 rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1507643179173-617d6c1f8aea?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" class="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer">
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right: Info Box -->
+                <div class="lg:col-span-1">
+                    <div class="bg-slate-50 rounded-2xl p-6 md:p-8 sticky top-24 border border-slate-100">
+                        <h3 class="font-bold text-lg text-slate-900 mb-6 border-b border-slate-200 pb-4">이용 안내</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm shrink-0">
+                                    <i data-lucide="clock" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 mb-1">관람 시간</p>
+                                    <p class="text-slate-700 font-medium">10:00 - 18:00</p>
+                                    <p class="text-xs text-slate-400 mt-1">입장마감 17:00 / 매주 월요일 휴관</p>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm shrink-0">
+                                    <i data-lucide="ticket" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 mb-1">관람료</p>
+                                    <p class="text-slate-700 font-medium">성인 4,000원</p>
+                                    <p class="text-slate-600 text-sm">청소년 2,000원 / 어린이 무료</p>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm shrink-0">
+                                    <i data-lucide="phone" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 mb-1">문의</p>
+                                    <p class="text-slate-700 font-medium">02-1234-5678</p>
+                                </div>
+                            </div>
+
+                            <hr class="border-slate-200">
+
+                            <!-- Map Placeholder -->
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 mb-2">위치</p>
+                                <div class="aspect-video bg-slate-200 rounded-lg overflow-hidden relative group cursor-pointer">
+                                    <img src="https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=60" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="bg-white/90 px-3 py-1 rounded text-xs font-bold shadow-sm backdrop-blur">지도 보기</span>
+                                    </div>
+                                </div>
+                                <p id="detail-address-box" class="text-sm text-slate-600 mt-2 break-keep">
+                                    <!-- Address -->
+                                </p>
+                            </div>
+
+                            <a href="#" class="block w-full py-3 bg-orange-600 text-white font-bold text-center rounded-xl hover:bg-orange-700 transition-colors shadow-lg shadow-orange-200">
+                                예매하기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <div id="footer"></div>
+
+    <script>
+      fetch("../html/header.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("header").innerHTML = html));
+
+      fetch("../html/footer.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("footer").innerHTML = html));
+    </script>
+
+        <!-- JS -->
+    <script src="../javascript/header.js"></script>
+    <script src="../javascript/culturedetail.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문화시설 - 해봄트립</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="../css/header.css" />
+    <link rel="stylesheet" href="../css/footer.css" />
+    <link rel="stylesheet" href="../css/culture.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    colors: {
+                        orange: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316',
+                            600: '#ea580c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Hero Section -->
+    <div class="relative bg-slate-900 h-64 md:h-80 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1720270241567-a21eda1d5fc9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrb3JlYSUyMG11c2V1bSUyMGFydCUyMGdhbGxlcnklMjBleHRlcmlvciUyMGFyY2hpdGVjdHVyZSUyMG1vZGVybnxlbnwxfHx8fDE3NzA4MDc0ODB8MA&ixlib=rb-4.1.0&q=80&w=1080" alt="Culture Hero" class="absolute inset-0 w-full h-full object-cover opacity-60">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+        <div class="relative container mx-auto px-4 h-full flex flex-col justify-end pb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">예술과 역사가 숨쉬는 곳</h1>
+            <p class="text-slate-300 text-lg">전국의 박물관과 미술관을 찾아 떠나는 특별한 여행</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 pb-20 max-w-6xl">
+        
+        <!-- Filter Controls -->
+        <div class="flex flex-col md:flex-row gap-4 mb-8 items-start md:items-center justify-between">
+            <!-- Region Scroll -->
+            <div class="w-full md:w-auto overflow-x-auto scrollbar-hide">
+                <div class="flex gap-2 min-w-max" id="region-list">
+                    <!-- Regions injected by JS -->
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="relative w-full md:w-64 shrink-0">
+                <input type="text" placeholder="시설명 검색..." class="w-full pl-10 pr-4 py-2 rounded-full border border-slate-200 focus:outline-none focus:border-orange-500 bg-white">
+                <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+            </div>
+        </div>
+
+        <!-- List Grid -->
+        <div id="culture-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Items injected by JS -->
+            <div class="col-span-full text-center py-20">
+                <div class="animate-spin inline-block w-8 h-8 border-4 border-orange-200 border-t-orange-600 rounded-full mb-4"></div>
+                <p class="text-slate-500">문화 정보를 불러오는 중입니다...</p>
+            </div>
+        </div>
+
+    </main>
+
+   <!-- Footer -->
+    <div id="footer"></div>
+
+    <script>
+      fetch("../html/header.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("header").innerHTML = html));
+
+      fetch("../html/footer.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("footer").innerHTML = html));
+    </script>
+
+     <!-- JS -->
+    <script src="../javascript/header.js"></script>
+    <script src="../javascript/culture.js"></script>
+</body>
+</html>

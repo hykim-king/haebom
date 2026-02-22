@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - 해봄트립</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="../css/signup.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    colors: {
+                        orange: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316',
+                            600: '#ea580c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- jQuery (AJAX 및 간편한 DOM 조작을 위해 추가) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="h-screen w-full bg-orange-50/30 flex items-center justify-center py-4 md:py-8">
+
+    <!-- Signup Container -->
+    <div class="w-full h-full md:h-full md:max-h-[900px] md:w-[1200px] md:rounded-3xl bg-white shadow-2xl overflow-hidden flex relative">
+        
+       
+        <!-- Left Side: Image & Branding (Fixed) -->
+     <div class="hidden lg:flex lg:w-5/12 relative items-center justify-center overflow-hidden flex-col bg-orange-50">
+         <div class="absolute w-64 h-64 bg-orange-100 rounded-full -top-10 -left-10 opacity-50"></div>
+            <div class="absolute w-96 h-96 bg-orange-200/30 rounded-full -bottom-20 -right-20 opacity-50"></div>
+    
+                <div class="relative z-10 mb-8 float-animation">
+                    <img src="../img/haebom_Main.png" alt="해봄이 마스코트" class="w-64 h-auto drop-shadow-2xl">
+                </div>
+
+            <div class="relative z-10 text-center px-8">
+                <h2 class="text-3xl font-bold text-slate-800 mb-3 font-sans">"반가워요!"</h2>
+                <p class="text-slate-700 text-lg leading-relaxed font-medium">
+                    해봄이와 함께 떠나는 설레는 여행,<br>
+                    지금 바로 시작해보세요.
+                </p>
+            </div>
+     </div>
+       
+
+        <!-- Right Side: Signup Form (Scrollable) -->
+        <div class="w-full lg:w-7/12 flex flex-col bg-white relative h-full overflow-y-auto custom-scrollbar">
+            
+            <div class="p-8 md:p-12 lg:p-16">
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">회원가입</h1>
+                        <p class="text-slate-500">이미 계정이 있으신가요? <a href="login.html" class="text-orange-600 font-bold hover:underline">로그인</a></p>
+                    </div>
+                    <a href="../html/main_Org.html" class="text-slate-400 hover:text-orange-600 transition-colors flex items-center gap-1 text-sm font-medium">
+                        <i data-lucide="home" class="w-4 h-4"></i> <span class="hidden sm:inline">홈으로</span>
+                    </a>
+                </div>
+
+                <form id="signup-form" class="space-y-8">
+                    
+                    <!-- 1. 기본 정보 섹션 -->
+                    <div class="space-y-5">
+                        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
+                            <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 1</span> 기본 정보
+                        </h3>
+
+                        <!-- Email Auth -->
+                        <div class="space-y-1.5">
+                            <label for="email" class="text-sm font-bold text-slate-700">이메일 인증 <span class="text-orange-500">*</span></label>
+                            <div class="flex gap-2">
+                                <input type="email" id="email" class="form-input flex-1" placeholder="example@haebom.com" required>
+                                <button type="button" id="btn-send-code" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors shrink-0">
+                                    인증번호 전송
+                                </button>
+                            </div>
+                            <!-- Verification Code Input (Initially Hidden) -->
+                            <div id="email-verify-area" class="hidden flex gap-2 mt-2">
+                                <input type="text" id="verify-code" class="form-input flex-1 bg-slate-50" placeholder="인증번호 6자리 입력">
+                                <button type="button" id="btn-verify-code" class="px-4 py-2 bg-orange-100 text-orange-600 rounded-xl text-sm font-bold hover:bg-orange-200 transition-colors shrink-0 border border-orange-200">
+                                    확인
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label for="password" class="text-sm font-bold text-slate-700">비밀번호 <span class="text-orange-500">*</span></label>
+                                <input type="password" id="password" class="form-input" placeholder="8자 이상, 특수문자 포함" required>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label for="password-confirm" class="text-sm font-bold text-slate-700">비밀번호 확인 <span class="text-orange-500">*</span></label>
+                                <input type="password" id="password-confirm" class="form-input" placeholder="비밀번호 재입력" required>
+                                <!-- 비밀번호 일치 여부 메시지 -->
+                                <p id="password-message" class="text-xs font-medium mt-1 pl-1 hidden"></p>
+                            </div>
+                        </div>
+
+                        <!-- Nickname (Added) -->
+                        <div class="space-y-1.5">
+                            <label for="nickname" class="text-sm font-bold text-slate-700">닉네임 <span class="text-orange-500">*</span></label>
+                            <div class="flex gap-2">
+                                <input type="text" id="nickname" class="form-input flex-1" placeholder="한글, 영문, 숫자 2-10자" required>
+                                <button type="button" id="btn-check-nickname" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors shrink-0">
+                                    중복 확인
+                                </button>
+                            </div>
+                            <!-- 메시지 표시 영역 (성공/실패 메시지) -->
+                            <p id="nickname-message" class="text-xs font-medium mt-1 pl-1 hidden"></p>
+                        </div>
+
+
+                        <!-- Address -->
+                        <div class="space-y-4 pt-2 border-t border-slate-50 mt-4">
+                            <!-- Zipcode -->
+                            <div class="space-y-1.5">
+                                <label for="zipcode" class="text-sm font-bold text-slate-700">주소 <span class="text-orange-500">*</span></label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="zipcode" class="form-input w-32 bg-slate-50" placeholder="우편번호" readonly>
+                                    <button type="button" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors shrink-0">
+                                        주소 검색
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Basic Address -->
+                            <div class="space-y-1.5">
+                                <input type="text" id="addr-basic" class="form-input w-full bg-slate-50" placeholder="기본 주소 (검색 시 자동 입력)" readonly>
+                            </div>
+
+                            <!-- Detail Address -->
+                            <div class="space-y-1.5">
+                                <input type="text" id="addr-detail" class="form-input w-full" placeholder="상세 주소를 입력해주세요 (예: 101동 101호)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 개인 정보 섹션 -->
+                    <div class="space-y-5 pt-4">
+                        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
+                            <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 2</span> 개인 정보
+                        </h3>
+
+                        <!-- Name -->
+                        <div class="space-y-1.5">
+                            <label for="fullname" class="text-sm font-bold text-slate-700">이름 <span class="text-orange-500">*</span></label>
+                            <input type="text" id="fullname" class="form-input" placeholder="실명을 입력해주세요" required>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="space-y-1.5">
+                            <label for="phone" class="text-sm font-bold text-slate-700">전화번호 <span class="text-orange-500">*</span></label>
+                            <input type="tel" id="phone" class="form-input" placeholder="010-1234-5678" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" required>
+                        </div>
+
+                        <!-- Birth & Gender -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-1.5">
+                                <label for="birthdate" class="text-sm font-bold text-slate-700">생년월일 <span class="text-orange-500">*</span></label>
+                                <input type="date" id="birthdate" class="form-input h-[48px]" required>
+                            </div>
+                            
+                            <div class="space-y-1.5">
+                                <label class="text-sm font-bold text-slate-700 block">성별 <span class="text-orange-500">*</span></label>
+                                <div class="flex gap-6 items-center h-[48px]">
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <div class="relative flex items-center">
+                                            <input type="radio" name="gender" value="male" class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-orange-500 checked:bg-orange-500 transition-all">
+                                            <div class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100">
+                                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                                            </div>
+                                        </div>
+                                        <span class="text-slate-600 font-medium group-hover:text-slate-900">남성</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <div class="relative flex items-center">
+                                            <input type="radio" name="gender" value="female" class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-orange-500 checked:bg-orange-500 transition-all">
+                                            <div class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100">
+                                                <i data-lucide="check" class="w-3 h-3 text-white"></i>
+                                            </div>
+                                        </div>
+                                        <span class="text-slate-600 font-medium group-hover:text-slate-900">여성</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 여행 취향 섹션 -->
+                    <div class="space-y-5 pt-4">
+                        <div class="flex justify-between items-end border-b border-slate-100 pb-2">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 3</span> 여행 테마
+                            </h3>
+                            <span class="text-xs text-slate-400 font-medium">관심있는 테마를 3개 이상 선택해주세요</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2" id="theme-container">
+                            <!-- 로딩 중 메시지 (JS가 로드되면 사라짐) -->
+                            <div class="col-span-full py-8 text-center text-slate-400">
+                                <span class="inline-block animate-spin mr-2">⏳</span> 여행 테마를 불러오는 중입니다...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="pt-6">
+                        <button type="submit" class="w-full py-4 px-6 bg-orange-600 text-white text-lg font-bold rounded-xl hover:bg-orange-700 transition-all shadow-lg shadow-orange-200 transform hover:-translate-y-0.5">
+                            해봄트립 시작하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="../javascript/signup.js"></script>
+</body>
+</html>

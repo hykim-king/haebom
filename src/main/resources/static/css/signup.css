@@ -1,0 +1,80 @@
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1; /* slate-300 */
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    color: #1e293b; /* slate-800 */
+    transition: all 0.2s;
+    background-color: #fff;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #f97316; /* orange-500 */
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.form-input::placeholder {
+    color: #94a3b8; /* slate-400 */
+}
+
+/* Custom Scrollbar for form container */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Theme Checkbox Styling */
+.theme-checkbox:checked + div {
+    background-color: #fff7ed; /* orange-50 */
+    border-color: #f97316; /* orange-500 */
+    color: #ea580c; /* orange-600 */
+}
+
+.theme-checkbox:checked + div .check-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* 캐릭터가 자연스럽게 떠 있는 효과
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+} */
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+/* 이미지 크기 고정 및 선명도 */
+.float-animation img {
+    max-width: 280px; /* 크기를 적절히 조절 */
+    height: auto;
+    object-fit: contain;
+}
+
+/* 마스코트 이미지 스타일링 */
+.lg\:w-5\/12 img {
+    /* 배경이 흰색인 이미지일 경우를 대비해 믹스 블렌드 모드나 배경색 지정 */
+    background-color: transparent;
+    object-fit: contain;
+}
+
+/* 기존 CSS 하단에 추가 */
+.form-input {
+    width: 100%;
+    /* ... (기존 코드 유지) */
+}

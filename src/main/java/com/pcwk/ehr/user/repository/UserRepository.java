@@ -11,4 +11,6 @@ import java.util.Optional;
 @EnableJpaRepositories(basePackages = "com.pcwk.ehr.user.repository")
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     Optional<UserEntity> findByUserEmlAddr(String email);
+    boolean existsByUserEmlAddr(String email); // 이메일 중복 체크용
+    boolean existsByUserNick(String nickname); // 닉네임 중복 체크용
 }

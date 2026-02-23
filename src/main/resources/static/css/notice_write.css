@@ -1,0 +1,158 @@
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #f8fafc;
+    --accent-color: #3b82f6;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background-color: #f1f5f9;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Write Container */
+.write-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+}
+
+.write-card {
+    background-color: white;
+    border-radius: 24px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: none;
+}
+
+.write-header {
+    padding: 30px 40px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #fff;
+}
+
+.write-title-input {
+    border: none;
+    font-size: 1.8rem;
+    font-weight: 700;
+    width: 100%;
+    outline: none;
+    color: var(--text-main);
+    padding: 10px 0;
+}
+
+.write-title-input::placeholder {
+    color: #cbd5e1;
+}
+
+.category-select {
+    border: 1px solid #e2e8f0;
+    padding: 5px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* 스크린샷의 넓은 입력 영역 반영 */
+.write-body {
+    padding: 0;
+    position: relative;
+}
+
+.content-textarea {
+    width: 100%;
+    min-height: 500px;
+    border: none;
+    padding: 40px;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    outline: none;
+    resize: none;
+    /* 스크린샷의 파란 느낌을 주는 배경색 유지 */
+    background-color: #f8fbff;
+}
+
+.content-textarea::placeholder {
+    color: #94a3b8;
+}
+
+.write-footer {
+    padding: 20px 40px;
+    background-color: white;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    border-top: 1px solid #f1f5f9;
+    gap: 15px;
+}
+
+/* 등록 버튼 스타일 */
+.btn-register {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: 14px 45px;
+    border-radius: 14px;
+    font-weight: 700;
+    border: none;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+}
+
+.btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.btn-cancel {
+    background-color: #f1f5f9;
+    color: var(--text-muted);
+    padding: 14px 30px;
+    border-radius: 14px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background-color: #e2e8f0;
+    color: var(--text-main);
+}
+
+/* Attachment Bar */
+.attachment-bar {
+    padding: 15px 40px;
+    background-color: #fff;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    gap: 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.attach-item {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.attach-item:hover {
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    header { padding: 15px 20px; }
+    .write-header, .content-textarea, .write-footer { padding: 25px; }
+    .write-title-input { font-size: 1.4rem; }
+}

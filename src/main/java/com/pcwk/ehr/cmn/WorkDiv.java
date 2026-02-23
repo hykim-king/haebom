@@ -9,11 +9,11 @@ public interface WorkDiv<T> {
 	 * 
 	 * Description :
 	 * 회원목록 조회 
-	 * @param Map<String,String> 검색조건
+	 * @param DTO 검색조건
 	 * @return List<MemberVO>
 	 * @throws
 	 */
-	List<T> doRetrieve(Map<String, String> param);
+	List<T> doRetrieve(DTO param);
 
 	/**
 	 * 

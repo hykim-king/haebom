@@ -1,0 +1,95 @@
+/* Admin Specific Styles */
+
+/* Custom Scrollbar for Sidebar */
+#sidebar nav::-webkit-scrollbar {
+    width: 4px;
+}
+#sidebar nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+#sidebar nav::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 2px;
+}
+
+/* Nav Item Active State */
+.nav-item.active {
+    background-color: #ea580c; /* orange-600 */
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2);
+}
+
+/* Table Styles */
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.admin-table th {
+    background-color: #f8fafc; /* slate-50 */
+    color: #64748b; /* slate-500 */
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 0.875rem;
+}
+
+.admin-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Status Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-success { background-color: #dcfce7; color: #16a34a; }
+.badge-warning { background-color: #fef9c3; color: #ca8a04; }
+.badge-danger { background-color: #fee2e2; color: #dc2626; }
+.badge-neutral { background-color: #f1f5f9; color: #64748b; }
+
+/* Action Buttons */
+.btn-icon {
+    padding: 0.375rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+    color: #64748b;
+}
+.btn-icon:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+.btn-icon.delete:hover {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}

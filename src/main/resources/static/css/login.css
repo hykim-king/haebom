@@ -1,0 +1,36 @@
+/* =========================================
+   로그인 페이지 전용 스타일 시트
+   - 배경 그라데이션 및 애니메이션 효과
+   ========================================= */
+
+/* 1. 배경 설정 */
+body {
+    /* 따뜻한 오렌지 톤의 선형 그라데이션 배경을 적용합니다. */
+    background-image: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+}
+
+/* 2. 입력 필드 포커스 효과 */
+/* 사용자가 입력창을 클릭했을 때 살짝 위로 떠오르는 효과를 줍니다. */
+input:focus {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease-in-out, border-color 0.2s;
+}
+
+/* 3. 컨테이너 등장 애니메이션 */
+/* 페이지 로드 시 로그인 박스가 부드럽게 나타나도록 설정합니다. */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;           /* 투명하게 시작 */
+        transform: scale(0.95); /* 약간 작게 시작 */
+    }
+    to {
+        opacity: 1;           /* 불투명하게 끝 */
+        transform: scale(1);    /* 원래 크기로 끝 */
+    }
+}
+
+/* body 바로 아래의 첫 번째 div(로그인 컨테이너)에 애니메이션을 적용합니다. */
+body > div {
+    /* 0.6초 동안 부드러운 가속도 곡선(cubic-bezier)으로 실행 */
+    animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

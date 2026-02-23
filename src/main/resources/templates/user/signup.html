@@ -76,18 +76,47 @@
                     </a>
                 </div>
 
-                <form id="signup-form" th:action="@{/user/signup}" th:object="${userVO}" method="post" class="space-y-8">
-                    
-                    <div class="space-y-5">
-                        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
-                            <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 1</span> 기본 정보
-                        </h3>
+                <form id="signup-form" th:action="@{/user/signup}" th:object="${userVO}" method="post" class="space-y-8">                    
+                        <div class="space-y-5">
+                            <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
+                                <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 1</span> 기본 정보
+                            </h3>
 
-                        <div class="space-y-1.5">
-                            <label class="text-sm font-bold text-slate-700">이메일 인증 <span class="text-orange-500">*</span></label>
+                                                    <div class="space-y-1.5">
+                            <label class="text-sm font-bold text-slate-700">
+                                이메일 인증 <span class="text-orange-500">*</span>
+                            </label>
+
                             <div class="flex gap-2">
-                                <input type="email" th:field="*{userEmlAddr}" class="form-input flex-1" placeholder="example@haebom.com" required>
-                                <button type="button" id="btn-send-code" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold">인증번호 전송</button>
+                                <!-- ✅ id=email 추가 -->
+                                <input type="email"
+                                    id="email"
+                                    th:field="*{userEmlAddr}"
+                                    class="form-input flex-1"
+                                    placeholder="example@haebom.com"
+                                    required>
+
+                                <button type="button" id="btn-send-code"
+                                        class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold">
+                                인증번호 전송
+                                </button>
+                            </div>
+
+                            <!-- ✅ 1) 전송/오류 메시지 출력 영역 -->
+                            <p id="email-message" class="text-sm hidden"></p>
+
+                            <!-- ✅ 2) 인증번호 입력 영역 (처음엔 숨김) -->
+                            <div id="email-verify-area" class="hidden mt-2">
+                                <div class="flex gap-2">
+                                <input type="text" id="verify-code"
+                                        class="form-input flex-1"
+                                        placeholder="인증번호 6자리 입력">
+                                <button type="button" id="btn-verify-code"
+                                        class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold">
+                                    인증번호 확인
+                                </button>
+                                </div>
+                                <p id="email-verify-message" class="text-sm hidden mt-1"></p>
                             </div>
                         </div>
 

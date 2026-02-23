@@ -40,7 +40,11 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-security</artifactId>
     </dependency>-->
-    
+    <!-- 이메일 발송(JavaMailSender) -->
+	<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-mail</artifactId>
+	</dependency>
     <!-- Thymeleaf + Spring Security -->
     <dependency>
         <groupId>org.thymeleaf.extras</groupId>

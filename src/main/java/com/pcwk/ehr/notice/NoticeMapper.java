@@ -21,5 +21,4 @@ public interface NoticeMapper extends WorkDiv<NoticeVO> {
 
     List<NoticeVO> doRetrieve(DTO dto);
 
-
 }

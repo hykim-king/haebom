@@ -2,7 +2,82 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.pcwk.ehr.hospital.AttachFileMapper">
+<mapper namespace="com.pcwk.ehr.attachfile.AttachFileMapper">
 
+    <!-- 파일 등록 -->
+    <insert id="doSave" parameterType="AttachFileVO">
+        INSERT INTO ATTACH_FILE (
+            FILE_NO,
+            FILE_CLSF,
+            FILE_PATH_NM,
+            FILE_NM,
+            FILE_REG,
+            FILE_REG_HM,
+            BOARD_CLSF,
+            BOARD_ID
+        ) VALUES (
+            SEQ_FILE_NO.NEXTVAL,
+            #{fileClsf},
+            #{filePathNm},
+            #{fileNm},
+            TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            TO_CHAR(SYSDATE, 'HH24MI'),
+            #{boardClsf},
+            #{boardId}
+        )
+    </insert>
+
+    <!-- 파일 삭제 -->
+    <delete id="doDelete" parameterType="AttachFileVO">
+        DELETE FROM ATTACH_FILE
+        WHERE FILE_NO = #{fileNo}
+    </delete>
+
+    <!-- 전체 삭제 -->
+    <delete id="deleteAll">
+        DELETE FROM ATTACH_FILE
+    </delete>
+
+    <!-- 건수 조회 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM ATTACH_FILE
+    </select>
+
+    <!-- 단건 조회 -->
+    <select id="doSelectOne" parameterType="AttachFileVO" resultType="AttachFileVO">
+        SELECT
+            FILE_NO,
+            FILE_CLSF,
+            FILE_PATH_NM,
+            FILE_NM,
+            FILE_REG,
+            FILE_REG_HM,
+            BOARD_CLSF,
+            BOARD_ID
+        FROM ATTACH_FILE
+        WHERE FILE_NO = #{fileNo}
+    </select>
+
+    <!-- 게시판별 파일 목록 조회 -->
+    <select id="getFileList" parameterType="AttachFileVO" resultType="AttachFileVO">
+        SELECT
+            FILE_NO,
+            FILE_CLSF,
+            FILE_PATH_NM,
+            FILE_NM,
+            FILE_REG,
+            FILE_REG_HM,
+            BOARD_CLSF,
+            BOARD_ID
+        FROM ATTACH_FILE
+        WHERE BOARD_CLSF = #{boardClsf}
+          AND BOARD_ID = #{boardId}
+        ORDER BY FILE_NO
+    </select>
+
+    <!-- 전체 조회 -->
+    <select id="getAll" resultType="AttachFileVO">
+        SELECT * FROM ATTACH_FILE
+    </select>
 
 </mapper>

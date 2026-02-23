@@ -2,106 +2,77 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.support.SupportMapper">
 
-    <resultMap id="supportResultMap" type="com.pcwk.ehr.domain.SupportVO">
-        <id property="supNo" column="sup_no"/>
-        <result property="supCn" column="sup_cn"/>
-        <result property="supAnsCn" column="sup_ans_cn"/>
-        <result property="supReg" column="sup_reg"/>
-        <result property="supRegHm" column="sup_reg_hm"/>
-        <result property="supAnsReg" column="sup_ans_reg"/>
-        <result property="supAnsRegHm" column="sup_ans_reg_hm"/>
-        <result property="regNo" column="reg_no"/>
-        <result property="supYn" column="sup_yn"/>
-    </resultMap>
-
-    <insert id="doSave" parameterType="com.pcwk.ehr.domain.SupportVO">
+    <insert id="doSave" parameterType="SupportVO">
         INSERT INTO SUPPORT (
-            sup_no, sup_cn, sup_ans_cn,
-            sup_reg, sup_reg_hm,
-            sup_ans_reg, sup_ans_reg_hm,
-            reg_no, sup_yn
-        ) VALUES (
-                     SUP_ID_SEQ.NEXTVAL,
-                     #{supCn},
-                     #{supAnsCn},
-                     TO_CHAR(SYSDATE, 'YYYYMMDD'),
-                     TO_CHAR(SYSDATE, 'HH24MI'),
-                     #{supAnsReg},
-                     #{supAnsRegHm},
-                     #{regNo},
-                     'N'
-                 )
+             SUP_NO,
+             SUP_CN,
+             SUP_ANS_CN,
+             SUP_REG,
+             SUP_REG_HM,
+             SUP_ANS_REG,
+             SUP_ANS_REG_HM,
+             REG_NO,
+             SUP_YN)
+        VALUES (
+            SEQ_SUP_NO.NEXTVAL,
+            #{supCn},
+            #{supAnsCn},
+            TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            TO_CHAR(SYSDATE, 'HH24MI'),
+            #{supAnsReg},
+            #{supAnsRegHm},
+            #{regNo},
+            'N'
+               )
     </insert>
 
-    <select id="doSelectOne" parameterType="com.pcwk.ehr.domain.SupportVO" resultMap="supportResultMap">
-        SELECT sup_no, sup_cn, sup_ans_cn,
-               sup_reg, sup_reg_hm,
-               sup_ans_reg, sup_ans_reg_hm,
-               reg_no, sup_yn
+    <select id="doSelectOne" parameterType="SupportVO">
+        SELECT SUP_NO, SUP_CN, SUP_ANS_CN,
+               SUP_REG, SUP_REG_HM,
+               SUP_ANS_REG, SUP_ANS_REG_HM,
+               REG_NO, SUP_YN
         FROM SUPPORT
         WHERE sup_no = #{supNo}
     </select>
 
-    <select id="doRetrieve" parameterType="com.pcwk.ehr.domain.SupportVO" resultMap="supportResultMap">
+    <select id="doRetrieve" parameterType="SupportVO">
         SELECT * FROM (
-        SELECT
-        TT1.sup_no, TT1.sup_cn, TT1.sup_ans_cn,
-        TT1.sup_reg, TT1.sup_reg_hm,
-        TT1.sup_ans_reg, TT1.sup_ans_reg_hm,
-        TT1.reg_no, TT1.sup_yn,
-        ROW_NUMBER() OVER (ORDER BY TT1.sup_no DESC) AS rnum,
-        COUNT(*) OVER() AS total_count
-        FROM SUPPORT TT1
-        WHERE 1 = 1
-        <if test="searchWord != null and searchWord != ''">
-            AND (TT1.sup_cn LIKE '%' || #{searchWord} || '%' OR TT1.sup_ans_cn LIKE '%' || #{searchWord} || '%')
-        </if>
-        ) A
+            SELECT
+            TT1.SUP_NO, TT1.SUP_CN, TT1.SUP_ANS_CN,
+            TT1.SUP_REG, TT1.SUP_REG_HM,
+            TT1.SUP_ANS_REG, TT1.SUP_ANS_REG_HM,
+            TT1.REG_NO, TT1.SUP_YN,
+            ROW_NUMBER() OVER (ORDER BY TT1.SUP_NO DESC) AS rnum,
+            COUNT(*) OVER() AS total_count
+            FROM SUPPORT TT1
+            WHERE 1 = 1
+            <if test="searchWord != null and searchWord != ''">
+                AND (TT1.SUP_CN LIKE '%' || #{searchWord} || '%' OR TT1.SUP_ANS_CN LIKE '%' || #{searchWord} || '%')
+            </if>
+            ) A
         WHERE A.rnum BETWEEN (#{pageSize} * (#{pageNo} - 1) + 1) AND (#{pageSize} * #{pageNo})
     </select>
 
-    <update id="doUpdate" parameterType="com.pcwk.ehr.domain.SupportVO">
+    <update id="doUpdate" parameterType="SupportVO">
         UPDATE SUPPORT
-        SET sup_cn      = #{supCn},
-            sup_ans_cn  = #{supAnsCn},
-            sup_ans_reg = TO_CHAR(SYSDATE, 'YYYYMMDD'),
-            sup_ans_reg_hm = TO_CHAR(SYSDATE, 'HH24MI'),
-            sup_yn      = 'Y'
-        WHERE sup_no = #{supNo}
+        SET SUP_CN      = #{supCn},
+            SUP_ANS_CN  = #{supAnsCn},
+            SUP_ANS_REG = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            SUP_ANS_REG_HM = TO_CHAR(SYSDATE, 'HH24MI'),
+            SUP_YN      = 'Y'
+        WHERE SUP_NO = #{supNo}
     </update>
 
-    <select id="getAll" resultMap="supportResultMap">
-        SELECT sup_no, sup_cn, sup_ans_cn,
-               sup_reg, sup_reg_hm,
-               sup_ans_reg, sup_ans_reg_hm,
-               reg_no, sup_yn
+    <select id="getAll">
+        SELECT SUP_NO, SUP_CN, SUP_ANS_CN,
+               SUP_REG, SUP_REG_HM,
+               SUP_ANS_CN, SUP_ANS_REG_HM,
+               REG_NO, SUP_YN
         FROM SUPPORT
-        ORDER BY sup_no DESC
+        ORDER BY SUP_NO DESC
     </select>
 
-    <insert id="saveAll" parameterType="java.util.List">
-        INSERT ALL
-        <foreach collection="list" item="item">
-            INTO SUPPORT (
-            sup_no, sup_cn, sup_ans_cn,
-            sup_reg, sup_reg_hm,
-            sup_ans_reg, sup_ans_reg_hm,
-            reg_no, sup_yn
-            ) VALUES (
-            GET_SUP_SEQ(), #{item.supCn},
-            #{item.supAnsCn},
-            TO_CHAR(SYSDATE, 'YYYYMMDD'),
-            TO_CHAR(SYSDATE, 'HH24MI'),
-            TO_CHAR(SYSDATE, 'YYYYMMDD'),
-            TO_CHAR(SYSDATE, 'HH24MI'),
-            #{item.regNo},
-            'Y'
-            )
-        </foreach>
-        SELECT * FROM DUAL
-    </insert>
-
-    <select id="getCount" resultType="int">
+    <select id="getCount">
         SELECT COUNT(*) FROM SUPPORT
     </select>
 
@@ -109,8 +80,8 @@
         DELETE FROM SUPPORT
     </delete>
 
-    <delete id="doDelete" parameterType="com.pcwk.ehr.domain.SupportVO">
-        DELETE FROM SUPPORT WHERE sup_no = #{supNo}
+    <delete id="doDelete" parameterType="SupportVO">
+        DELETE FROM SUPPORT WHERE SUP_NO = #{supNo}
     </delete>
 
 </mapper>

@@ -1,14 +1,15 @@
-package com.pcwk.ehr.user.mapper;
+package com.pcwk.ehr.course;
 
 import org.apache.ibatis.annotations.Mapper;
 
 import com.pcwk.ehr.cmn.WorkDiv;
-import com.pcwk.ehr.domain.UserVO;
+import com.pcwk.ehr.domain.CourseVO;
 
 @Mapper
-public interface UserMapper extends WorkDiv<UserVO> {
+public interface CourseMapper extends WorkDiv<CourseVO> {
 
     int deleteAll();
 
     int getCount();
+    
 }

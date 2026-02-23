@@ -155,19 +155,26 @@
                         </div>
                     </div>
 
+                    <!-- 3. 여행 취향 섹션 -->
                     <div class="space-y-5 pt-4">
                         <div class="flex justify-between items-end border-b border-slate-100 pb-2">
                             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                                 <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 3</span> 여행 테마
                             </h3>
+                            <span class="text-xs text-slate-400 font-medium">관심있는 테마를 3개 이상 선택해주세요</span>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            <input type="hidden" th:field="*{userTag}" id="userTag">
+
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2" id="theme-container">
+                            <!-- 로딩 중 메시지 (JS가 로드되면 사라짐) -->
+                            <div class="col-span-full py-8 text-center text-slate-400">
+                                <span class="inline-block animate-spin mr-2">⏳</span> 여행 테마를 불러오는 중입니다...
                             </div>
+                        </div>
                     </div>
 
+                    <!-- Submit -->
                     <div class="pt-6">
-                        <button type="submit" class="w-full py-4 px-6 bg-orange-600 text-white text-lg font-bold rounded-xl shadow-lg">
+                        <button type="submit" class="w-full py-4 px-6 bg-orange-600 text-white text-lg font-bold rounded-xl hover:bg-orange-700 transition-all shadow-lg shadow-orange-200 transform hover:-translate-y-0.5">
                             해봄트립 시작하기
                         </button>
                     </div>

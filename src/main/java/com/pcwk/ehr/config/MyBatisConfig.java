@@ -12,10 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan(basePackages = {
-	"com.pcwk.ehr.hospital",
-	"com.pcwk.ehr.comment"
-})
+@MapperScan(basePackages = "com.pcwk.ehr", annotationClass = org.apache.ibatis.annotations.Mapper.class)
 
 public class MyBatisConfig {
 

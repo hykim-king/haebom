@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.course.CourseMapper">
+
+    <!--여행 코스 등록-->
+    <insert id="doSave" parameterType="CourseVO">
+        INSERT INTO course (
+            COURSE_NO,
+            COURSE_NM,
+            COURSE_INFO,
+            COURSE_PATH_NM,
+            COURSE_DSTNC,
+            COURSE_REQ_TM
+        ) VALUES (
+            SEQ_COURSE_NO.NEXTVAL,
+            #{courseNm},
+            #{courseInfo},
+            #{coursePathNm},
+            #{courseDstnc},
+            #{courseReqTm}
+        )
+    </insert>
+
+    <!--건수 조회-->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM course
+    </select>
+
+    <!-- 단건조회-->
+    <select id="doSelectOne" parameterType="CourseVO" resultType="CourseVO">
+        SELECT
+            COURSE_NO,
+            COURSE_NM,
+            COURSE_INFO,
+            COURSE_PATH_NM,
+            COURSE_DSTNC,
+            COURSE_REQ_TM
+        FROM course
+        WHERE COURSE_NO = #{courseNo}
+    </select>
+
+    <!-- 코스 삭제 -->
+    <delete id="doDelete" parameterType="CourseVO">
+        DELETE FROM course WHERE COURSE_NO = #{courseNo}
+    </delete>
+
+    <!--목록조회-->
+    <select id="doRetrieve" parameterType="DTO" resultType="CourseVO">
+        SELECT * FROM (
+            SELECT 
+                T1.COURSE_NO,
+                T1.COURSE_NM,
+                T1.COURSE_INFO,
+                T1.COURSE_PATH_NM,
+                T1.COURSE_DSTNC,
+                T1.COURSE_REQ_TM,
+                ROW_NUMBER() OVER(ORDER BY T1.COURSE_REQ_TM DESC) AS RNUM,
+                COUNT(*) OVER() AS TOTAL_CNT
+            FROM course T1
+            WHERE 1=1
+            <choose>
+                <when test="searchDiv != null and searchDiv == '10'">
+                    AND T1.COURSE_NM LIKE '%' || #{searchWord} || '%'
+                </when>
+                <when test="searchDiv != null and searchDiv == '20'">
+                    AND T1.COURSE_INFO LIKE '%' || #{searchWord} || '%'
+                </when>
+                <when test="searchDiv != null and (searchDiv == '12' or searchDiv == '14')">
+                    AND T1.COURSE_TYPE = #{searchDiv}
+                </when>
+            </choose>
+        ) T1
+        WHERE RNUM BETWEEN #{pageSize} * (#{pageNo} - 1) + 1 
+                       AND #{pageSize} * (#{pageNo} - 1) + #{pageSize}
+    </select>
+</mapper>

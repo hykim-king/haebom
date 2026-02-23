@@ -2,6 +2,7 @@ package com.pcwk.ehr.support;
 
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.cmn.WorkDiv;
+import com.pcwk.ehr.domain.NoticeVO;
 import com.pcwk.ehr.domain.SupportVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -15,9 +16,8 @@ public interface SupportMapper extends WorkDiv<SupportVO> {
 
     int deleteAll();    // 전체 삭제
 
-    int saveAll(Map<String, Object> param);      // 전체 저장
+    int saveAll(List<SupportVO> list);     // 전체 저장
 
     List<SupportVO> getAll();
 
-    List<SupportVO> doRetrieve(DTO dto);
 }

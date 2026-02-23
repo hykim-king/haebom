@@ -118,29 +118,21 @@
         FROM NOTICE
     </select>
 
-    <insert id="saveAll" parameterType="java.util.Map">
-        INSERT INTO NOTICE (ntc_no,
-                            ntc_ttl,
-                            ntc_cn,
-                            ntc_reg,
-                            ntc_reg_hm,
-                            ntc_mod,
-                            ntc_mod_hm,
-                            reg_no,
-                            mod_no)
-        SELECT NOTICE_SEQ.NEXTVAL,
-               '공지사항 제목' || LEVEL,
-               '공지사항 내용' || LEVEL,
-               TO_CHAR(SYSDATE - LEVEL, 'YYYYMMDD'),
-               TO_CHAR(SYSDATE, 'HH24MI'),
-               TO_CHAR(SYSDATE - LEVEL, 'YYYYMMDD'),
-               TO_CHAR(SYSDATE, 'HH24MI'),
-               #{regNo},
-               #{modNo}
-        FROM dual
-        <![CDATA[
-            CONNECT BY LEVEL <= #{saveNoticeDataCount}
-        ]]>
+    <insert id="saveAll" parameterType="java.util.List">
+        INSERT INTO NOTICE (
+        ntc_no, ntc_ttl, ntc_cn,
+        ntc_reg, ntc_reg_hm, reg_no, mod_no
+        )
+        <foreach collection="list" item="item">
+            SELECT
+            NOTICE_SEQ.NEXTVAL,
+            #{item.ntcTtl},
+            #{item.ntcCn},
+            TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            TO_CHAR(SYSDATE, 'HH24MI'),
+            #{item.regNo},
+            #{item.modNo}
+            FROM DUAL
+        </foreach>
     </insert>
-
 </mapper>

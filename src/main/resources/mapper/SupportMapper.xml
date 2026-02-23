@@ -7,8 +7,10 @@
         <result property="supCn" column="sup_cn"/>
         <result property="supAnsCn" column="sup_ans_cn"/>
         <result property="supReg" column="sup_reg"/>
-        <result property="supRegHm" column="sup_reg_hm"/> <result property="supAnsReg" column="sup_ans_reg"/>
-        <result property="supAnsRegHm" column="sup_ans_reg_hm"/> <result property="regNo" column="reg_no"/>
+        <result property="supRegHm" column="sup_reg_hm"/>
+        <result property="supAnsReg" column="sup_ans_reg"/>
+        <result property="supAnsRegHm" column="sup_ans_reg_hm"/>
+        <result property="regNo" column="reg_no"/>
         <result property="supYn" column="sup_yn"/>
     </resultMap>
 
@@ -23,8 +25,10 @@
                      #{supCn},
                      #{supAnsCn},
                      TO_CHAR(SYSDATE, 'YYYYMMDD'),
-                     TO_CHAR(SYSDATE, 'HH24MI'), #{supAnsReg},
-                     #{supAnsRegHm}, #{regNo},
+                     TO_CHAR(SYSDATE, 'HH24MI'),
+                     #{supAnsReg},
+                     #{supAnsRegHm},
+                     #{regNo},
                      'N'
                  )
     </insert>
@@ -61,7 +65,8 @@
         SET sup_cn      = #{supCn},
             sup_ans_cn  = #{supAnsCn},
             sup_ans_reg = TO_CHAR(SYSDATE, 'YYYYMMDD'),
-            sup_ans_reg_hm = TO_CHAR(SYSDATE, 'HH24MI'), sup_yn      = 'Y'
+            sup_ans_reg_hm = TO_CHAR(SYSDATE, 'HH24MI'),
+            sup_yn      = 'Y'
         WHERE sup_no = #{supNo}
     </update>
 
@@ -74,25 +79,26 @@
         ORDER BY sup_no DESC
     </select>
 
-    <insert id="saveAll" parameterType="java.util.Map">
-        INSERT INTO SUPPORT (
+    <insert id="saveAll" parameterType="java.util.List">
+        INSERT ALL
+        <foreach collection="list" item="item">
+            INTO SUPPORT (
             sup_no, sup_cn, sup_ans_cn,
             sup_reg, sup_reg_hm,
             sup_ans_reg, sup_ans_reg_hm,
             reg_no, sup_yn
-        )
-        SELECT
-            SUP_ID_SEQ.NEXTVAL,
-            '문의사항 내용 ' || LEVEL,
-            '답변 완료 ' || LEVEL,
-            TO_CHAR(SYSDATE - LEVEL, 'YYYYMMDD'),
+            ) VALUES (
+            GET_SUP_SEQ(), #{item.supCn},
+            #{item.supAnsCn},
+            TO_CHAR(SYSDATE, 'YYYYMMDD'),
             TO_CHAR(SYSDATE, 'HH24MI'),
-            TO_CHAR(SYSDATE - LEVEL, 'YYYYMMDD'),
+            TO_CHAR(SYSDATE, 'YYYYMMDD'),
             TO_CHAR(SYSDATE, 'HH24MI'),
-            #{regNo},
+            #{item.regNo},
             'Y'
-        FROM dual
-        <![CDATA[ CONNECT BY LEVEL <= #{saveSupportDataCount} ]]>
+            )
+        </foreach>
+        SELECT * FROM DUAL
     </insert>
 
     <select id="getCount" resultType="int">

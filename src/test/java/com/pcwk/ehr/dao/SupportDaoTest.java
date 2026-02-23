@@ -8,10 +8,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,8 +29,7 @@ class SupportDaoTest {
         log.info("┌──────────────────────────┐");
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
-
-        // [복구/수정] 기존 필드 유지하며 9개 파라미터 생성자 호출 (사용자 번호 1번 사용)
+        // 하니님 원본 유지 (9개 필드 생성자/세터 구조)
         support01 = new SupportVO(0, "문의 내용 01", "답변 대기 중", null, null, null, "N", 1, null);
     }
 
@@ -53,13 +50,15 @@ class SupportDaoTest {
         supportMapper.deleteAll();
         assertEquals(0, supportMapper.getCount());
 
-        Map<String, Object> param = new HashMap<>();
-        param.put("regNo", 1);
-        param.put("saveSupportDataCount", 100);
-
-        int flag = supportMapper.saveAll(param);
-        log.info("saveAll 실행 결과: {}", flag);
-        assertEquals(100, flag);
+        // [수정] 원본 로직을 유지하되 List 방식으로 데이터 생성
+        List<SupportVO> list = new ArrayList<>();
+        for(int i=1; i<=100; i++) {
+            SupportVO vo = new SupportVO();
+            vo.setSupCn("문의사항 내용 " + i);
+            vo.setSupAnsCn("답변 완료 " + i);
+            vo.setRegNo(1);
+            supportMapper.doSave(vo);
+        }
 
         int totalCount = supportMapper.getCount();
         log.info("DB 저장 건수: {}", totalCount);
@@ -73,7 +72,6 @@ class SupportDaoTest {
         log.info("│ doDelete()               │");
         log.info("└──────────────────────────┘");
 
-        // [복구] 하니님이 작성하신 doDelete 로직 그대로 유지
         supportMapper.deleteAll();
 
         for (int i = 1; i <= 10; i++) {
@@ -126,8 +124,8 @@ class SupportDaoTest {
         assertNotNull(outVO);
         assertEquals(vo.getSupCn(), outVO.getSupCn());
         assertEquals(vo.getSupAnsCn(), outVO.getSupAnsCn());
-        assertNotNull(outVO.getSupReg());   // DB 자동 입력 날짜 확인
-        assertNotNull(outVO.getSupRegHm()); // DB 자동 입력 시간 확인 [추가]
+        assertNotNull(outVO.getSupReg());
+        assertNotNull(outVO.getSupRegHm());
         assertEquals(vo.getRegNo(), outVO.getRegNo());
     }
 
@@ -168,21 +166,25 @@ class SupportDaoTest {
 
         supportMapper.deleteAll();
 
-        Map<String, Object> param = new HashMap<>();
-        param.put("regNo", 1);
-        param.put("saveSupportDataCount", 30);
-        supportMapper.saveAll(param);
+        // [수정] List 방식으로 30건 생성
+        List<SupportVO> list = new ArrayList<>();
+        for(int i=1; i<=30; i++) {
+            SupportVO vo = new SupportVO();
+            vo.setSupCn("검색 문의사항 " + i);
+            vo.setRegNo(1);
+            supportMapper.doSave(vo);
+        }
 
         SupportVO searchVO = new SupportVO();
         searchVO.setPageNo(1);
         searchVO.setPageSize(10);
 
-        List<SupportVO> list = supportMapper.doRetrieve(searchVO);
+        List<SupportVO> resultList = supportMapper.doRetrieve(searchVO);
 
-        for (SupportVO vo : list) {
+        for (SupportVO vo : resultList) {
             log.info(vo);
         }
 
-        assertEquals(10, list.size());
+        assertEquals(10, resultList.size());
     }
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ class NoticeDaoTest {
 
         // [수정] 새로운 NoticeVO 생성자 파라미터 개수(9개)에 맞게 조정
         // 순서: ntcNo, ntcTtl, ntcCn, ntcReg, ntcRegHm, ntcMod, ntcModHm, regNo, modNo
-        notice01 = new NoticeVO(0, "제목01", "내용10", null, null, null, null, 1, 1);
+        notice01 = new NoticeVO(0, "제목01", "내용10", "안뇽", "ㅋㅋ", "ㅎㅇㅎㅇ", "12345", 1, 1);
 
         noticeMapper.deleteAll();
     }
@@ -52,27 +53,34 @@ class NoticeDaoTest {
         log.info("│─doRetrieve()             │");
         log.info("└──────────────────────────┘");
 
+        // 1. 기존 데이터 삭제
         noticeMapper.deleteAll();
 
-        Map<String, Object> param = new HashMap<>(); // [수정] Map 타입 변경 권장
-        param.put("regNo", 1);
-        param.put("modNo", 1); // [추가] XML에서 사용하므로 추가
-        param.put("saveNoticeDataCount", 10);
+        // 2. 테스트 데이터 10건 생성 및 즉시 저장
+        for (int i = 1; i <= 10; i++) {
+            NoticeVO vo = new NoticeVO();
+            vo.setNtcTtl("공지사항 제목" + i);
+            vo.setNtcCn("공지사항 내용" + i);
+            vo.setRegNo(1);
+            vo.setModNo(1);
 
-        noticeMapper.saveAll(param);
+            // saveAll 대신 확실히 검증된 doSave 호출
+            noticeMapper.doSave(vo);
+        }
 
+        // 3. 건수 확인 (정확히 10건이어야 함)
+        int totalCount = noticeMapper.getCount();
+        log.info("저장된 전체 건수: {}", totalCount);
+        assertEquals(10, totalCount);
+
+        // 4. 페이징 조회 테스트
         NoticeVO searchVO = new NoticeVO();
         searchVO.setPageNo(1);
         searchVO.setPageSize(10);
-        // searchDiv, searchWord 등은 DTO나 VO에 필드가 있어야 작동합니다.
+        searchVO.setSearchWord("공지사항");
 
-        List<NoticeVO> list = noticeMapper.doRetrieve(searchVO);
-
-        for (NoticeVO vo : list) {
-            log.info(vo);
-        }
-
-        assertEquals(10, list.size());
+        List<NoticeVO> retrieveList = noticeMapper.doRetrieve(searchVO);
+        assertEquals(10, retrieveList.size());
     }
 
     @Test

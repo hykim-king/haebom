@@ -16,9 +16,6 @@ public interface NoticeMapper extends WorkDiv<NoticeVO> {
     List<NoticeVO> getAll();        // 전체 선택
 
     int deleteAll();                // 전체 삭제
-
-    int saveAll(Map<String, Object> param);                  // 전체 저장
-
-    List<NoticeVO> doRetrieve(DTO dto);
-
+     // 전체 저장
+     int saveAll(List<NoticeVO> list);
 }

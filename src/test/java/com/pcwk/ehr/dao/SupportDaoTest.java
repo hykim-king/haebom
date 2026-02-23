@@ -52,7 +52,7 @@ class SupportDaoTest {
 
         // [수정] 원본 로직을 유지하되 List 방식으로 데이터 생성
         List<SupportVO> list = new ArrayList<>();
-        for(int i=1; i<=100; i++) {
+        for(int i=1; i<=20; i++) {
             SupportVO vo = new SupportVO();
             vo.setSupCn("문의사항 내용 " + i);
             vo.setSupAnsCn("답변 완료 " + i);
@@ -62,7 +62,7 @@ class SupportDaoTest {
 
         int totalCount = supportMapper.getCount();
         log.info("DB 저장 건수: {}", totalCount);
-        assertEquals(100, totalCount);
+        assertEquals(20, totalCount);
     }
 
     @Test

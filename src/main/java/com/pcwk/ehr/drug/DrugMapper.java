@@ -5,4 +5,7 @@ import com.pcwk.ehr.domain.DrugVO;
 
 public interface DrugMapper extends WorkDiv<DrugVO> {
 
+    int getCount();
+
+    int deleteAll();
 }

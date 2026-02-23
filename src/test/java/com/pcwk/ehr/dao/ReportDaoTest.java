@@ -19,17 +19,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.comment.CommentMapper;
 import com.pcwk.ehr.domain.CommentVO;
+import com.pcwk.ehr.domain.ReportVO;
+import com.pcwk.ehr.report.ReportMapper;
 
 @SpringBootTest
-class CommentDaoTest {
+class ReportDaoTest {
     final Logger log = LogManager.getLogger(getClass());
 
-    @Autowired                                                                                                                                                            
+    @Autowired
+    ReportMapper reportMapper;
+
+    @Autowired
     CommentMapper commentMapper;
 
+    ReportVO report01;
+    ReportVO report02;
+
     CommentVO comment01;
-    CommentVO comment02;
-    CommentVO comment03;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -37,32 +43,32 @@ class CommentDaoTest {
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
 
-        // 0. 전체삭제
+        // 0. 전체삭제 (report → cmt 순서)
+        reportMapper.deleteAll();
         commentMapper.deleteAll();
 
+        // 1. 댓글 먼저 등록 (FK 참조용)
         comment01 = new CommentVO();
-        comment01.setCmtCn("좋은 여행지입니다!");
+        comment01.setCmtCn("테스트 댓글");
         comment01.setCmtStarng(5);
         comment01.setCmtClsf(1);
         comment01.setTripCourseNo(1);
         comment01.setCmtHideYn("N");
         comment01.setRegNo(1);
+        commentMapper.doSave(comment01);
 
-        comment02 = new CommentVO();
-        comment02.setCmtCn("경치가 아름다워요");
-        comment02.setCmtStarng(4);
-        comment02.setCmtClsf(1);
-        comment02.setTripCourseNo(1);
-        comment02.setCmtHideYn("N");
-        comment02.setRegNo(1);
+        // 2. 신고 데이터 세팅
+        report01 = new ReportVO();
+        report01.setRepCn("욕설이 포함된 댓글입니다.");
+        report01.setRepClsf(1);
+        report01.setCmtNo(comment01.getCmtNo());
+        report01.setRegNo(1);
 
-        comment03 = new CommentVO();
-        comment03.setCmtCn("다음에 또 가고 싶어요");
-        comment03.setCmtStarng(3);
-        comment03.setCmtClsf(2);
-        comment03.setTripCourseNo(2);
-        comment03.setCmtHideYn("N");
-        comment03.setRegNo(1);
+        report02 = new ReportVO();
+        report02.setRepCn("허위 정보가 포함되어 있습니다.");
+        report02.setRepClsf(2);
+        report02.setCmtNo(comment01.getCmtNo());
+        report02.setRegNo(1);
     }
 
     @AfterEach
@@ -73,59 +79,105 @@ class CommentDaoTest {
     }
 
     @Test
-    @DisplayName("댓글 등록")
+    @DisplayName("신고 등록")
     void doSave() {
         log.info("┌──────────────────────────┐");
         log.info("│doSave()                  │");
         log.info("└──────────────────────────┘");
 
         // 1. 전체 건수 조회
-        // 2. 댓글 등록
+        // 2. 신고 등록
         // 3. 등록 확인
 
         // 1.
-        int count = commentMapper.getCount();
+        int count = reportMapper.getCount();
         assertEquals(0, count);
 
         // 2.
-        int flag = commentMapper.doSave(comment01);
+        int flag = reportMapper.doSave(report01);
         assertEquals(1, flag);
 
         // 3.
-        assertEquals(1, commentMapper.getCount());
+        assertEquals(1, reportMapper.getCount());
 
-        log.info("comment01: {}", comment01);
+        log.info("report01: {}", report01);
     }
 
     @Test
-    @DisplayName("댓글 수정")
+    @DisplayName("신고 처리(수정)")
     void doUpdate() {
         log.info("┌──────────────────────────┐");
         log.info("│doUpdate()                │");
         log.info("└──────────────────────────┘");
 
         // 1. 데이터 등록
-        // 2. 댓글 수정
+        // 2. 신고 처리
         // 3. 결과 확인
 
         // 1.
-        commentMapper.doSave(comment01);
+        reportMapper.doSave(report01);
 
         // 2.
-        comment01.setCmtCn("수정된 댓글 내용입니다.");
-        comment01.setCmtStarng(4);
-        comment01.setModNo(1);
-        int flag = commentMapper.doUpdate(comment01);
+        report01.setRepStatYn("Y");
+        int flag = reportMapper.doUpdate(report01);
         assertEquals(1, flag);
 
         // 3.
-        CommentVO outVO = commentMapper.doSelectOne(comment01);
-        assertEquals(comment01.getCmtCn(), outVO.getCmtCn());
-        assertEquals(comment01.getCmtStarng(), outVO.getCmtStarng());
+        ReportVO outVO = reportMapper.doSelectOne(report01);
+        assertEquals("Y", outVO.getRepStatYn());
+        assertNotNull(outVO.getRepProcDt());
+        assertNotNull(outVO.getRepProcHm());
 
         log.info("outVO: {}", outVO);
-    }  
+    }
 
+    @Test
+    @DisplayName("신고 삭제")
+    void doDelete() {
+        log.info("┌──────────────────────────┐");
+        log.info("│doDelete()                │");
+        log.info("└──────────────────────────┘");
+
+        // 1. 데이터 등록
+        // 2. 삭제
+        // 3. 결과 확인
+
+        // 1.
+        reportMapper.doSave(report01);
+        assertEquals(1, reportMapper.getCount());
+
+        // 2.
+        int flag = reportMapper.doDelete(report01);
+        assertEquals(1, flag);
+
+        // 3.
+        assertEquals(0, reportMapper.getCount());
+    }
+
+    @Test
+    @DisplayName("단건 조회")
+    void doSelectOne() {
+        log.info("┌──────────────────────────┐");
+        log.info("│doSelectOne()             │");
+        log.info("└──────────────────────────┘");
+
+        // 1. 데이터 등록
+        // 2. 단건 조회
+        // 3. 결과 확인
+
+        // 1.
+        reportMapper.doSave(report01);
+
+        // 2.
+        ReportVO outVO = reportMapper.doSelectOne(report01);
+
+        // 3.
+        assertNotNull(outVO);
+        assertEquals(report01.getRepCn(), outVO.getRepCn());
+        assertEquals(report01.getRepClsf(), outVO.getRepClsf());
+
+        log.info("outVO: {}", outVO);
+    }
 
     @Disabled
     @Test
@@ -140,10 +192,9 @@ class CommentDaoTest {
         // 3. 결과 확인
 
         // 1.
-        commentMapper.doSave(comment01);
-        commentMapper.doSave(comment02);
-        commentMapper.doSave(comment03);
-        assertEquals(3, commentMapper.getCount());
+        reportMapper.doSave(report01);
+        reportMapper.doSave(report02);
+        assertEquals(2, reportMapper.getCount());
 
         // 2.
         DTO searchParam = new DTO();
@@ -152,13 +203,13 @@ class CommentDaoTest {
         searchParam.setSearchDiv("");
         searchParam.setSearchWord("");
 
-        List<CommentVO> list = commentMapper.doRetrieve(searchParam);
+        List<ReportVO> list = reportMapper.doRetrieve(searchParam);
 
         // 3.
         assertNotNull(list);
         assertTrue(list.size() > 0);
 
-        for (CommentVO vo : list) {
+        for (ReportVO vo : list) {
             log.info("vo: {}", vo);
         }
     }
@@ -171,7 +222,7 @@ class CommentDaoTest {
         log.info("│beans()                   │");
         log.info("└──────────────────────────┘");
 
-        log.info("commentMapper: {}", commentMapper);
-        assertNotNull(commentMapper);
+        log.info("reportMapper: {}", reportMapper);
+        assertNotNull(reportMapper);
     }
 }

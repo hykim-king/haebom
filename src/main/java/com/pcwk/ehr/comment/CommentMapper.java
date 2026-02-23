@@ -5,7 +5,8 @@ import com.pcwk.ehr.domain.CommentVO;
 
 public interface CommentMapper extends WorkDiv<CommentVO> {
 
-    
+    int deleteAll(); 
 
+    int getCount();
     
 }

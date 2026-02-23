@@ -17,19 +17,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.pcwk.ehr.cmn.DTO;
-import com.pcwk.ehr.comment.CommentMapper;
-import com.pcwk.ehr.domain.CommentVO;
+import com.pcwk.ehr.domain.DrugVO;
+import com.pcwk.ehr.drug.DrugMapper;
 
 @SpringBootTest
-class CommentDaoTest {
+class DrugDaoTest {
     final Logger log = LogManager.getLogger(getClass());
 
-    @Autowired                                                                                                                                                            
-    CommentMapper commentMapper;
+    @Autowired
+    DrugMapper drugMapper;
 
-    CommentVO comment01;
-    CommentVO comment02;
-    CommentVO comment03;
+    DrugVO drug01;
+    DrugVO drug02;
+    DrugVO drug03;
+
 
     @BeforeEach
     void setUp() throws Exception {
@@ -38,31 +39,40 @@ class CommentDaoTest {
         log.info("└──────────────────────────┘");
 
         // 0. 전체삭제
-        commentMapper.deleteAll();
+        drugMapper.deleteAll();
 
-        comment01 = new CommentVO();
-        comment01.setCmtCn("좋은 여행지입니다!");
-        comment01.setCmtStarng(5);
-        comment01.setCmtClsf(1);
-        comment01.setTripCourseNo(1);
-        comment01.setCmtHideYn("N");
-        comment01.setRegNo(1);
+        drug01 = new DrugVO();
+        drug01.setDsNo(1);
+        drug01.setDsNm("서울약국");
+        drug01.setDsAddr("서울특별시 종로구 대학로 101");
+        drug01.setDsTelno("02-2072-2114");
+        drug01.setDsLat(37.5796);
+        drug01.setDsLot(126.9990);
+        drug01.setDsOpTm("09:00");
+        drug01.setDsEndTm("18:00");
+        drug01.setDsWkndOpenYn("N");
 
-        comment02 = new CommentVO();
-        comment02.setCmtCn("경치가 아름다워요");
-        comment02.setCmtStarng(4);
-        comment02.setCmtClsf(1);
-        comment02.setTripCourseNo(1);
-        comment02.setCmtHideYn("N");
-        comment02.setRegNo(1);
+        drug02 = new DrugVO();
+        drug02.setDsNo(2);
+        drug02.setDsNm("세브란스약국");
+        drug02.setDsAddr("서울특별시 서대문구 연세로 50-1");
+        drug02.setDsTelno("02-2228-0114");
+        drug02.setDsLat(37.5622);
+        drug02.setDsLot(126.9407);
+        drug02.setDsOpTm("08:30");
+        drug02.setDsEndTm("17:30");
+        drug02.setDsWkndOpenYn("N");
 
-        comment03 = new CommentVO();
-        comment03.setCmtCn("다음에 또 가고 싶어요");
-        comment03.setCmtStarng(3);
-        comment03.setCmtClsf(2);
-        comment03.setTripCourseNo(2);
-        comment03.setCmtHideYn("N");
-        comment03.setRegNo(1);
+        drug03 = new DrugVO();
+        drug03.setDsNo(3);
+        drug03.setDsNm("삼성서울약국");
+        drug03.setDsAddr("서울특별시 강남구 일원로 81");
+        drug03.setDsTelno("02-3410-2114");
+        drug03.setDsLat(37.4881);
+        drug03.setDsLot(127.0855);
+        drug03.setDsOpTm("08:00");
+        drug03.setDsEndTm("17:00");
+        drug03.setDsWkndOpenYn("N");
     }
 
     @AfterEach
@@ -73,61 +83,55 @@ class CommentDaoTest {
     }
 
     @Test
-    @DisplayName("댓글 등록")
+    @DisplayName("약국 등록")
     void doSave() {
         log.info("┌──────────────────────────┐");
         log.info("│doSave()                  │");
         log.info("└──────────────────────────┘");
 
         // 1. 전체 건수 조회
-        // 2. 댓글 등록
+        // 2. 약국 등록
         // 3. 등록 확인
 
         // 1.
-        int count = commentMapper.getCount();
+        int count = drugMapper.getCount();
         assertEquals(0, count);
 
         // 2.
-        int flag = commentMapper.doSave(comment01);
+        int flag = drugMapper.doSave(drug01);
         assertEquals(1, flag);
 
         // 3.
-        assertEquals(1, commentMapper.getCount());
+        assertEquals(1, drugMapper.getCount());
 
-        log.info("comment01: {}", comment01);
+        log.info("drug01: {}", drug01);
     }
 
+
     @Test
-    @DisplayName("댓글 수정")
-    void doUpdate() {
+    @DisplayName("단건 조회")
+    void doSelectOne() {
         log.info("┌──────────────────────────┐");
-        log.info("│doUpdate()                │");
+        log.info("│doSelectOne()             │");
         log.info("└──────────────────────────┘");
 
         // 1. 데이터 등록
-        // 2. 댓글 수정
+        // 2. 단건 조회
         // 3. 결과 확인
 
         // 1.
-        commentMapper.doSave(comment01);
+        drugMapper.doSave(drug01);
 
         // 2.
-        comment01.setCmtCn("수정된 댓글 내용입니다.");
-        comment01.setCmtStarng(4);
-        comment01.setModNo(1);
-        int flag = commentMapper.doUpdate(comment01);
-        assertEquals(1, flag);
+        DrugVO outVO = drugMapper.doSelectOne(drug01);
 
         // 3.
-        CommentVO outVO = commentMapper.doSelectOne(comment01);
-        assertEquals(comment01.getCmtCn(), outVO.getCmtCn());
-        assertEquals(comment01.getCmtStarng(), outVO.getCmtStarng());
+        assertEquals(drug01.getDsNm(), outVO.getDsNm());
+        assertEquals(drug01.getDsAddr(), outVO.getDsAddr());
 
         log.info("outVO: {}", outVO);
-    }  
+    }
 
-
-    @Disabled
     @Test
     @DisplayName("목록 조회")
     void doRetrieve() {
@@ -140,10 +144,10 @@ class CommentDaoTest {
         // 3. 결과 확인
 
         // 1.
-        commentMapper.doSave(comment01);
-        commentMapper.doSave(comment02);
-        commentMapper.doSave(comment03);
-        assertEquals(3, commentMapper.getCount());
+        drugMapper.doSave(drug01);
+        drugMapper.doSave(drug02);
+        drugMapper.doSave(drug03);
+        assertEquals(3, drugMapper.getCount());
 
         // 2.
         DTO searchParam = new DTO();
@@ -152,13 +156,13 @@ class CommentDaoTest {
         searchParam.setSearchDiv("");
         searchParam.setSearchWord("");
 
-        List<CommentVO> list = commentMapper.doRetrieve(searchParam);
+        List<DrugVO> list = drugMapper.doRetrieve(searchParam);
 
         // 3.
         assertNotNull(list);
         assertTrue(list.size() > 0);
 
-        for (CommentVO vo : list) {
+        for (DrugVO vo : list) {
             log.info("vo: {}", vo);
         }
     }
@@ -171,7 +175,7 @@ class CommentDaoTest {
         log.info("│beans()                   │");
         log.info("└──────────────────────────┘");
 
-        log.info("commentMapper: {}", commentMapper);
-        assertNotNull(commentMapper);
+        log.info("drugMapper: {}", drugMapper);
+        assertNotNull(drugMapper);
     }
 }

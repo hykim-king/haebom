@@ -5,4 +5,8 @@ import com.pcwk.ehr.domain.ReportVO;
 
 public interface ReportMapper extends WorkDiv<ReportVO> {
 
+    int getCount();
+
+    int deleteAll();
+
 }

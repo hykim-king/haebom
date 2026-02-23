@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pcwk.ehr.report.ReportMapper">
+
+    <!-- 신고 등록 -->
+    <insert id="doSave" parameterType="ReportVO">
+        <selectKey keyProperty="repNo" resultType="int" order="BEFORE">
+            SELECT SEQ_REP_NO.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO report (
+            REP_NO,
+            REP_CN,
+            REP_CLSF,
+            CMT_NO,
+            REG_NO
+        ) VALUES (
+            #{repNo},
+            #{repCn},
+            #{repClsf},
+            #{cmtNo},
+            #{regNo}
+        )
+    </insert>
+
+    <!-- 신고 수정 (처리) -->
+    <update id="doUpdate" parameterType="ReportVO">
+        UPDATE report
+        SET
+            REP_PROC_DT = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            REP_PROC_HM = TO_CHAR(SYSDATE, 'HH24MI'),
+            REP_STAT_YN = #{repStatYn}
+        WHERE REP_NO = #{repNo}
+    </update>
+
+    <!-- 신고 삭제 -->
+    <delete id="doDelete" parameterType="ReportVO">
+        DELETE FROM report
+        WHERE REP_NO = #{repNo}
+    </delete>
+
+    <!-- 전체 삭제 -->
+    <delete id="deleteAll">
+        DELETE FROM report
+    </delete>
+
+    <!-- 건수 조회 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM report
+    </select>
+
+    <!-- 단건 조회 -->
+    <select id="doSelectOne" parameterType="ReportVO" resultType="ReportVO">
+        SELECT
+            REP_NO,
+            REP_CN,
+            REP_CLSF,
+            CMT_NO,
+            REP_REG,
+            REP_REG_HM,
+            REG_NO,
+            REP_PROC_DT,
+            REP_PROC_HM,
+            REP_STAT_YN
+        FROM report
+        WHERE REP_NO = #{repNo}
+    </select>
+
+    <!-- 목록 조회 -->
+    <select id="doRetrieve" parameterType="DTO" resultType="ReportVO">
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS rnum, T1.*
+            FROM (
+                SELECT
+                    REP_NO,
+                    REP_CN,
+                    REP_CLSF,
+                    CMT_NO,
+                    REP_REG,
+                    REP_REG_HM,
+                    REG_NO,
+                    REP_PROC_DT,
+                    REP_PROC_HM,
+                    REP_STAT_YN
+                FROM report
+                WHERE 1 = 1
+                <if test="searchWord != null and searchWord != ''">
+                    <choose>
+                        <when test="searchDiv == '10'">
+                            AND REP_CN LIKE '%' || #{searchWord} || '%'
+                        </when>
+                        <when test="searchDiv == '20'">
+                            AND REP_STAT_YN = #{searchWord}
+                        </when>
+                    </choose>
+                </if>
+                ORDER BY REP_NO DESC
+            ) T1
+            <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
+        ) TT1
+        <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+    </select>
+
+</mapper>

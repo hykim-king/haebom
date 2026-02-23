@@ -34,7 +34,7 @@ class NoticeDaoTest {
 
         // [수정] 새로운 NoticeVO 생성자 파라미터 개수(9개)에 맞게 조정
         // 순서: ntcNo, ntcTtl, ntcCn, ntcReg, ntcRegHm, ntcMod, ntcModHm, regNo, modNo
-        notice01 = new NoticeVO(0, "제목01", "내용10", "안뇽", "ㅋㅋ", "ㅎㅇㅎㅇ", "12345", 1, 1);
+        notice01 = new NoticeVO(1, "제목01", "내용10", "안뇽", "ㅋㅋ", "ㅎㅇㅎㅇ", "12345", 10, 10);
 
         noticeMapper.deleteAll();
     }
@@ -45,7 +45,7 @@ class NoticeDaoTest {
         log.info("│─tearDown()               │");
         log.info("└──────────────────────────┘");
     }
-
+    //@Disabled
     @Test
     @DisplayName("검색 확인")
     void doRetrieve() {
@@ -61,8 +61,8 @@ class NoticeDaoTest {
             NoticeVO vo = new NoticeVO();
             vo.setNtcTtl("공지사항 제목" + i);
             vo.setNtcCn("공지사항 내용" + i);
-            vo.setRegNo(1);
-            vo.setModNo(1);
+            vo.setRegNo(10);
+            vo.setModNo(10);
 
             // saveAll 대신 확실히 검증된 doSave 호출
             noticeMapper.doSave(vo);
@@ -83,6 +83,7 @@ class NoticeDaoTest {
         assertEquals(10, retrieveList.size());
     }
 
+    //@Disabled
     @Test
     @DisplayName("수정 확인")
     void doUpdate() {
@@ -98,7 +99,7 @@ class NoticeDaoTest {
 
         outVO.setNtcTtl(outVO.getNtcTtl() + "_수정");
         outVO.setNtcCn(outVO.getNtcCn() + "_수정내용");
-        outVO.setModNo(1); // 수정자 변경 테스트
+        outVO.setModNo(10); // 수정자 변경 테스트
 
         int flag = noticeMapper.doUpdate(outVO);
         assertEquals(1, flag);
@@ -106,7 +107,7 @@ class NoticeDaoTest {
         NoticeVO updateVO = noticeMapper.doSelectOne(outVO);
         assertEquals(outVO.getNtcTtl(), updateVO.getNtcTtl());
     }
-
+    //@Disabled
     @Test
     @DisplayName("조회 확인")
     void doSelectone() {
@@ -131,7 +132,7 @@ class NoticeDaoTest {
         assertNotNull(outVO.getNtcReg());
         assertNotNull(outVO.getNtcRegHm()); // [추가] 시간 필드 검증
     }
-
+    //@Disabled
     @Test
     @DisplayName("삭제 확인")
     void doDelete() {

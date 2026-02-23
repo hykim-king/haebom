@@ -30,7 +30,7 @@ class SupportDaoTest {
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
         // 하니님 원본 유지 (9개 필드 생성자/세터 구조)
-        support01 = new SupportVO(0, "문의 내용 01", "답변 대기 중", null, null, null, "N", 1, null);
+        support01 = new SupportVO(0, "문의 내용 01", "답변 대기 중", null, null, null, "N", 13, null);
     }
 
     @AfterEach
@@ -56,7 +56,7 @@ class SupportDaoTest {
             SupportVO vo = new SupportVO();
             vo.setSupCn("문의사항 내용 " + i);
             vo.setSupAnsCn("답변 완료 " + i);
-            vo.setRegNo(1);
+            vo.setRegNo(11);
             supportMapper.doSave(vo);
         }
 
@@ -78,7 +78,7 @@ class SupportDaoTest {
             SupportVO vo = new SupportVO();
             vo.setSupCn("문의 내용 " + i);
             vo.setSupAnsCn("답변 내용 " + i);
-            vo.setRegNo(1);
+            vo.setRegNo(13);
             supportMapper.doSave(vo);
         }
 
@@ -109,7 +109,7 @@ class SupportDaoTest {
         SupportVO vo = new SupportVO();
         vo.setSupCn("테스트 내용입니다.");
         vo.setSupAnsCn("답변 완료 되었습니다");
-        vo.setRegNo(1);
+        vo.setRegNo(13);
         vo.setSupYn("N");
 
         int flag = supportMapper.doSave(vo);
@@ -171,7 +171,7 @@ class SupportDaoTest {
         for(int i=1; i<=30; i++) {
             SupportVO vo = new SupportVO();
             vo.setSupCn("검색 문의사항 " + i);
-            vo.setRegNo(1);
+            vo.setRegNo(13);
             supportMapper.doSave(vo);
         }
 

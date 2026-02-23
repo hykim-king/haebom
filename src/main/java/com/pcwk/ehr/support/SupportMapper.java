@@ -16,8 +16,6 @@ public interface SupportMapper extends WorkDiv<SupportVO> {
 
     int deleteAll();    // 전체 삭제
 
-    int saveAll(List<SupportVO> list);     // 전체 저장
-
     List<SupportVO> getAll();
 
 }

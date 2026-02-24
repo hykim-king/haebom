@@ -1,15 +1,13 @@
 package com.pcwk.ehr.domain;
 
 import com.pcwk.ehr.cmn.DTO;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@ToString
 public class NoticeVO extends DTO {
 
     private int ntcNo;         // NTC_NO (NUMBER) : 공지사항 고유번호

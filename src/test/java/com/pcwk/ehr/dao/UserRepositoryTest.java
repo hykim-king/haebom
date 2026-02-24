@@ -127,70 +127,8 @@ private UserEntity createNewUser(String email) {
     return newUser;
 }
     
-    // //@Disabled
-    // @Test
-    // @DisplayName("사용자 연속 탈퇴 시 del숫자 증가 테스트")
-    // void sequentialWithdrawTest() {
-    //     // [테스트 초기화] 기존 데이터 삭제 (중요: 카운트 꼬임 방지)
-    //     userRepository.deleteAll();
 
-    //     // 1. 첫 번째 사용자 저장 및 탈퇴
-    //     UserEntity firstUser = userRepository.save(user01);
-    //     String originalEmail = firstUser.getUserEmlAddr(); // 변조 전 원본 이메일 보관
-    //     processWithdraw(firstUser, originalEmail);
-
-    //     // 2. 두 번째 사용자 생성 (동일 정보)
-    //     UserEntity secondUser = new UserEntity();
-    //     secondUser.setUserEmlAddr(originalEmail); 
-    //     secondUser.setUserNick("길동이_2");
-    //     secondUser.setUserNm("길동2");
-    //     secondUser.setUserEnpswd("pass2");
-    //     secondUser.setUserTelno(encryptionUtil.encryptTel("010-9999-8888"));
-    //     secondUser.setUserBrdt(19910101);
-    //     secondUser.setUserGndr("M");
-    //     secondUser = userRepository.save(secondUser);
-
-    //     // 3. 두 번째 사용자 탈퇴 실행
-    //     processWithdraw(secondUser, originalEmail);
-
-    //     // 4. 검증
-    //     UserEntity res1 = userRepository.findById(firstUser.getUserNo()).get();
-    //     UserEntity res2 = userRepository.findById(secondUser.getUserNo()).get();
-
-    //     log.info("결과1: {}", res1.getUserEmlAddr());
-    //     log.info("결과2: {}", res2.getUserEmlAddr());
-
-    //     assertTrue(res1.getUserEmlAddr().endsWith("_del1"), "첫 번째는 _del1로 끝나야 함");
-    //     assertTrue(res2.getUserEmlAddr().endsWith("_del2"), "두 번째는 _del2로 끝나야 함");
-    // }
-
-    // /**
-    //  * 탈퇴 처리 공통 함수
-    //  */
-    // private void processWithdraw(UserEntity user, String pureEmail) {
-    //     // DB에서 해당 이메일로 시작하는 탈퇴자 수 조회
-    //     long delCount = userRepository.countByEmailStartingWithAndUserDelYn(pureEmail);
-        
-    //     // 카운트 + 1을 인자로 전달
-    //     user.withdraw(delCount + 1);
-    //     userRepository.save(user);
-    // }
-
-    // /**
-    //  * 실제 서비스 로직을 모사한 탈퇴 처리 함수
-    //  */
-    // private void processWithdraw(UserEntity user) {
-    //     // 1. 해당 사용자의 원본 이메일 기준으로 기존 탈퇴자가 몇 명인지 조회
-    //     // (실제로는 이메일에서 _del 부분을 제외한 순수 이메일로 조회해야 함)
-    //     String pureEmail = user.getUserEmlAddr();
-    //     long delCount = userRepository.countByEmailStartingWithAndUserDelYn(pureEmail);
-        
-    //     // 2. 새로운 탈퇴 번호 부여 (기존 수 + 1)
-    //     user.withdraw(delCount + 1);
-    //     userRepository.save(user);
-    // }
-
-    @Disabled
+    //@Disabled
     @Test
     @DisplayName("SHA-256 비밀번호 및 전화번호(AES-256) 암호화 저장 테스트")
     void saveAndVerifyEncryption() {

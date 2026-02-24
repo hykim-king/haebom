@@ -81,7 +81,7 @@
       </section>
 
       <!-- 실시간 인기 관광지 -->
-      <section class="container-fluid py-5 popular-section">
+      <section class="container py-4">
         <h2 class="fw-bold mb-4 d-flex align-items-center gap-2">
           <i data-lucide="trending-up" class="text-danger"></i>
           실시간 인기 관광지
@@ -90,34 +90,36 @@
       </section>
 
        <!-- 지역 슬라이더 (Regional Slider - Swiper) -->
-      <section class="region-slider-section">
-        <div class="region-inner">
-
-          <h2 class="fw-bold mb-4 d-flex align-items-center gap-2">
-            <i data-lucide="map-pin" class="text-primary"></i>
-            지역별 여행지 추천
-          </h2>
-        
-        <!-- Swiper Container -->
-         <div class="position-relative">
-          <div class="swiper region-swiper">
-            <div class="swiper-wrapper" id="regionSliderWrapper">
-                <!-- Javascript will inject slides here -->
+     <section class="region-section py-20 relative">
+        <div class="container mx-auto px-4 relative">
+          <div class="region-inner">
+            <h2 class="fw-bold mb-4 d-flex align-items-center gap-2">
+              <i data-lucide="map-pin" class="slider-text"></i>
+              지역별 여행지 추천
+            </h2>
+          
+            <!-- Swiper Container -->
+            <div class="position-relative slider-container">
+              <div class="swiper region-swiper">
+                <div class="swiper-wrapper" id="regionSliderWrapper">
+                  <!-- Javascript will inject slides here -->
+                </div>
+                
+                <!-- Pagination -->
+                <div class="swiper-pagination"></div>
+              </div>
+              
+              <!-- Navigation buttons (외부 배치) -->
+              <div class="swiper-button-prev custom-arrow">
+                <i data-lucide="chevron-left"></i>
+              </div>
+              <div class="swiper-button-next custom-arrow">
+                <i data-lucide="chevron-right"></i>
+              </div>
             </div>
-         
-        
-            <!-- Navigation buttons -->
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-button-next"></div>
-
-
-            <!-- Pagination -->
-            <div class="swiper-pagination"></div>
-          </div>
+          </div> 
         </div>
-        </div> 
-       </div>
-      </section>
+    </section>
 
       <!-- 날씨 BEST -->
       <section class="container-fluid py-6 weather-section">

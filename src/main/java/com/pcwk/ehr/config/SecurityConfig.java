@@ -64,16 +64,21 @@ public class SecurityConfig {
 
 		http
 			.authorizeHttpRequests((auth)-> auth
-				.requestMatchers(
-					"/css/**",
-					"/img/**",
-					"/javascript/**",
-					"/html/**",
-					"/login/**",
-					"/user/**",
-					"/api/auth/**"
-				).permitAll() //로그인, 회원가입, 이메일인증 허용
-				.anyRequest().authenticated()//나머지는 로그인 필수
+				//방식1: 기본 차단 + 허용 목록 (보안상 안전)
+				//.requestMatchers(
+				//	"/css/**",
+				//	"/img/**",
+				//	"/javascript/**",
+				//	"/html/**",
+				//	"/login/**",
+				//	"/user/**",
+				//	"/api/auth/**"
+				//).permitAll()
+				//.anyRequest().authenticated()
+
+				//방식2: 전체 허용 + 차단 목록 (임시적 허용)
+				.requestMatchers("/admin/**").hasRole("ADMIN")  //관리자만
+				.anyRequest().permitAll()                        //나머지 전부 허용
 			)
 			.formLogin(form -> form
 				.loginPage("/login/login") //GET 로그인 화면 

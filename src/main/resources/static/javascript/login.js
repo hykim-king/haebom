@@ -178,7 +178,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
-    // 4. 로그인 처리 함수들 (API 호출 vs Mock 데이터)
+    // 4. [카카오 로그인 처리 함수] 
+    //    추후 백엔드 연동 시 이 함수 내부의 URL이나 로직을 수정하면 됩니다.
+    // =========================================================================
+
+        function loginWithKakao() {
+    // 1. 카카오 로그인 설정 (백엔드 연동 시 수정할 부분)
+    const KAKAO_AUTH_CONFIG = {
+        // 백엔드에서 구현한 카카오 로그인 시작 엔드포인트
+        // 예: "https://api.haebomtrip.com/oauth2/authorization/kakao"
+        apiRedirectUrl: "/api/auth/kakao-login", 
+        
+        // 프론트엔드에서 직접 카카오 SDK를 쓸 경우 (선택 사항)
+        restApiKey: "YOUR_KAKAO_REST_API_KEY",
+        redirectUri: "http://127.0.0.1:5500/html/kakao-callback.html"
+    };
+
+    console.log("카카오 로그인 시도...");
+
+    /**
+     * [백엔드 연동 방식 - 권장]
+     * 대부분의 최신 웹 서비스는 보안을 위해 '백엔드'가 카카오 인증을 주도합니다.
+     * 아래 주석을 해제하면 사용자를 백엔드 서버로 보냅니다.
+     */
+    // window.location.href = KAKAO_AUTH_CONFIG.apiRedirectUrl;
+
+    /**
+     * [테스트용 메시지] 
+     * 아직 백엔드가 없으므로 동작을 확인하기 위한 알림창을 띄웁니다.
+     */
+    alert("카카오 로그인 연동 준비 중입니다.\n추후 백엔드 API가 준비되면 해당 주소로 연결됩니다.");
+}
+
+// 기존 login.js 코드 내의 window 객체에 함수를 할당하여 HTML에서 접근 가능하게 만듭니다.
+window.loginWithKakao = loginWithKakao;
+
+    // =========================================================================
+    // 5. 로그인 처리 함수들 (API 호출 vs Mock 데이터)
     // =========================================================================
 
     /**

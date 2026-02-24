@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+:root {
+    --primary-orange: #f97316; 
+    --hover-orange: #ea580c;   
+    --bg-gray: #f8fafc;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-gray);
+    color: #1e293b;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.header-iframe {
+    width: 100%;
+    height: 80px; 
+    border: none;
+    display: block;
+}
+
+/* 공통 카드 스타일 */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* 프로필 영역 */
+.profile-img-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.profile-img-container img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+
+/* 마이 메뉴 전체 박스 */
+.my-menu-container {
+    background: white;
+    border: 2px solid var(--primary-orange);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1);
+}
+
+/* 상단 탭 헤더 */
+.menu-header {
+    background: var(--primary-orange);
+    color: white;
+    padding: 1.5rem;
+}
+.nav-pills .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    margin: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    transition: all 0.2s;
+}
+.nav-pills .nav-link.active {
+    background: white !important;
+    color: var(--primary-orange) !important;
+}
+
+/* 탭 내부 콘텐츠 공간 */
+.tab-content-area {
+    background: white;
+    padding: 2rem;
+    min-height: 550px;
+}
+
+/* 입력창 스타일 */
+.form-control:focus {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.1);
+}
+
+/* 해시태그 커스텀 스타일 */
+.tag-checkbox { display: none; }
+.tag-label {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #f1f5f9;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.tag-checkbox:checked + .tag-label {
+    background: var(--primary-orange);
+    color: white;
+    box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+}
+.category-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    padding-left: 5px;
+    border-left: 3px solid var(--primary-orange);
+}
+
+/* 공통 애니메이션 */
+.animate-up { animation: fadeInUp 0.4s ease-out; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 찜 목록 카드 */
+.wish-card { transition: transform 0.2s; cursor: pointer; }
+.wish-card:hover { transform: translateY(-5px); }
+.wish-card img { height: 160px; object-fit: cover; }
+.bg-primary-subtle { background-color: #fff7ed !important; color: #f97316 !important; }
+.text-primary { color: var(--primary-orange) !important; }
+
+/* 추가된 편의용 클래스 */
+.btn-orange-bg { background-color: var(--primary-orange) !important; border: none !important; }
+.custom-btn-orange { border-color: var(--primary-orange) !important; color: var(--primary-orange) !important; }

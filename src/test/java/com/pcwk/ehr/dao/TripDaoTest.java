@@ -56,22 +56,23 @@ class TripDaoTest {
 		log.info("│doSelectOne               │");
 		log.info("└──────────────────────────┘");
 		// 단건 삭제
-		// tripMapper.doDelete(tripVO01);
-		// tripMapper.doDelete(tripVO02);
+		//tripMapper.doDelete(tripVO01);
+		//tripMapper.doDelete(tripVO02);
 
 		// 단건 등록
-		// int flag = tripMapper.doSave(tripVO01);
-		// tripMapper.doSave(tripVO02);
+		//int flag = tripMapper.doSave(tripVO01);
+		//tripMapper.doSave(tripVO02);
 
-		// assertEquals(1, flag);
-		// log.info("flag:" + flag);
-
+		//assertEquals(1, flag);
+		//log.info("flag:" + flag);
+		TripVO inputVO = new TripVO();
+		inputVO.setTripContsId(250427); // 조회하고 싶은 ID를 객체에 담음
 		// 단건조회
-		TripVO outVO01 = tripMapper.doSelectOne(tripVO01);
-		TripVO outVO02 = tripMapper.doSelectOne(tripVO02);
+		TripVO outVO01 = tripMapper.doSelectOne(inputVO);
+		
 
 		log.info("단건조회 데이터 outVO01:{}", outVO01);
-		log.info("단건조회 데이터 outVO02:{}", outVO02);
+		
 		assertNotNull(outVO01);
 	}
 
@@ -80,24 +81,24 @@ class TripDaoTest {
 	@DisplayName("여행지 목록 조회")
 	void doRetrieve() {
 		log.info("┌──────────────────────────┐");
-		log.info("│      doRetrieve()        │");
+		log.info("│ doRetrieve()             │");
 		log.info("└──────────────────────────┘");
 
 		// 1. 기존 데이터 정리 및 등록
-		// tripMapper.doDelete(tripVO01);
-		// tripMapper.doDelete(tripVO02);
-		// tripMapper.doDelete(tripVO03);
+		//tripMapper.doDelete(tripVO01);
+		//tripMapper.doDelete(tripVO02);
+		//tripMapper.doDelete(tripVO03);
 
-		// tripMapper.doSave(tripVO01);
-		// tripMapper.doSave(tripVO02);
-		// tripMapper.doSave(tripVO03);
+		//tripMapper.doSave(tripVO01);
+		//tripMapper.doSave(tripVO02);
+		//tripMapper.doSave(tripVO03);
 
 		TripVO searchVO = new TripVO();
 
 		searchVO.setPageSize(10);
 		searchVO.setPageNo(1);
-		searchVO.setSearchWord("정서진");
-		searchVO.setTripClsf(12); // TripVO의 필드
+		searchVO.setSearchWord("몽고정");
+		// searchVO.setTripClsf(12); // TripVO의 필드
 		log.info("여행지 전체 수"+tripMapper.getCount());
 		List<TripVO> list = tripMapper.doRetrieve(searchVO);
 

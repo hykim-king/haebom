@@ -18,7 +18,7 @@ import com.pcwk.ehr.cmn.EncryptionUtil;
 
 @SpringBootTest
 // @Transactional // 데이터를 눈으로 확인하기 위해 주석 처리 유지
-class UserRepositoryTest {
+class UserRepositoryTest {                                                                                                  
 
     final Logger log = LogManager.getLogger(getClass());
 
@@ -267,7 +267,9 @@ private UserEntity createNewUser(String email) {
         Integer savedNo = saved.getUserNo();
 
         // 2. 데이터 수정
-        String updatedNick = "수정된닉네임";
+        // 테스트가 @Transactional 없이 돌아가면 DB에 데이터가 누적될 수 있으므로(유니크 제약 회피)
+        // 닉네임을 매 실행마다 유니크하게 생성
+        String updatedNick = "수정된닉네임_" + UUID.randomUUID().toString().substring(0, 8);
         saved.setUserNick(updatedNick);
 
         // 수정일/수정시간도 CHAR(8)/CHAR(4)로 맞춰 저장(선택)

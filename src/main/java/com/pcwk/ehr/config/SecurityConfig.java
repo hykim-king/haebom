@@ -65,9 +65,14 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests((auth)-> auth
 				.requestMatchers(
-					"/assets/**",
-					"/login/**"
-				).permitAll() //로그인 화면 허용
+					"/css/**",
+					"/img/**",
+					"/javascript/**",
+					"/html/**",
+					"/login/**",
+					"/user/**",
+					"/api/auth/**"
+				).permitAll() //로그인, 회원가입, 이메일인증 허용
 				.anyRequest().authenticated()//나머지는 로그인 필수
 			)
 			.formLogin(form -> form

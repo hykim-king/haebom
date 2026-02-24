@@ -34,7 +34,7 @@ class NoticeDaoTest {
 
         // [수정] 새로운 NoticeVO 생성자 파라미터 개수(9개)에 맞게 조정
         // 순서: ntcNo, ntcTtl, ntcCn, ntcReg, ntcRegHm, ntcMod, ntcModHm, regNo, modNo
-        notice01 = new NoticeVO(1, "제목01", "내용10", "안뇽", "ㅋㅋ", "ㅎㅇㅎㅇ", "12345", 10, 10);
+        notice01 = new NoticeVO(1, "제목01", "내용10", "안뇽", "ㅋㅋ", "ㅎㅇㅎㅇ", "12345", 11, 11);
 
         noticeMapper.deleteAll();
     }
@@ -45,7 +45,7 @@ class NoticeDaoTest {
         log.info("│─tearDown()               │");
         log.info("└──────────────────────────┘");
     }
-    //@Disabled
+
     @Test
     @DisplayName("검색 확인")
     void doRetrieve() {
@@ -61,8 +61,8 @@ class NoticeDaoTest {
             NoticeVO vo = new NoticeVO();
             vo.setNtcTtl("공지사항 제목" + i);
             vo.setNtcCn("공지사항 내용" + i);
-            vo.setRegNo(10);
-            vo.setModNo(10);
+            vo.setRegNo(11);
+            vo.setModNo(11);
 
             // saveAll 대신 확실히 검증된 doSave 호출
             noticeMapper.doSave(vo);
@@ -83,7 +83,7 @@ class NoticeDaoTest {
         assertEquals(10, retrieveList.size());
     }
 
-    //@Disabled
+
     @Test
     @DisplayName("수정 확인")
     void doUpdate() {
@@ -99,15 +99,16 @@ class NoticeDaoTest {
 
         outVO.setNtcTtl(outVO.getNtcTtl() + "_수정");
         outVO.setNtcCn(outVO.getNtcCn() + "_수정내용");
-        outVO.setModNo(10); // 수정자 변경 테스트
+        outVO.setModNo(11);
 
         int flag = noticeMapper.doUpdate(outVO);
         assertEquals(1, flag);
 
         NoticeVO updateVO = noticeMapper.doSelectOne(outVO);
+        assertNotNull(updateVO);
         assertEquals(outVO.getNtcTtl(), updateVO.getNtcTtl());
     }
-    //@Disabled
+
     @Test
     @DisplayName("조회 확인")
     void doSelectone() {
@@ -120,11 +121,14 @@ class NoticeDaoTest {
         int flag = noticeMapper.doSave(notice01);
         assertEquals(1, flag);
 
-        // 등록된 시퀀스 번호를 가져오기 위해 전체 목록에서 첫 번째 객체 사용
-        NoticeVO regVO = noticeMapper.getAll().get(0);
-        NoticeVO outVO = noticeMapper.doSelectOne(regVO);
+        List<NoticeVO> list = noticeMapper.getAll();
+        assertEquals(1, list.size());
 
-        log.info("조회 결과: {}", outVO);
+        // 등록된 시퀀스 번호를 가져오기 위해 전체 목록에서 첫 번째 객체 사용
+        NoticeVO regVO = list.get(0);
+        assertNotNull(regVO);
+
+        NoticeVO outVO = noticeMapper.doSelectOne(regVO);
         assertNotNull(outVO);
 
         assertEquals(regVO.getNtcNo(), outVO.getNtcNo());
@@ -132,7 +136,7 @@ class NoticeDaoTest {
         assertNotNull(outVO.getNtcReg());
         assertNotNull(outVO.getNtcRegHm()); // [추가] 시간 필드 검증
     }
-    //@Disabled
+
     @Test
     @DisplayName("삭제 확인")
     void doDelete() {
@@ -144,7 +148,9 @@ class NoticeDaoTest {
         noticeMapper.doSave(notice01);
 
         List<NoticeVO> list = noticeMapper.getAll();
-        int flag = noticeMapper.doDelete(list.get(0));
+        NoticeVO outVO = list.get(0);
+
+        int flag = noticeMapper.doDelete(outVO);
 
         assertEquals(1, flag);
         assertEquals(0, noticeMapper.getCount());

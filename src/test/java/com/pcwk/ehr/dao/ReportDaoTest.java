@@ -54,7 +54,7 @@ class ReportDaoTest {
         comment01.setCmtClsf(1);
         comment01.setTripCourseNo(1);
         comment01.setCmtHideYn("N");
-        comment01.setRegNo(1);
+        comment01.setRegNo(10);
         commentMapper.doSave(comment01);
 
         // 2. 신고 데이터 세팅
@@ -62,13 +62,13 @@ class ReportDaoTest {
         report01.setRepCn("욕설이 포함된 댓글입니다.");
         report01.setRepClsf(1);
         report01.setCmtNo(comment01.getCmtNo());
-        report01.setRegNo(1);
+        report01.setRegNo(10);
 
         report02 = new ReportVO();
         report02.setRepCn("허위 정보가 포함되어 있습니다.");
         report02.setRepClsf(2);
         report02.setCmtNo(comment01.getCmtNo());
-        report02.setRegNo(1);
+        report02.setRegNo(10);
     }
 
     @AfterEach
@@ -179,7 +179,7 @@ class ReportDaoTest {
         log.info("outVO: {}", outVO);
     }
 
-    @Disabled
+    //@Disabled
     @Test
     @DisplayName("목록 조회")
     void doRetrieve() {
@@ -214,7 +214,7 @@ class ReportDaoTest {
         }
     }
 
-    @Disabled
+    //@Disabled
     @Test
     @DisplayName("객체생성 확인")
     void beans() {

@@ -46,7 +46,7 @@ class CommentDaoTest {
         comment01.setCmtClsf(1);
         comment01.setTripCourseNo(1);
         comment01.setCmtHideYn("N");
-        comment01.setRegNo(1);
+        comment01.setRegNo(10);
 
         comment02 = new CommentVO();
         comment02.setCmtCn("경치가 아름다워요");
@@ -54,7 +54,7 @@ class CommentDaoTest {
         comment02.setCmtClsf(1);
         comment02.setTripCourseNo(1);
         comment02.setCmtHideYn("N");
-        comment02.setRegNo(1);
+        comment02.setRegNo(10);
 
         comment03 = new CommentVO();
         comment03.setCmtCn("다음에 또 가고 싶어요");
@@ -62,7 +62,7 @@ class CommentDaoTest {
         comment03.setCmtClsf(2);
         comment03.setTripCourseNo(2);
         comment03.setCmtHideYn("N");
-        comment03.setRegNo(1);
+        comment03.setRegNo(10);
     }
 
     @AfterEach
@@ -114,7 +114,7 @@ class CommentDaoTest {
         // 2.
         comment01.setCmtCn("수정된 댓글 내용입니다.");
         comment01.setCmtStarng(4);
-        comment01.setModNo(1);
+        comment01.setModNo(10);
         int flag = commentMapper.doUpdate(comment01);
         assertEquals(1, flag);
 
@@ -163,7 +163,7 @@ class CommentDaoTest {
         }
     }
 
-    @Disabled
+    //@Disabled
     @Test
     @DisplayName("객체생성 확인")
     void beans() {

@@ -97,6 +97,7 @@ $(document).ready(function () {
     $(this).prop('disabled', true).text('전송 중...');
     $.ajax({
       url: signupConfig.endpoints.sendEmailCode,
+      type: 'POST',
       method: 'POST',
       contentType: 'application/json',
       data: JSON.stringify({ email }),

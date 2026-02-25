@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.notice.NoticeMapper">
+
+    <select id="doRetrieve" parameterType="DTO" resultType="NoticeVO">
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS rnum, T1.*
+            FROM (
+                SELECT
+                    NTC_NO,
+                    NTC_TTL,
+                    NTC_CN,
+                    NTC_REG,
+                    NTC_REG_HM,
+                    NTC_MOD,
+                    NTC_MOD_HM,
+                    REG_NO,
+                    MOD_NO
+            FROM NOTICE
+            WHERE 1 = 1
+            <if test="searchWord != null and searchWord != ''">
+                <choose>
+                    <when test="searchDiv == '10'">
+                        AND NTC_TTL LIKE '%' || #{searchWord} || '%'
+                    </when>
+                    <when test="searchDiv == '20'">
+                        AND NTC_CN LIKE '%' || #{searchWord} || '%'
+                    </when>
+                </choose>
+             </if>
+            ORDER BY NTC_NO ASC
+            ) T1
+            <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
+        ) TT1
+        <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+    </select>
+
+    <insert id="doSave" parameterType="NoticeVO">
+        INSERT INTO notice (NTC_NO,
+                            NTC_TTL,
+                            NTC_CN,
+                            NTC_REG,
+                            NTC_REG_HM,
+                            NTC_MOD,
+                            NTC_MOD_HM,
+                            REG_NO,
+                            MOD_NO)
+        VALUES (SEQ_NTC_NO.NEXTVAL,
+                #{ntcTtl},
+                #{ntcCn},
+                TO_CHAR(SYSDATE, 'YYYYMMDD'),
+                TO_CHAR(SYSDATE, 'HH24MI'),
+                TO_CHAR(SYSDATE, 'YYYYMMDD'),
+                TO_CHAR(SYSDATE, 'HH24MI'),
+                #{regNo},
+                #{modNo})
+    </insert>
+
+    <select id="doSelectOne" parameterType="NoticeVO" resultType="NoticeVO">
+        SELECT NTC_NO,
+               NTC_TTL,
+               NTC_CN,
+               NTC_REG,
+               NTC_REG_HM,
+               NTC_MOD,
+               NTC_MOD_HM,
+               REG_NO,
+               MOD_NO
+        FROM NOTICE
+        WHERE NTC_NO = #{ntcNo}
+    </select>
+
+    <update id="doUpdate" parameterType="NoticeVO">
+        UPDATE NOTICE
+        SET NTC_TTL    = #{ntcTtl},
+            NTC_CN     = #{ntcCn},
+            NTC_MOD    = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            NTC_MOD_HM = TO_CHAR(SYSDATE, 'HH24MI'),
+            MOD_NO     = #{modNo}
+        WHERE NTC_NO = #{ntcNo}
+    </update>
+
+    <delete id="doDelete" parameterType="NoticeVO">
+        DELETE
+        FROM NOTICE
+        WHERE NTC_NO = #{ntcNo}
+    </delete>
+
+    <delete id="deleteAll">
+        DELETE
+        FROM NOTICE
+    </delete>
+
+    <select id="getCount" resultType="Int">
+        SELECT COUNT(*)
+        FROM NOTICE
+    </select>
+
+    <select id="getAll" resultType="NoticeVO">
+        SELECT *
+        FROM NOTICE
+    </select>
+
+</mapper>

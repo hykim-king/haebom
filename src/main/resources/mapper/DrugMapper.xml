@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pcwk.ehr.drug.DrugMapper">
+
+    <!-- 약국 등록 -->
+    <insert id="doSave" parameterType="DrugVO">
+        INSERT INTO drug (
+            DS_NO,
+            DS_NM,
+            DS_ADDR,
+            DS_TELNO,
+            DS_LAT,
+            DS_LOT,
+            DS_OP_TM,
+            DS_END_TM,
+            DS_WKND_OPEN_YN
+        ) VALUES (
+            #{dsNo},
+            #{dsNm},
+            #{dsAddr},
+            #{dsTelno},
+            #{dsLat},
+            #{dsLot},
+            #{dsOpTm},
+            #{dsEndTm},
+            #{dsWkndOpenYn}
+        )
+    </insert>
+
+    <!-- 약국 삭제 -->
+    <delete id="doDelete" parameterType="DrugVO">
+        DELETE FROM drug
+        WHERE DS_NO = #{dsNo}
+    </delete>
+
+    <!-- 전체 삭제 -->
+    <delete id="deleteAll">
+        DELETE FROM drug
+    </delete>
+
+    <!-- 건수 조회 -->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM drug
+    </select>
+
+    <!-- 단건 조회 -->
+    <select id="doSelectOne" parameterType="DrugVO" resultType="DrugVO">
+        SELECT
+            DS_NO,
+            DS_NM,
+            DS_ADDR,
+            DS_TELNO,
+            DS_LAT,
+            DS_LOT,
+            DS_OP_TM,
+            DS_END_TM,
+            DS_WKND_OPEN_YN
+        FROM drug
+        WHERE DS_NO = #{dsNo}
+    </select>
+
+    <!-- 목록 조회 -->
+    <select id="doRetrieve" parameterType="DTO" resultType="DrugVO">
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS rnum, T1.*
+            FROM (
+                SELECT
+                    DS_NO,
+                    DS_NM,
+                    DS_ADDR,
+                    DS_TELNO,
+                    DS_LAT,
+                    DS_LOT,
+                    DS_OP_TM,
+                    DS_END_TM,
+                    DS_WKND_OPEN_YN
+                FROM drug
+                WHERE 1 = 1
+                <if test="searchWord != null and searchWord != ''">
+                    <choose>
+                        <when test="searchDiv == '10'">
+                            AND DS_NM LIKE '%' || #{searchWord} || '%'
+                        </when>
+                        <when test="searchDiv == '20'">
+                            AND DS_ADDR LIKE '%' || #{searchWord} || '%'
+                        </when>
+                    </choose>
+                </if>
+                ORDER BY DS_NO ASC
+            ) T1
+            <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
+        ) TT1
+        <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+    </select>
+
+</mapper>

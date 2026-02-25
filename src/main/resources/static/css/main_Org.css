@@ -71,21 +71,22 @@
   margin: 0 auto; /* 중앙 정렬 */
   display: flex;
   gap: 8px;
-  background: #fff;
+  background: #ffffff81;
   padding: 8px; /* 내부 여백 축소 */
   border-radius: 12px;
 }
 
 .hero-search input {
   flex: 1;
-  border: 1px solid #ddd;
+  border: 1px solid #dddddd;
+  background: #ffffffcc;
   padding: 10px 14px; /* 입력창 높이 축소 */
   border-radius: 8px;
   font-size: 15px;
 }
 
 .hero-btn {
-  background: #f97316;
+  background: #fc8b3bd8;
   color: #fff;
   border: none;
   padding: 0 20px;
@@ -262,33 +263,42 @@
    지역별 여행지 추천
 ========================= */
 .region-slider-section {
-    max-width: 1500px; /* Limit width */
-    margin: 0 auto;    /* Center */
-    border-radius: 1.5rem; /* Round corners */
+    max-width: 1300px;
+    margin: 0 auto;
+    border-radius: 1.5rem;
     padding: 80px 0;
-    background-color: #f9f9f9;
+    background-color: #fff4e3;
+}
+
+.slider-text{
+    --bs-text-opacity: 1;
+    color: rgb(255, 102, 0) !important;
 }
 
 /* 날씨 섹션의 .weather-inner와 동일한 규격 */
 .region-inner {
-    max-width: 1400px !important; /* 오늘의 날씨 섹션과 동일한 값 */
-    margin: 0 auto !important;    /* 중앙 정렬 */
-    padding: 0 40px !important;;   /* 양옆 최소 여백 */
-    position: relative; /* 화살표 버튼 기준점 */
-    box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+    max-width: 1200px;
+    margin: 0 auto !important;
+    padding: 0 40px !important;
+    position: relative;
+    box-sizing: border-box;
 }
 
-/* 슬라이더 영역 가로 너비 강제 적용 */
+/* 슬라이더 컨테이너 - 화살표 공간 확보 */
+.slider-container {
+    position: relative;
+    padding: 0 80px; /* 좌우에 화살표 공간 확보 */
+}
+
+/* 슬라이더 영역 */
 .region-swiper {
     width: 100% !important;
-    padding: 20px 0 60px 0 !important; /* 위아래 여백 확보 */
-    overflow: hidden !important; /* 슬라이드 넘침 방지 */
+    padding: 20px 0 60px 0 !important;
+    overflow: hidden !important;
 }
 
 .region-swiper .swiper-slide {
-    /* background-position: center;
-    background-size: cover; */
-    height: 450px; /* 높이는 유지하거나 취향껏 조절 */
+    height: 450px;
     border-radius: 25px;
     overflow: hidden;
     position: relative;
@@ -358,44 +368,104 @@
     backdrop-filter: blur(4px);
 }
 
-/* 네비게이션 버튼 위치 조정 (컨테이너 양 끝으로) */
-.region-swiper .swiper-button-prev {left: 10px;}
-.region-swiper .swiper-button-next {right: 10px;}
-
-
-.region-swiper .swiper-button-prev,
-.region-swiper .swiper-button-next {
-    width: 50px;
-    height: 50px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border: 1px solid #ddd;
-    color: #333;
-    border-radius: 50%; /* 동그랗게 */
-    top: 50%; /* 수직 중앙 */
-    transform: translateY(-100%);
-    z-index: 10;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+/* 네비게이션 버튼 - 슬라이더 외부 배치 */
+.slider-container .swiper-button-prev,
+.slider-container .swiper-button-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    background: white;
+    border: 2px solid #f97316;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
 }
 
-.region-swiper .swiper-button-prev:after,
-.region-swiper .swiper-button-next:after {
-    font-size: 18px;
-    font-weight: bold;
+.slider-container .swiper-button-prev {
+    left: 0;
 }
 
-.region-swiper .swiper-button-prev:hover,
-.region-swiper .swiper-button-next:hover {
-    background-color: rgba(255, 255, 255, 1);
-    color: #333;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+.slider-container .swiper-button-next {
+    right: 0;
 }
 
-/* 활성화된 중앙 슬라이드 강조 (선택 사항) */
+/* 기본 화살표 숨기기 */
+.slider-container .swiper-button-prev:after,
+.slider-container .swiper-button-next:after {
+    display: none;
+}
+
+/* Lucide 아이콘 스타일 */
+.slider-container .swiper-button-prev svg,
+.slider-container .swiper-button-next svg {
+    width: 28px;
+    height: 28px;
+    color: #f97316;
+    stroke-width: 2.5;
+}
+
+/* 호버 효과 */
+.slider-container .swiper-button-prev:hover,
+.slider-container .swiper-button-next:hover {
+    background: #f97316;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+}
+
+.slider-container .swiper-button-prev:hover svg,
+.slider-container .swiper-button-next:hover svg {
+    color: white;
+}
+
+/* 비활성화 상태 */
+.slider-container .swiper-button-disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.slider-container .swiper-button-disabled:hover {
+    background: white;
+    transform: translateY(-50%);
+}
+
+/* 활성화된 중앙 슬라이드 강조 */
 .swiper-slide-active {
     border: none;
-    transform: scale(1.0); /* scale을 1.05로 하면 좌우 카드를 가릴 수 있으니 주의 */
+    transform: scale(1.0);
     z-index: 10;
 }
+
+/* 페이지네이션 (동그라미) 스타일 */
+.region-swiper .swiper-pagination {
+    bottom: 20px !important;
+}
+
+.region-swiper .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: rgba(249, 115, 22, 0.3); /* 주황색 투명 */
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+.region-swiper .swiper-pagination-bullet-active {
+    background: #f97316; /* 해봄트립 주황색 */
+    width: 28px; /* 활성화된 것은 길쭉하게 */
+    border-radius: 5px;
+}
+
+.region-swiper .swiper-pagination-bullet:hover {
+    background: #f97316;
+    transform: scale(1.2);
+}
+
 
 /* =========================
    오늘의 날씨
@@ -403,7 +473,7 @@
 .weather-section {
   background-color: #fef2e1;
   border-radius: 1.5rem;
-  max-width: 1500px; /* 실시간 인기 관광지와 동일하게 설정 */
+  max-width: 1300px; /* 실시간 인기 관광지와 동일하게 설정 */
   margin: 90px auto; /* 위아래 여백 2배 증가 (기존: 0 auto 또는 60px auto 정도였던 것을 상정) */
   padding: 60px 40px; /* 상하좌우 여백을 충분히 주어 안정감 부여 */
   text-align: center; /* 내부 모든 요소 기본 중앙 정렬 */

@@ -34,3 +34,20 @@ body > div {
     /* 0.6초 동안 부드러운 가속도 곡선(cubic-bezier)으로 실행 */
     animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* 카카오 로그인 버튼 스타일 */
+.kakao-btn {
+    background-color: #fff04c; /* 카카오 공식 노란색 */
+    color: #3A1D1D;           /* 카카오 공식 텍스트 색상 (짙은 갈색) */
+    border: none;
+}
+
+.kakao-btn:hover {
+    background-color: #F7E600; /* 마우스 올렸을 때 약간 어둡게 */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.kakao-btn:active {
+    transform: translateY(0);
+}

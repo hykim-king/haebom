@@ -28,15 +28,6 @@ public class SupportController {
         return "";
     }
 
-    @GetMapping("/support")
-    public String support() {
-        log.info("┌──────────────────────────┐");
-        log.info("│ support()                │");
-        log.info("└──────────────────────────┘");
-
-        return "support/support";
-    }
-
     @PostMapping("/doDelete.do")
     @ResponseBody
     public String doDelete() {

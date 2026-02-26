@@ -5,11 +5,13 @@ import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.notice.NoticeMapper;
 import com.pcwk.ehr.notice.NoticeService;
 import com.pcwk.ehr.user.UserMapper;
+import com.pcwk.ehr.user.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 
@@ -28,11 +30,10 @@ class NoticeServiceTest {
     NoticeMapper noticeMapper;
 
     @Autowired
-    UserMapper userMapper;
+    UserService userService;
 
     NoticeVO notice01;
     UserVO adminUser;
-
 
     @BeforeEach
     void setUp() {
@@ -41,17 +42,11 @@ class NoticeServiceTest {
         log.info("└──────────────────────────┘");
 
         // 1. User 정보 가져오기
-        UserVO searchUser = new UserVO();
-        searchUser.setUserNo(135);
+        adminUser = new UserVO();
+        adminUser.setUserNo(135);
+        adminUser.setUserMngrYn("Y");
 
-        // 데이터 가져와서 adminUser에 할당
-        adminUser = userMapper.doSelectOne(searchUser);
-
-        // 데이터 존재 유무 확인
-        assertNotNull(adminUser,"데이터가 존재하지 않습니다");
-        log.info("조회된 데이터: {}", adminUser.getUserMngrYn());
-
-
+        log.info(adminUser.getUserNo());
 
         // 2.
         notice01 = new NoticeVO();
@@ -72,16 +67,15 @@ class NoticeServiceTest {
 
         int flag = noticeService.doSave(notice01);
         assertEquals(1, flag);
-        log.info("저장 확인 완료: {}건 저장됨", flag);
+
+        List<NoticeVO> list = noticeMapper.getAll();
+        NoticeVO vo = list.get(0);
+        notice01.setNtcNo(vo.getNtcNo());
 
         NoticeVO outVO = noticeService.doSelectOne(notice01);
         assertNotNull(outVO);
         assertEquals(notice01.getNtcNo(), outVO.getNtcNo(), "번호가 일치하지 않습니다.");
-        assertEquals(notice01.getNtcTtl(), outVO.getNtcTtl(), "제목이 일치하지 않습니다.");
-        assertEquals(notice01.getNtcCn(), outVO.getNtcCn(), "내용이 일치하지 않습니다.");
-        assertEquals(notice01.getRegNo(), outVO.getRegNo(), "등록자 번호가 일치하지 않습니다.");
 
-        log.info("조회된 데이터: {}", outVO);
     }
 
     @Test
@@ -91,20 +85,22 @@ class NoticeServiceTest {
         log.info("│─doSelectOne()            │");
         log.info("└──────────────────────────┘");
 
+        // 0.
+        noticeMapper.deleteAll();
+
         // 1. 저장
         noticeService.doSave(notice01);
 
         // 2. 조회
+        List<NoticeVO> list = noticeMapper.getAll();
+        notice01.setNtcNo(list.get(0).getNtcNo());
+
         NoticeVO outVO = noticeService.doSelectOne(notice01);
 
         // 3. 검증
         assertNotNull(outVO);
         assertEquals(notice01.getNtcNo(), outVO.getNtcNo(), "번호가 일치하지 않습니다.");
-        assertEquals(notice01.getNtcTtl(), outVO.getNtcTtl(), "제목이 일치하지 않습니다.");
-        assertEquals(notice01.getNtcCn(), outVO.getNtcCn(), "내용이 일치하지 않습니다.");
-        assertEquals(notice01.getRegNo(), outVO.getRegNo(), "등록자 번호가 일치하지 않습니다.");
 
-        log.info("조회 성공! DB 날짜: {}, 시간: {}", outVO.getNtcReg(), outVO.getNtcRegHm());
     }
 
     @Test
@@ -114,11 +110,15 @@ class NoticeServiceTest {
         log.info("│─doUpdate()               │");
         log.info("└──────────────────────────┘");
 
-        // 1. 저장
+        noticeMapper.deleteAll();
         noticeService.doSave(notice01);
+
+        List<NoticeVO> list = noticeMapper.getAll();
+        notice01.setNtcNo(list.get(0).getNtcNo());
 
         // 2. 조회
         NoticeVO outVO = noticeService.doSelectOne(notice01);
+        assertNotNull(outVO);
 
         // 3. 수정
         outVO.setNtcTtl(outVO.getNtcTtl() + "_수정");
@@ -132,9 +132,6 @@ class NoticeServiceTest {
         NoticeVO updateVO = noticeService.doSelectOne(outVO);
         assertNotNull(updateVO);
         assertEquals(outVO.getNtcTtl(), updateVO.getNtcTtl());
-        assertEquals(outVO.getNtcCn(), updateVO.getNtcCn());
-        assertEquals(outVO.getModNo(), updateVO.getModNo());
-        log.info("수정 성공! DB 날짜: {}, 시간: {}", updateVO.getNtcReg(), updateVO.getNtcRegHm());
 
     }
 

@@ -29,14 +29,7 @@
                     </when>
                 </choose>
              </if>
-            --  긴급 중요 공지 상단 고정 로직
-            ORDER BY
-                CASE
-                    WHEN NTC_TTL LIKE '[긴급]%' THEN 0
-                    WHEN NTC_TTL LIKE '[중요]%' THEN 1
-                    ELSE 2
-                END ,
-                NTC_NO DESC
+            ORDER BY NTC_NO ASC
             ) T1
             <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
         ) TT1
@@ -44,10 +37,6 @@
     </select>
 
     <insert id="doSave" parameterType="NoticeVO">
-        <selectKey keyProperty="ntcNo" resultType="int" order="BEFORE">
-            SELECT SEQ_NTC_NO.NEXTVAL
-            FROM DUAL
-        </selectKey>
         INSERT INTO notice (NTC_NO,
                             NTC_TTL,
                             NTC_CN,
@@ -57,7 +46,7 @@
                             NTC_MOD_HM,
                             REG_NO,
                             MOD_NO)
-        VALUES (#{ntcNo},
+        VALUES (SEQ_NTC_NO.NEXTVAL,
                 #{ntcTtl},
                 #{ntcCn},
                 TO_CHAR(SYSDATE, 'YYYYMMDD'),
@@ -77,7 +66,11 @@
                NTC_MOD,
                NTC_MOD_HM,
                REG_NO,
-               MOD_NO
+               MOD_NO,
+               LAG(NTC_NO) OVER (ORDER BY NTC_NO),
+               LAG(NTC_TTL) over (ORDER BY NTC_NO),
+               LEAD(NTC_NO) over (ORDER BY NTC_NO),
+               LEAD(NTC_TTL) over (ORDER BY NTC_NO)
         FROM NOTICE
         WHERE NTC_NO = #{ntcNo}
     </select>

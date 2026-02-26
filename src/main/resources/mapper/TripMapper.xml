@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.trip.TripMapper">
+
+    <insert id="doSave" parameterType="TripVO">
+        INSERT INTO TRIP (
+            TRIP_CONTS_ID, 
+            TRIP_NM, 
+            TRIP_PATH_NM, 
+            TRIP_ADDR,
+            TRIP_LAT, 
+            TRIP_LOT, 
+            TRIP_TAG, 
+            TRIP_CLSF,
+            TRIP_CTPV, 
+            TRIP_GUNGU, 
+            TRIP_INQ_CNT
+        ) VALUES (
+            #{tripContsId}, 
+            #{tripNm}, 
+            #{tripPathNm}, 
+            #{tripAddr},
+            #{tripLat}, 
+            #{tripLot}, 
+            #{tripTag}, 
+            #{tripClsf},
+            #{tripCtpv}, 
+            #{tripGungu}, 
+            #{tripInqCnt}
+        )
+    </insert>
+
+    <delete id="doDelete" parameterType="TripVO">
+        DELETE FROM TRIP 
+        WHERE TRIP_CONTS_ID = #{tripContsId}
+    </delete>
+
+    <select id="doSelectOne" parameterType="TripVO" resultType="TripVO">
+        SELECT
+            TRIP_CONTS_ID, 
+            TRIP_NM, 
+            TRIP_PATH_NM, 
+            TRIP_ADDR,
+            TRIP_LAT, 
+            TRIP_LOT, 
+            TRIP_TAG, 
+            TRIP_CLSF,
+            TRIP_CTPV, 
+            TRIP_GUNGU, 
+            TRIP_INQ_CNT
+        FROM TRIP
+        WHERE TRIP_CONTS_ID = #{tripContsId}
+    </select>
+
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM trip
+    </select>
+
+
+    <select id="doRetrieve" parameterType="TripVO" resultType="TripVO">
+        SELECT A.*, B.TOTAL_CNT AS totalCnt
+        FROM (
+            SELECT TT1.*
+            FROM (
+                SELECT ROWNUM AS RNUM, T1.*
+                FROM (
+                    SELECT *
+                    FROM TRIP
+                    WHERE 1=1
+                    <if test="searchWord != null and searchWord != ''">
+                        AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
+                    </if>
+                    <if test="tripClsf != 0">
+                        AND TRIP_CLSF = #{tripClsf}
+                    </if>
+                    ORDER BY TRIP_CONTS_ID DESC
+                ) T1  
+                <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
+            ) TT1
+            <![CDATA[WHERE RNUM >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+        ) A CROSS JOIN (
+            SELECT COUNT(*) TOTAL_CNT
+            FROM TRIP
+            WHERE 1=1
+            <if test="searchWord != null and searchWord != ''">
+                AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
+            </if>
+            <if test="tripClsf != 0">
+                AND TRIP_CLSF = #{tripClsf}
+            </if>
+        ) B    
+    </select>
+
+</mapper>

@@ -1,0 +1,97 @@
+.footer {
+  background: #0f172a;
+  color: #94a3b8;
+  padding: 48px 0;
+}
+
+.footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 48px;
+}
+
+.footer-logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.footer-adress {
+  font-size: 14px;
+}
+
+.footer-text {
+  font-size: 18px;
+}
+
+.footer-title {
+  font-weight: 700;
+  color: white;
+  margin-bottom: 16px;
+}
+
+/*리스트*/
+.footer-list {
+  list-style: none;
+  font-size: 14px;
+  padding: 0; /* 좌측 기본 여백 제거  */
+  margin: 0;  /* 상하단 기본 여백 제거 */
+}
+
+.footer-list li {
+  margin-bottom: 8px;
+}
+
+.footer-list a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-list a:hover {
+  color: white;
+}
+
+.footer-newsletter {
+  display: flex;
+  gap: 8px;
+}
+
+
+.footer-newsletter input {
+  flex: 1;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: white;
+}
+
+.footer-newsletter button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #f97316;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.footer-newsletter button:hover {
+  background: #ea580c;
+}
+
+.footer-copy {
+  border-top: 1px solid #1e293b;
+  padding-top: 32px;
+  text-align: center;
+  font-size: 12px;
+  width: 100%;  /* 전체 너비 사용 */
+}

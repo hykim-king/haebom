@@ -1,0 +1,92 @@
+:root {
+    --primary-color: #0d6efd;
+    --bg-light: #f8f9fa;
+    --text-dark: #2c3e50;
+    --text-muted: #6c757d;
+    --card-radius: 16px;
+    --transition-speed: 0.3s;
+}
+body {
+    background-color: var(--bg-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+a { text-decoration: none; color: inherit; transition: var(--transition-speed); }
+
+
+/* 4. 공지사항 전용 UI 요소 */
+.page-title-section { padding: 4rem 0 2.5rem; text-align: center; }
+.page-title-section h2 { font-size: 2.5rem; letter-spacing: -1px; font-weight: bold; }
+
+/* Search Card */
+.search-card {
+    border: none;
+    border-radius: var(--card-radius);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    background: white;
+}
+.search-input-group input {
+    height: 52px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding-left: 1.25rem;
+}
+
+/* Notice Table Style */
+.notice-card {
+    border: none;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    background: white;
+}
+.table thead th {
+    background-color: #fcfcfc;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+.table tbody tr { transition: background 0.2s; cursor: pointer; }
+.table tbody tr:hover { background-color: rgba(13, 110, 253, 0.01); }
+.table td { padding: 1.2rem 1rem; border-bottom: 1px solid #f1f5f9; }
+
+.notice-title {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+/* Badges */
+.badge-important {
+    background: #fff1f0; color: #ff4d4f; border: 1px solid #ffa39e;
+    padding: 0.4em 0.8em; border-radius: 6px; font-size: 0.8rem;
+    font-weight: 600;
+}
+.badge-new {
+    background: #e6f7ff; color: #1890ff; font-size: 0.65rem;
+    padding: 0.2em 0.5em; margin-left: 6px; border-radius: 4px;
+    font-weight: bold;
+}
+
+/* Pagination */
+.pagination .page-link {
+    border: none;
+    color: var(--text-muted);
+    margin: 0 4px;
+    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+}

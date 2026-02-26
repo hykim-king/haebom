@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.pcwk.ehr.user.UserMapper">
 
@@ -18,17 +18,17 @@
             user_reg,
             user_del_yn
         ) VALUES (
-            SEQ_USER_NO.NEXTVAL,
-            #{userEmlAddr},
-            #{userEnpswd},
-            #{userNm},
-            #{userBrdt},
-            #{userTelno},
-            #{userGndr},
-            #{userMngrYn},
-            SYSDATE,
-            #{userDelYn}
-        )
+                     SEQ_USER_NO.NEXTVAL,
+                     #{userEmlAddr},
+                     #{userEnpswd},
+                     #{userNm},
+                     #{userBrdt},
+                     #{userTelno},
+                     #{userGndr},
+                     #{userMngrYn},
+                     SYSDATE,
+                     #{userDelYn}
+                 )
     </insert>
 
     <!-- 전체 삭제 -->

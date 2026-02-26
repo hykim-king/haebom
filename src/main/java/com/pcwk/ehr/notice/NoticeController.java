@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/notice")
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class NoticeController {
 
     private final Logger log = LogManager.getLogger(getClass());
+    private final NoticeService noticeService;
 
     @PostMapping("/doSave.do")
     @ResponseBody
@@ -22,18 +26,75 @@ public class NoticeController {
         log.info("│ outVO: " + inVO);         // [추가] 데이터 확인용 로그
         log.info("└──────────────────────────┘");
 
-        return "저장 성공";
+        int flag = noticeService.doSave(inVO);
+
+        return flag == 1 ? "저장 성공" : "저장 실패";
     }
 
-    @PostMapping("/doDelete.do")
-    @ResponseBody
-    public String doDelete(NoticeVO inVO) { // [수정] 파라미터 추가
+    @GetMapping("/noticeWrite")
+    public String noticeWrite(@RequestParam("ntcNo") int ntcNo, Model model) {
         log.info("┌──────────────────────────┐");
-        log.info("│ doDelete()               │");
-        log.info("│ outVO: " + inVO);         // [추가] 데이터 확인용 로그
+        log.info("│ noticeWrite()            │");
         log.info("└──────────────────────────┘");
 
-        return "삭제 성공";
+        if (ntcNo != 0) {
+            NoticeVO inVO = new NoticeVO();
+            inVO.setNtcNo(ntcNo);
+
+            // 수정
+            NoticeVO outVO = noticeService.doSelectOne(inVO);
+            // 전달
+            model.addAttribute(outVO);
+        } else{
+            // 이동
+            model.addAttribute(new NoticeVO());
+        }
+        return "notice/notice_write";
+    }
+
+    @GetMapping("/notice")
+    public String notice(Model model) {
+        log.info("┌──────────────────────────┐");
+        log.info("│ notice()                 │");
+        log.info("└──────────────────────────┘");
+
+        NoticeVO searchVO = new NoticeVO();
+        searchVO.setPageNo(1);
+        searchVO.setPageSize(10);
+
+        List<NoticeVO> list = noticeService.doRetrieve(searchVO);
+
+        model.addAttribute("list", list);
+
+        return "notice/notice";
+    }
+
+    @GetMapping("/noticeDetail")
+    public String noticeDetail(@RequestParam("ntcNo") int ntcNo, Model model) {
+        log.info("┌──────────────────────────┐");
+        log.info("│ noticeDetail()           │");
+        log.info("└──────────────────────────┘");
+
+        NoticeVO searchVO = new NoticeVO();
+        searchVO.setNtcNo(ntcNo);
+
+        // 1. 상세보기 호출
+        NoticeVO outVO = noticeService.doSelectOne(searchVO);
+
+        // 2. 조회 결과
+        model.addAttribute("outVO", outVO);
+
+        return "notice/notice_detail";
+    }
+
+    @GetMapping("/doDelete.do")
+    public String doDelete(@RequestParam("ntcNo") int ntcNo) {
+        NoticeVO inVO = new NoticeVO();
+        inVO.setNtcNo(ntcNo);
+
+        noticeService.doDelete(inVO);
+
+        return "redirect:/notice/notice";
     }
 
     @PostMapping("/doSelectOne.do")
@@ -55,10 +116,15 @@ public class NoticeController {
         log.info("│ outVO: " + inVO);         // [추가] 데이터 확인용 로그
         log.info("└──────────────────────────┘");
 
-        return "수정 성공";
+        int flag = noticeService.doUpdate(inVO);
+
+
+
+        return flag == 1 ? "수정 성공" : "수정 실패";
     }
 
-    @PostMapping( "/doRetrieve.do")
+
+    @PostMapping("/doRetrieve.do")
     @ResponseBody
     public String doRetrieve(NoticeVO inVO) { // [수정] 파라미터 추가
         log.info("┌──────────────────────────┐");

@@ -143,9 +143,6 @@ class NoticeServiceTest {
         log.info("│─doRetrieve()             │");
         log.info("└──────────────────────────┘");
 
-        // 1. 기존 데이터 삭제 (실제 DB에 DELETE 쿼리가 날아감)
-        noticeMapper.deleteAll();
-
         // 2. 테스트 데이터 10건 생성 및 즉시 저장 (실제 DB에 INSERT 쿼리가 10번 날아감)
         for (int i = 1; i <= 10; i++) {
             NoticeVO vo = new NoticeVO();

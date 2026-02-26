@@ -23,13 +23,20 @@
     <form id="writeForm">
         <input type="hidden" id="ntcNo" name="ntcNo" th:value="${noticeVO.ntcNo}">
         <div class="write-card">
-            <!-- Header: Category & Title -->
             <div class="write-header">
-                <select class="category-select">
-                    <option value="notice">공지사항</option>
-                    <option value="event">이벤트</option>
-                    <option value="update">업데이트</option>
-                </select>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <select class="category-select">
+                        <option value="notice">공지사항</option>
+                        <option value="event">이벤트</option>
+                        <option value="update">업데이트</option>
+                    </select>
+
+                    <div class="important-check" style="font-size: 14px; color: #666;">
+                        <input type="checkbox" id="isImportant" style="cursor: pointer;">
+                        <label for="isImportant" style="cursor: pointer; font-weight: 500;">📌 상단에 고정하기</label>
+                    </div>
+                </div>
+
                 <input type="text" class="write-title-input" placeholder="제목을 입력해 주세요" id="postTitle" name="ntcTrl" th:value="${noticeVO.ntcTtl}" required>
             </div>
 

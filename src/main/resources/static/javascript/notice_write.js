@@ -3,37 +3,47 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveBtn = document.getElementById('btn-save');
 
     if (saveBtn) {
-        console.log("버튼 찾기 성공!"); // [확인용] 콘솔에 이 글자가 뜨나 보세요.
+        console.log("버튼 찾기 성공!");
 
         saveBtn.addEventListener('click', function(e) {
-            e.preventDefault(); // [추가] 버튼 클릭 시 기본 동작(폼 제출 등) 방지
+            e.preventDefault();
             console.log("저장/수정 버튼이 클릭되었습니다.");
 
             // 데이터 수집
             const ntcNo = document.getElementById('ntcNo').value;
-            const title = document.getElementById('postTitle').value;
+            let title = document.getElementById('postTitle').value; // [수정] const를 let으로 변경 (제목 수정을 위해)
             const content = document.getElementById('postContent').value;
-            const modNo = 1; // 혹은 실제 사용자 ID
+            const modNo = 1;
 
-            // [핵심 수정] url과 mode 변수를 여기서 정의해야 합니다!
-            // ntcNo가 "0"이면 등록, 아니면 수정 주소를 선택합니다.
+            // --- [추가] 상단 고정 체크 여부에 따른 제목 처리 ---
+            const isImportantCheck = document.getElementById('isImportant');
+            if (isImportantCheck && isImportantCheck.checked) {
+                // 제목이 이미 [중요]로 시작하지 않는 경우에만 붙여줍니다.
+                if (!title.startsWith('[중요]')) {
+                    title = "[중요] " + title;
+                }
+            } else {
+                // 체크가 해제되어 있다면 제목에서 [중요] 머리말을 제거합니다.
+                title = title.replace('[중요] ', '');
+            }
+            // ----------------------------------------------
+
             const url = (ntcNo === "0") ? "/notice/doSave.do" : "/notice/doUpdate.do";
             const mode = (ntcNo === "0") ? "등록" : "수정";
 
-            console.log("요청 주소:", url); // [확인용] 어느 주소로 가는지 확인
+            console.log("요청 주소:", url);
 
             $.ajax({
                 type: "POST",
                 url: url,
                 data: {
                     ntcNo: parseInt(ntcNo),
-                    ntcTtl: title,
+                    ntcTtl: title, // [확인] 중요 표시가 붙거나 떨어진 제목이 전송됩니다.
                     ntcCn: content,
                     modNo: modNo
                 },
                 success: function(res) {
                     console.log("서버 응답:", res);
-                    // [수정] res가 단순 문자열이므로 포함 여부 확인
                     if(res.indexOf("성공") !== -1) {
                         alert(mode + " 성공하였습니다!");
                         window.location.href = "/notice/notice";

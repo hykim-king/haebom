@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>의료가이드 - 상세페이지</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/medical_guidedetail.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div id="header"></div>
+
+<main class="container">
+    <div class="breadcrumb-nav">
+        <a href="medical_guide.html"><i data-lucide="arrow-left" size="18"></i> 목록</a>
+        <span>|</span>
+        <span>서울대학교병원</span>
+    </div>
+
+    <section class="hero-card">
+        <div>
+            <span class="hero-badge">병원</span>
+            <h1 class="hero-title">서울대학교병원</h1>
+        </div>
+        <div class="hero-icon-circle">
+            <i data-lucide="stethoscope" size="32"></i>
+        </div>
+    </section>
+
+    <div class="detail-grid">
+
+        <section class="detail-box">
+            <h2 class="box-title">위치 안내</h2>
+            <div class="map-placeholder">
+                <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1000" alt="Map View" class="map-img">
+                <div class="map-marker">
+                    <i data-lucide="map-pin" size="48" fill="rgba(249, 115, 22, 0.2)"></i>
+                </div>
+                <button class="map-overlay-btn">
+                    <i data-lucide="external-link" size="16"></i>
+                    지도 앱에서 보기
+                </button>
+            </div>
+            <p class="map-caption">
+                * 실제 지도 서비스와 연동되지 않은 예시 이미지입니다.<br>
+                '지도 앱에서 보기'를 클릭하면 길찾기 화면으로 이동합니다.
+            </p>
+        </section>
+
+        <section class="detail-box">
+            <h2 class="box-title">기본 정보</h2>
+            <div class="info-list">
+
+                <div class="info-item">
+                    <div class="info-icon"><i data-lucide="map-pin" size="20"></i></div>
+                    <div class="info-content">
+                        <label>주소</label>
+                        <span>서울특별시 종로구 대학로 101</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon"><i data-lucide="clock" size="20"></i></div>
+                    <div class="info-content">
+                        <label>평일 운영시간</label>
+                        <span>09:00 - 18:00</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon"><i data-lucide="calendar" size="20"></i></div>
+                    <div class="info-content">
+                        <label>주말 및 공휴일</label>
+                        <span>토요일 09:00 - 13:00</span>
+                        <div class="text-holiday">일요일 및 공휴일 휴진</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon"><i data-lucide="phone" size="20"></i></div>
+                    <div class="info-content">
+                        <label>대표 전화 / 응급실</label>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span>1588-5700</span>
+                            <span style="color: #e2e8f0;">|</span>
+                            <span class="text-emergency">02-2072-1182 (응급)</span>
+                        </div>
+                        <div class="emergency-tag">
+                            응급실 운영중
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <div class="btn-container">
+        <a href="medical_guide.html" class="btn-back-list">
+            <i data-lucide="layout-list" size="20"></i>
+            목록으로 돌아가기
+        </a>
+    </div>
+</main>
+
+<div id="footer"></div>
+
+<script>
+    // 아이콘 렌더링
+    window.onload = () => {
+        lucide.createIcons();
+    };
+
+    // 주석: 헤더 및 푸터 인클루드 로직 유지
+    fetch("header.html")
+        .then((res) => res.text())
+        .then((html) => {
+            const header = document.getElementById("header");
+            if(header) header.innerHTML = html;
+        })
+        .catch(err => console.log("Header fetch skipped"));
+
+    fetch("footer.html")
+        .then((res) => res.text())
+        .then((html) => {
+            const footer = document.getElementById("footer");
+            if(footer) footer.innerHTML = html;
+        })
+        .catch(err => console.log("Footer fetch skipped"));
+</script>
+</body>
+</html>

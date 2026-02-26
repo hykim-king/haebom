@@ -10,6 +10,30 @@ body { display: flex; flex-direction: column; font-family: 'Pretendard', sans-se
 #header-iframe { height: 80px; flex-shrink: 0; }
 #footer-iframe { min-height: 350px; width: 100%; flex-shrink: 0; }
 
+/* 별점: 마우스 호버 및 선택 시 노란색 처리 */
+.star-rating-input { 
+    display: flex; 
+    flex-direction: row-reverse; /* 별을 역순으로 배치해야 색칠 로직이 작동합니다 */
+    justify-content: flex-end; 
+    gap: 4px; 
+}
+
+/* 체크된 라디오 버튼과 그 앞의 별들을 노란색으로 */
+.star-rating-input input:checked ~ label,
+.star-rating-input label:hover,
+.star-rating-input label:hover ~ label { 
+    color: #facc15 !important; 
+    fill: #facc15; 
+}
+
+/* 기본 별 색상 (회색) */
+.star-rating-input label { 
+    color: #d1d5db; 
+    cursor: pointer; 
+    transition: 0.2s; 
+}
+
+
 /* 필터 스타일 */
 .tag-active { background-color: #4b5563 !important; color: white !important; border-radius: 9999px; }
 .sub-tag-active { border: 2px solid #ef4444 !important; color: #111827 !important; font-weight: 700; border-radius: 9999px; }

@@ -82,17 +82,17 @@ popularSpots.forEach((s, i) => {
     if (!slider) return;
 
     const heroImages = [
-      "/img/korea_trip1.jpg",
-      "/img/korea_trip2.jpg",
-      "/img/korea_trip3.jpg",
-      "/img/korea_trip4.jpg",
-      "/img/korea_trip5.jpg",
-      "/img/korea_trip6.jpg",
-      "/img/korea_trip7.jpg",
-      "/img/korea_trip8.jpg",
-      "/img/korea_trip9.jpg",
-      "/img/korea_trip10.jpg",
-      "/img/korea_trip11.jpg",
+      "/static/img/korea_trip1.jpg",
+      "/static/img/korea_trip2.jpg",
+      "/static/img/korea_trip3.jpg",
+      "/static/img/korea_trip4.jpg",
+      "/static/img/korea_trip5.jpg",
+      "/static/img/korea_trip6.jpg",
+      "/static/img/korea_trip7.jpg",
+      "/static/img/korea_trip8.jpg",
+      "/static/img/korea_trip9.jpg",
+      "/static/img/korea_trip10.jpg",
+      "/static/img/korea_trip11.jpg",
     ];
 
     heroImages.forEach((img, i) => {

@@ -13,7 +13,8 @@
   inset: 0;
   background: url("https://images.unsplash.com/photo-1765375783767-6f48d65d336c?q=80&w=1080")
     center/cover;
-  opacity: 0.2;
+  opacity: 0.3; /* 배경 이미지를 살짝 흐리게 하여 글자를 돋보이게 함 */
+    z-index: 1;
 }
 
 .theme-banner .card-body {

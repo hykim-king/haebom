@@ -29,7 +29,14 @@
                     </when>
                 </choose>
              </if>
-            ORDER BY NTC_NO ASC
+            --  긴급 중요 공지 상단 고정 로직
+            ORDER BY
+                CASE
+                    WHEN NTC_TTL LIKE '[긴급]%' THEN 0
+                    WHEN NTC_TTL LIKE '[중요]%' THEN 1
+                    ELSE 2
+                END ,
+                NTC_NO DESC
             ) T1
             <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
         ) TT1

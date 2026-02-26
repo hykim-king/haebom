@@ -6,6 +6,7 @@ import com.pcwk.ehr.domain.UserVO;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,14 +26,18 @@ public class NoticeServiceImpl implements NoticeService {
 
         UserVO user = inVO.getUserVO();
 
-        if (user == null) {
-            log.error("사용자 정보가 없습니다.");
-            return 0;
+        if(user == null || !"Y".equals(user.getUserMngrYn())){
+            log.warn("권한이 없습니다");
+            return noticeMapper.doSave(inVO);
         }
 
-        if(!"Y".equals(user.getUserMngrYn())){
-            log.warn("권한이 없습니다");
-            return 0;
+        String title = inVO.getNtcTtl();
+
+        // 제목 끝에 !! 을 붙이면 긴급, ! 이면 중요
+        if(title.endsWith("!!")){
+            inVO.setNtcTtl("[긴급]" + title.replace("!!","").trim());
+        } else if(title.endsWith("!")){
+            inVO.setNtcTtl("[중요]" + title.replace("!","").trim());
         }
 
         return noticeMapper.doSave(inVO);

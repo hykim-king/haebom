@@ -4,6 +4,7 @@ import com.pcwk.ehr.domain.NoticeVO;
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.notice.NoticeMapper;
 import com.pcwk.ehr.notice.NoticeService;
+import com.pcwk.ehr.user.UserMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
@@ -26,7 +27,11 @@ class NoticeServiceTest {
     @Autowired
     NoticeMapper noticeMapper;
 
+    @Autowired
+    UserMapper userMapper;
+
     NoticeVO notice01;
+    UserVO adminUser;
 
 
     @BeforeEach
@@ -36,17 +41,25 @@ class NoticeServiceTest {
         log.info("└──────────────────────────┘");
 
         // 1. User 정보 가져오기
-        UserVO adminUser = new UserVO();
-        adminUser.setUserNo(135);
-        adminUser.setUserMngrYn("Y");
+        UserVO searchUser = new UserVO();
+        searchUser.setUserNo(135);
+
+        // 데이터 가져와서 adminUser에 할당
+        adminUser = userMapper.doSelectOne(searchUser);
+
+        // 데이터 존재 유무 확인
+        assertNotNull(adminUser,"데이터가 존재하지 않습니다");
+        log.info("조회된 데이터: {}", adminUser.getUserMngrYn());
+
+
 
         // 2.
         notice01 = new NoticeVO();
         notice01.setUserVO(adminUser);
         notice01.setNtcTtl("공지사항 제목");
         notice01.setNtcCn("공지사항 내용");
-        notice01.setRegNo(135);
-        notice01.setModNo(135);
+        notice01.setRegNo(adminUser.getUserNo());
+        notice01.setModNo(adminUser.getUserNo());
 
     }
 

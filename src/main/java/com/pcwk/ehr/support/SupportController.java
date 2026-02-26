@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/support")
 @RequiredArgsConstructor
 public class SupportController {
+
+    private final SupportService supportService;
 
     private final Logger log = LogManager.getLogger(getClass());
 
@@ -55,13 +58,13 @@ public class SupportController {
         return "";
     }
 
-    @PostMapping( "/doRetrieve.do")
+    @GetMapping( "/doRetrieve.do")
     @ResponseBody
     public String doRetrieve() {
         log.info("┌──────────────────────────┐");
         log.info("│ doRetrieve()             │");
         log.info("└──────────────────────────┘");
 
-        return "";
+        return "Retrieved Data Successfully";
     }
 }

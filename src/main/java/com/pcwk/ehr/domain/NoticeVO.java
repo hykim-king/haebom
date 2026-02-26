@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class NoticeVO extends DTO {
 
+    private UserVO userVO;
+    
     private int ntcNo; // NTC_NO (NUMBER) : 공지사항 고유번호
     private String ntcTtl; // NTC_TTL (NVARCHAR2) : 제목
     private String ntcCn; // NTC_CN (NVARCHAR2) : 내용

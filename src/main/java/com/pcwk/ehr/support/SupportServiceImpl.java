@@ -2,10 +2,13 @@ package com.pcwk.ehr.support;
 
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.domain.SupportVO;
+import com.pcwk.ehr.domain.UserVO;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -17,6 +20,7 @@ public class SupportServiceImpl implements SupportService {
 
     // 생성자 주입을 위해 final 키워드 사용
     private final SupportMapper supportMapper;
+
 
     @Override
     public int doSave(SupportVO inVO) {
@@ -39,14 +43,12 @@ public class SupportServiceImpl implements SupportService {
 
     @Override
     public SupportVO doSelectOne(SupportVO inVO) {
-        log.info("SupportServiceImpl doSelectOne: {}", inVO);
         return supportMapper.doSelectOne(inVO);
     }
 
     @Override
-    public List<SupportVO> doRetrieve(DTO inVO) {
-        log.info("SupportServiceImpl doRetrieve: {}", inVO);
-        // DTO 타입을 넘겨 페이징 및 검색 조건을 처리합니다.
-        return supportMapper.doRetrieve(inVO);
+    public List<SupportVO> doRetrieve(DTO dto) {
+        return List.of();
     }
+
 }

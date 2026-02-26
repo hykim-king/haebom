@@ -34,7 +34,7 @@ class NoticeDaoTest {
 
         // [수정] 새로운 NoticeVO 생성자 파라미터 개수(9개)에 맞게 조정
         // 순서: ntcNo, ntcTtl, ntcCn, ntcReg, ntcRegHm, ntcMod, ntcModHm, regNo, modNo
-        notice01 = new NoticeVO(1, "제목01", "내용10", "안뇽", "ㅋㅋ", "ㅎㅇㅎㅇ", "12345", 11, 11);
+        notice01 = new NoticeVO();
 
         noticeMapper.deleteAll();
     }

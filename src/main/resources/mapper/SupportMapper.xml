@@ -52,6 +52,9 @@
                     SUP_YN
             FROM support
             WHERE 1 = 1
+            <if test="userNo != null and userNo != 0">
+              AND REG_NO = #{userNo}
+            </if>
             <if test="searchWord != null and searchWord != ''">
                     <choose>
                         <when test="searchDiv == '10'">

@@ -2,6 +2,7 @@ package com.pcwk.ehr.notice;
 
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.domain.NoticeVO;
+import com.pcwk.ehr.domain.UserVO;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,12 +16,25 @@ public class NoticeServiceImpl implements NoticeService {
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    // 생성자 주입 (Lombok의 @RequiredArgsConstructor 사용)
+    // 생성자
     private final NoticeMapper noticeMapper;
 
     @Override
     public int doSave(NoticeVO inVO) {
         log.info("ServiceImpl doSave: {}", inVO);
+
+        UserVO user = inVO.getUserVO();
+
+        if (user == null) {
+            log.error("사용자 정보가 없습니다.");
+            return 0;
+        }
+
+        if(!"Y".equals(user.getUserMngrYn())){
+            log.warn("권한이 없습니다");
+            return 0;
+        }
+
         return noticeMapper.doSave(inVO);
     }
 
@@ -43,8 +57,8 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public List<NoticeVO> doRetrieve(DTO inVO) {
-        log.info("ServiceImpl doRetrieve: {}", inVO);
-        return noticeMapper.doRetrieve(inVO);
+    public List<NoticeVO> doRetrieve(DTO dto) {
+        log.info("ServiceImpl doRetrieve: {}", dto);
+        return noticeMapper.doRetrieve(dto);
     }
 }

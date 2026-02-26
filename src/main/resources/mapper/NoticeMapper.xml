@@ -5,41 +5,42 @@
     <select id="doRetrieve" parameterType="DTO" resultType="NoticeVO">
         SELECT *
         FROM (
-        SELECT
-        TT1.NTC_NO,
-        TT1.NTC_TTL,
-        TT1.NTC_CN,
-        TT1.NTC_REG,
-        TT1.NTC_REG_HM,
-        TT1.NTC_MOD,
-        TT1.NTC_MOD_HM,
-        TT1.REG_NO,
-        TT1.MOD_NO,
-        ROW_NUMBER() OVER (ORDER BY TT1.NTC_NO DESC) AS rnum,
-        COUNT(*) OVER() AS total_count
-        FROM NOTICE TT1
-        WHERE 1=1
-        <if test="searchWord != null and searchWord != ''">
-            <choose>
-                <when test="searchType == '10'">
-                    AND NTC_TTL LIKE '%' || #{searchWord} || '%'
-                </when>
-                <when test="searchType == '20'">
-                    AND NTC_CN LIKE '%' || #{searchWord} || '%'
-                </when>
-                <otherwise>
-                    AND (NTC_TTL LIKE '%' || #{searchWord} || '%' OR NTC_CN LIKE '%' || #{searchWord} || '%')
-                </otherwise>
-            </choose>
-        </if>
-        ORDER BY NTC_NO ASC
-        ) T1
-        <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
-    ) TT1
-    <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+            SELECT ROWNUM AS rnum, T1.*
+            FROM (
+                SELECT
+                    NTC_NO,
+                    NTC_TTL,
+                    NTC_CN,
+                    NTC_REG,
+                    NTC_REG_HM,
+                    NTC_MOD,
+                    NTC_MOD_HM,
+                    REG_NO,
+                    MOD_NO
+            FROM NOTICE
+            WHERE 1 = 1
+            <if test="searchWord != null and searchWord != ''">
+                <choose>
+                    <when test="searchDiv == '10'">
+                        AND NTC_TTL LIKE '%' || #{searchWord} || '%'
+                    </when>
+                    <when test="searchDiv == '20'">
+                        AND NTC_CN LIKE '%' || #{searchWord} || '%'
+                    </when>
+                </choose>
+             </if>
+            ORDER BY NTC_NO ASC
+            ) T1
+            <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
+        ) TT1
+        <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
     </select>
 
     <insert id="doSave" parameterType="NoticeVO">
+        <selectKey keyProperty="ntcNo" resultType="int" order="BEFORE">
+            SELECT SEQ_NTC_NO.NEXTVAL
+            FROM DUAL
+        </selectKey>
         INSERT INTO notice (NTC_NO,
                             NTC_TTL,
                             NTC_CN,
@@ -49,7 +50,7 @@
                             NTC_MOD_HM,
                             REG_NO,
                             MOD_NO)
-        VALUES (SEQ_NTC_NO.NEXTVAL,
+        VALUES (#{ntcNo},
                 #{ntcTtl},
                 #{ntcCn},
                 TO_CHAR(SYSDATE, 'YYYYMMDD'),

@@ -1,145 +1,141 @@
+/**
+ * ===================================
+ * AI 챗봇 위젯 JavaScript
+ * ===================================
+ * 작성자: 해봄트립 개발팀
+ * 설명: AI 여행 가이드 채팅 위젯의 모든 동적 기능 제어
+ * 
+ * 주요 기능:
+ * 1. 위젯 초기화 및 리소스 로드
+ * 2. 채팅창 열기/닫기/최소화
+ * 3. 미니 모드 ↔ 사이드바 모드 전환
+ * 4. 메시지 송수신 및 화면 표시
+ * 5. 백엔드 API 통신 (연동 대기)
+ * 
+ * 사용 방법:
+ * - ai-widget.html이 main.html에서 동적으로 로드됨
+ * - ai-widget.css가 head에서 로드됨
+ * - 이 스크립트는 페이지 로드 후 자동으로 이벤트 리스너 등록
+ * ===================================
+ */
+
 (function() {
-    /**
-     * [설정 영역]
-     * 위젯의 기본 설정값들을 관리하는 객체입니다.
-     * 백엔드 연결 시 이 객체의 값을 실제 서버 정보로 수정하세요.
-     */
+    /* ===================================
+       [설정 영역] 위젯 기본 설정
+       백엔드 연결 시 이 값들을 수정하세요
+    =================================== */
     const widgetConfig = {
-        // 봇 기본 정보 (이름, 프로필 사진, 환영 메시지)
-        botName: "AI 가이드",
-        botProfileImage: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&auto=format&fit=crop&q=60", 
-        greetingMessage: "안녕하세요! 여행의 모든 것, 무엇이든 물어보세요.",
+        // 봇 기본 정보
+        botName: "AI 해봄",                          // 헤더에 표시될 봇 이름
+        botProfileImage: "/static/img/haebom_hello.png",          // 프로필 이미지 경로
+        greetingMessage: " 여행의 모든 것, 무엇이든 해봄이에게 물어보세요!", // 환영 메시지
         
-        // 백엔드 API 설정 (추후 연동 시 사용할 API 주소)
-        apiEndpoint: "/api/chat", 
+        // 백엔드 API 설정
+        apiEndpoint: "/api/chat",                      // 메시지 전송 API 주소 (추후 연동)
         
-        // UI 설정 (사이드바 모드일 때의 너비)
-        sidebarWidth: "400px" 
+        // UI 설정
+        sidebarWidth: "400px"                          // 사이드바 모드일 때 너비
     };
 
-    // =========================================================================
-    // 1. 리소스 로드 (CSS 및 아이콘)
-    // =========================================================================
-    
-    // CSS 스타일시트 파일을 동적으로 생성하여 헤더에 추가합니다.
-    // 이를 통해 HTML 파일에 별도로 <link> 태그를 넣지 않아도 스타일이 적용됩니다.
-    const style = document.createElement('link');
-    style.rel = 'stylesheet';
-    style.href = 'css/ai-widget.css';
-    document.head.appendChild(style);
-
-    // Lucide 아이콘 라이브러리가 로드되지 않았을 경우, CDN을 통해 스크립트를 로드합니다.
-    if (typeof lucide === 'undefined') {
-        const script = document.createElement('script');
-        script.src = "https://unpkg.com/lucide@latest";
-        document.head.appendChild(script);
-        // 스크립트 로드 완료 후 아이콘을 렌더링합니다.
-        script.onload = () => lucide.createIcons();
-    }
-
-    // =========================================================================
-    // 2. HTML 구조 생성 및 주입
-    // =========================================================================
-    
-    // 위젯 전체를 감싸는 컨테이너 요소를 생성합니다.
-    const widgetContainer = document.createElement('div');
-    widgetContainer.id = 'ai-widget-root';
-    
-    // 위젯의 내부 HTML 구조를 정의합니다.
-    // - ai-fab: 우측 하단 둥근 플로팅 버튼
-    // - ai-chat-window: 채팅창 메인 컨테이너 (헤더, 본문, 입력창)
-    widgetContainer.innerHTML = `
-        <!-- 플로팅 액션 버튼 (우측 하단 원형 버튼) -->
-        <div id="ai-fab" class="ai-fab-container">
-            <button class="ai-fab-btn" onclick="toggleAIChat()" aria-label="AI 채팅 열기">
-                 <i data-lucide="message-circle-more"></i>
-            </button>
-        </div>
-
-        <!-- 채팅 메인 윈도우 -->
-        <div id="ai-chat-window" class="ai-chat-window">
-            <!-- 헤더 영역: 봇 이름과 제어 버튼들(사이드바, 최소화, 닫기)이 위치함 -->
-            <div class="ai-header">
-                <div class="ai-title">
-                    <i data-lucide="sparkles" size="18"></i>
-                    <span id="ai-bot-name">${widgetConfig.botName}</span>
-                </div>
-                <div class="ai-controls">
-                    <!-- 사이드바 모드 전환 버튼 -->
-                    <button class="ai-btn-icon" onclick="toggleSidebarMode()" title="사이드바 모드 전환">
-                        <i data-lucide="panel-right-open"></i>
-                    </button>
-                    <!-- 최소화 버튼 (대화 내용 유지) -->
-                    <button class="ai-btn-icon" onclick="minimizeAIChat()" title="채팅창 숨기기 (대화 유지)">
-                        <i data-lucide="minus"></i>
-                    </button>
-                    <!-- 종료 버튼 (대화 내용 초기화) -->
-                    <button class="ai-btn-icon" onclick="endAIChat()" title="대화 종료 (초기화)">
-                        <i data-lucide="x"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 채팅 내용 영역: 메시지 목록과 추천 질문 버튼들이 표시됨 -->
-            <div class="ai-body" id="ai-chat-body">
-                <!-- 환영 메시지 및 프로필 이미지 -->
-                <div class="ai-welcome">
-                    <div class="ai-profile-container">
-                        <img src="${widgetConfig.botProfileImage}" class="ai-mascot-lg" alt="AI 프로필" id="aiProfileImg">
-                    </div>
-                    <h3 id="ai-greeting-text">${widgetConfig.greetingMessage}</h3>
-                </div>
-                
-                <!-- 추천 질문 버튼 목록: 사용자가 클릭하면 바로 질문이 전송됨 -->
-                <div class="ai-suggestions" id="ai-suggestions">
-                    <button class="ai-suggestion-btn" onclick="sendSuggestion('제주도 2박 3일 힐링 코스 추천해줘')">
-                        <i data-lucide="map-pin"></i>
-                        <span>제주도 여행 코스 추천해줘</span>
-                    </button>
-                    <button class="ai-suggestion-btn" onclick="sendSuggestion('지금 보고 있는 여행지 사진 더 보여줘')">
-                        <i data-lucide="camera"></i>
-                        <span>지금 보고 있는 여행지 사진 더 보여줘</span>
-                    </button>
-                    <button class="ai-suggestion-btn" onclick="sendSuggestion('주변 맛집이랑 카페 추천해줘')">
-                        <i data-lucide="utensils"></i>
-                        <span>주변 맛집이랑 카페 추천해줘</span>
-                    </button>
-                </div>
-
-                <!-- 사용자와 봇의 메시지가 동적으로 추가될 영역 -->
-                <div id="ai-message-list"></div>
-            </div>
-
-            <!-- 입력 영역 (푸터): 텍스트 입력창과 전송 버튼이 위치함 -->
-            <div class="ai-footer">
-                <div class="ai-input-box">
-                    <div class="ai-input-tag">
-                        <span>AI Assistant</span>
-                    </div>
-                    <textarea id="ai-input-field" class="ai-textarea" placeholder="메시지를 입력하세요..." rows="1"></textarea>
-                    
-                    <!-- 입력창 하단 버튼 영역: 전송 버튼을 우측 정렬로 배치 -->
-                    <div class="ai-input-actions" style="justify-content: flex-end;">
-                        <!-- 파일 첨부 버튼 제거됨 -->
-                        <button class="ai-send-btn" id="ai-send-btn" title="전송" onclick="handleSendMessage()">
-                            <i data-lucide="arrow-up" size="18"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // 생성한 위젯을 HTML body의 맨 끝에 추가하여 화면에 표시합니다.
-    document.body.appendChild(widgetContainer);
-
-    // =========================================================================
-    // 3. UI 제어 로직 (열기, 최소화, 종료, 사이드바 확장/축소)
-    // =========================================================================
+    /* ===================================
+       [초기화 영역] 페이지 로드 시 실행
+    =================================== */
 
     /**
-     * CSS 변수(--ai-sidebar-width)에서 사이드바 너비 값을 가져옵니다.
-     * 값이 없으면 설정 객체(widgetConfig)의 기본값을 사용합니다.
+     * CSS 스타일시트 동적 로드
+     * - HTML에 <link> 태그를 직접 넣지 않아도 스타일 적용 가능
+     */
+function loadCSS() {
+    // 중복 로드를 방지하기 위해 이미 link 태그가 있는지 확인합니다.
+    if (!document.querySelector('link[href*="/css/ai_widget.css"]')) {
+        const style = document.createElement('link');
+        style.rel = 'stylesheet';
+        style.href = '../css/ai_widget.css'; // 경로가 맞는지 꼭 확인하세요!
+        document.head.appendChild(style);
+    }
+}
+
+    /**
+     * Lucide 아이콘 라이브러리 로드
+     * - 이미 로드되어 있으면 건너뜀
+     */
+    function loadLucideIcons() {
+        if (typeof lucide === 'undefined') {
+            const script = document.createElement('script');
+            script.src = "https://unpkg.com/lucide@latest";
+            document.head.appendChild(script);
+            script.onload = () => {
+                lucide.createIcons();
+                console.log('✅ Lucide 아이콘 로드 완료');
+            };
+        } else {
+            lucide.createIcons();
+        }
+    }
+
+    /**
+     * HTML 구조 동적 로드 및 삽입
+     * - ai-widget.html 파일을 가져와서 body에 추가
+     */
+function loadWidgetHTML() {
+    // fetch 경로를 현재 구조에 맞춰 확인해야 합니다.
+    fetch('/static/html/ai_widget.html')
+        .then(response => {
+            if (!response.ok) throw new Error('HTML 파일을 찾을 수 없습니다.');
+            return response.text();
+        })
+        .then(html => {
+            document.body.insertAdjacentHTML('beforeend', html);
+            
+            // 핵심: HTML이 삽입된 직후에 Lucide 아이콘을 생성합니다.
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+            
+            applyConfig();
+            initEventListeners();
+        })
+        .catch(error => console.error('❌ AI 위젯 로드 실패:', error));
+}
+
+// 초기화 실행
+loadCSS();
+loadWidgetHTML();
+
+    /**
+     * 설정값을 HTML 요소에 적용
+     * - widgetConfig의 값들을 실제 화면에 반영
+     */
+    function applyConfig() {
+        // 봇 이름 설정
+        const botNameElement = document.getElementById('ai-bot-name');
+        if (botNameElement) {
+            botNameElement.textContent = widgetConfig.botName;
+        }
+
+        // 환영 메시지 설정
+        const greetingElement = document.getElementById('ai-greeting-text');
+        if (greetingElement) {
+            greetingElement.textContent = widgetConfig.greetingMessage;
+        }
+
+        // 프로필 이미지 설정
+        const profileImg = document.getElementById('aiProfileImg');
+        if (profileImg) {
+            profileImg.src = widgetConfig.botProfileImage;
+        }
+
+        // CSS 변수로 사이드바 너비 설정
+        document.documentElement.style.setPropertyValue('--ai-sidebar-width', widgetConfig.sidebarWidth);
+    }
+
+    /* ===================================
+       [UI 제어 함수] 채팅창 열기/닫기/모드 전환
+    =================================== */
+
+    /**
+     * CSS 변수에서 사이드바 너비 가져오기
+     * @returns {string} 사이드바 너비 (예: "400px")
      */
     function getSidebarWidth() {
         const style = getComputedStyle(document.documentElement);
@@ -148,128 +144,148 @@
     }
 
     /**
-     * 채팅창 열기/닫기 토글 함수 (우측 하단 FAB 버튼 클릭 시 실행)
-     * - 이미 열려있으면 최소화합니다.
-     * - 닫혀있거나 최소화된 상태면 '미니 모드'로 엽니다.
+     * [함수 1] 채팅창 열기/닫기 토글
+     * - FAB 버튼 클릭 시 실행
+     * - 열려있으면 최소화, 닫혀있으면 미니 모드로 열기
      */
     window.toggleAIChat = function() {
         const chatWindow = document.getElementById('ai-chat-window');
         const fab = document.getElementById('ai-fab');
         
+        if (!chatWindow || !fab) return;
+        
         if (chatWindow.classList.contains('active')) {
-            // 이미 열려있으면 최소화 (대화 내용 유지)
+            // 이미 열려있으면 최소화
             window.minimizeAIChat();
         } else {
-            // 열기 (기본값: 미니 모드)
+            // 닫혀있으면 미니 모드로 열기
             chatWindow.classList.remove('sidebar');
             chatWindow.classList.add('mini');
             chatWindow.style.visibility = 'visible';
             
-            // 트랜지션 애니메이션을 위해 약간의 지연 후 active 클래스 추가
+            // 부드러운 애니메이션을 위한 지연
             requestAnimationFrame(() => {
                 chatWindow.classList.add('active');
             });
             
-            // 채팅창이 열리면 플로팅 버튼은 숨깁니다.
+            // FAB 버튼 숨김
             fab.style.display = 'none';
+            
+            console.log('💬 채팅창 열림 (미니 모드)');
         }
     };
 
     /**
-     * [기능 1] 최소화 함수
-     * - 채팅창을 화면에서 숨기지만, 대화 내용은 그대로 유지합니다.
-     * - 사이드바 모드였다면 밀려났던 본문 레이아웃을 원래대로 되돌립니다.
+     * [함수 2] 채팅창 최소화
+     * - 대화 내용은 유지하고 화면에서만 숨김
+     * - 사이드바 모드였다면 본문 레이아웃 복귀
      */
     window.minimizeAIChat = function() {
         const chatWindow = document.getElementById('ai-chat-window');
         const fab = document.getElementById('ai-fab');
         const body = document.body;
 
-        // 사이드바 모드였을 경우, 밀려난 본문을 복귀시킵니다.
+        if (!chatWindow || !fab) return;
+
+        // 사이드바 모드였으면 본문 밀어냄 해제
         if (body.classList.contains('ai-sidebar-open')) {
             body.style.marginRight = '0';
             body.classList.remove('ai-sidebar-open');
         }
 
-        // 활성화 상태 제거 (애니메이션 시작)
+        // 채팅창 숨김 애니메이션 시작
         chatWindow.classList.remove('active');
         
-        // 애니메이션(0.3초)이 끝난 후 요소를 완전히 숨기고 플로팅 버튼을 다시 표시합니다.
+        // 애니메이션 완료 후 완전히 숨김
         setTimeout(() => {
             chatWindow.style.visibility = 'hidden';
             chatWindow.classList.remove('mini');
             chatWindow.classList.remove('sidebar');
-            fab.style.display = 'flex'; 
+            fab.style.display = 'flex'; // FAB 버튼 다시 표시
         }, 300);
+
+        console.log('📥 채팅창 최소화');
     };
 
     /**
-     * [기능 2] 대화 종료 (닫기) 함수
-     * - 채팅창을 닫고, 대화 내용을 모두 지워 초기화합니다.
+     * [함수 3] 대화 종료 (완전 닫기)
+     * - 채팅창 닫고 대화 내용 모두 삭제
+     * - 다음에 열 때 초기 상태로 시작
      */
     window.endAIChat = function() {
-        // 1. UI 숨기기 (최소화 로직 재사용)
+        // 1. UI 숨기기 (최소화 함수 재사용)
         window.minimizeAIChat();
 
-        // 2. 내용 초기화 (창이 닫히는 애니메이션 동안 깜빡이지 않도록 0.3초 뒤에 실행)
+        // 2. 내용 초기화 (애니메이션 끝난 후)
         setTimeout(() => {
-            document.getElementById('ai-message-list').innerHTML = ''; // 메시지 목록 삭제
-            document.getElementById('ai-input-field').value = '';      // 입력창 비우기
-            console.log("AI 대화 내용이 초기화되었습니다.");
+            const messageList = document.getElementById('ai-message-list');
+            const inputField = document.getElementById('ai-input-field');
+            
+            if (messageList) messageList.innerHTML = '';
+            if (inputField) inputField.value = '';
+            
+            console.log('🗑️ 대화 내용 초기화');
         }, 300);
     };
 
     /**
-     * [기능 3] 사이드바 모드 토글 (확장/축소) 함수
-     * - '미니 모드'일 때 클릭하면 -> '사이드바 모드'로 확장
-     * - '사이드바 모드'일 때 클릭하면 -> '미니 모드'로 축소
+     * [함수 4] 사이드바 모드 토글
+     * - 미니 모드 ↔ 사이드바 모드 전환
+     * - 사이드바 모드일 때 본문을 왼쪽으로 밀어냄 (데스크탑만)
      */
     window.toggleSidebarMode = function() {
         const chatWindow = document.getElementById('ai-chat-window');
         const body = document.body;
         const width = getSidebarWidth();
-        const isMobile = window.innerWidth <= 768; // 모바일 환경 체크
+        const isMobile = window.innerWidth <= 768;
         
-        // 현재 사이드바 모드인지 확인
+        if (!chatWindow) return;
+        
         const isSidebarMode = chatWindow.classList.contains('sidebar');
 
         if (isSidebarMode) {
-            // [사이드바 -> 미니 모드] 전환
+            // [사이드바 → 미니] 전환
             chatWindow.classList.remove('sidebar');
             chatWindow.classList.add('mini');
             
-            // 본문 레이아웃 복귀 (본문 밀어냄 해제)
+            // 본문 레이아웃 복귀
             body.style.marginRight = '0';
             body.classList.remove('ai-sidebar-open');
             
+            console.log('📦 미니 모드로 전환');
         } else {
-            // [미니 모드 -> 사이드바 모드] 전환
+            // [미니 → 사이드바] 전환
             chatWindow.classList.remove('mini');
             chatWindow.classList.add('sidebar');
             
-            // 만약 창이 닫혀있었다면 보이게 처리 (예외 처리)
+            // 창이 닫혀있었다면 열기
             if (!chatWindow.classList.contains('active')) {
                 chatWindow.classList.add('active');
                 chatWindow.style.visibility = 'visible';
             }
 
-            // 데스크탑 환경에서는 본문을 왼쪽으로 밀어내어 채팅창 공간을 확보합니다.
+            // 데스크탑 환경에서만 본문 밀어냄
             if (!isMobile) {
                 body.classList.add('ai-sidebar-open');
                 body.style.marginRight = width;
             }
+            
+            console.log('📌 사이드바 모드로 전환');
         }
     };
 
-    // =========================================================================
-    // 4. 채팅 비즈니스 로직 (메시지 전송 및 백엔드 연동)
-    // =========================================================================
+    /* ===================================
+       [메시지 처리 함수] 송수신 및 화면 표시
+    =================================== */
 
     /**
-     * 사용자가 전송 버튼을 누르거나 엔터키를 쳤을 때 실행되는 메인 핸들러
+     * 사용자 메시지 전송 처리 (메인 핸들러)
+     * - 전송 버튼 클릭 또는 Enter 키 입력 시 실행
      */
     window.handleSendMessage = function() {
         const inputField = document.getElementById('ai-input-field');
+        if (!inputField) return;
+
         const message = inputField.value.trim(); // 앞뒤 공백 제거
 
         if (message) {
@@ -279,107 +295,126 @@
             // 2. 입력창 비우기
             inputField.value = '';
             
-            // 3. AI 응답 요청 시작
+            // 3. AI 응답 요청
             fetchAIResponse(message);
+            
+            console.log('📤 사용자 메시지 전송:', message);
         }
     };
 
     /**
-     * 추천 질문 버튼을 클릭했을 때 실행되는 핸들러
-     * @param {string} text - 버튼에 적힌 질문 내용
+     * 추천 질문 버튼 클릭 처리
+     * @param {string} text - 추천 질문 내용
      */
     window.sendSuggestion = function(text) {
-        appendMessage('user', text); // 사용자 메시지로 표시
-        fetchAIResponse(text);       // AI 응답 요청
+        appendMessage('user', text);
+        fetchAIResponse(text);
+        console.log('💡 추천 질문 전송:', text);
     };
 
     /**
-     * 화면에 메시지 말풍선을 추가하는 함수
-     * @param {string} type - 'user'(사용자) 또는 'bot'(AI)
-     * @param {string} text - 표시할 메시지 내용
+     * 메시지를 화면에 추가하는 함수
+     * - 스타일을 직접 주입하는 대신 CSS 클래스를 활용합니다.
      */
     function appendMessage(type, text) {
         const messageList = document.getElementById('ai-message-list');
-        const msgDiv = document.createElement('div');
-        
-        const isUser = type === 'user';
-        
-        // 메시지 정렬 (사용자는 오른쪽, 봇은 왼쪽)
-        msgDiv.style.cssText = `
-            display: flex;
-            justify-content: ${isUser ? 'flex-end' : 'flex-start'};
-            margin-bottom: 12px;
-            padding: 0 10px;
-        `;
+        if (!messageList) return;
 
-        // 말풍선 스타일 정의
+        // 1. 메시지 행(Row) 생성
+        const msgRow = document.createElement('div');
+        msgRow.className = `ai-msg-row ${type}`; // 'user' 또는 'bot' 클래스 추가
+
+        // 2. 말풍선(Bubble) 생성
         const bubble = document.createElement('div');
-        bubble.style.cssText = `
-            max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.5;
-            background-color: ${isUser ? '#F97316' : '#F3F4F6'}; /* 사용자는 주황색, 봇은 회색 */
-            color: ${isUser ? '#FFFFFF' : '#1F2937'};
-            border-bottom-${isUser ? 'right' : 'left'}-radius: 4px; /* 말꼬리 효과 */
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        `;
+        bubble.className = 'ai-bubble';
         bubble.innerText = text;
 
-        msgDiv.appendChild(bubble);
-        messageList.appendChild(msgDiv);
+        // 3. 조립 및 추가
+        msgRow.appendChild(bubble);
+        messageList.appendChild(msgRow);
 
-        // 새 메시지가 추가되면 스크롤을 맨 아래로 이동
+        // 4. 새 메시지 추가 시 스크롤을 맨 아래로 이동
         const chatBody = document.getElementById('ai-chat-body');
-        chatBody.scrollTop = chatBody.scrollHeight;
+        if (chatBody) {
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
     }
 
-    /**
-     * [백엔드 통신 함수]
-     * 사용자 메시지를 서버로 보내고 AI 응답을 받아옵니다.
-     */
+    /* ===================================
+    [백엔드 통신] API 연동 영역
+    =================================== */
+
     async function fetchAIResponse(userMessage) {
+        // 로딩 표시 등의 UI 처리를 여기에 추가할 수 있습니다.
+        
         try {
-            // TODO: 실제 서비스 배포 시 아래 주석을 해제하고 백엔드 API와 연동하세요.
+            // 실제 API 연동 시 주석 해제하여 사용하세요.
             /*
             const response = await fetch(widgetConfig.apiEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMessage })
+                body: JSON.stringify({ 
+                    prompt: userMessage, // AI에게 전달할 메시지
+                    session_id: "user_123" // 필요시 세션 ID 포함
+                })
             });
+
+            if (!response.ok) throw new Error('네트워크 응답이 좋지 않습니다.');
+            
             const data = await response.json();
-            const botReply = data.reply;
+            const botReply = data.choices[0].message.content; // API 구조에 맞춰 수정
             */
 
-            // 현재는 테스트용 더미 응답(1초 지연)을 반환합니다.
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            const botReply = `"${userMessage}"에 대한 답변입니다. (백엔드 연결이 필요합니다)`;
+            // [테스트용 더미 응답]
+            await new Promise(resolve => setTimeout(resolve, 800)); 
+            const botReply = `해봄이 답변: "${userMessage}"에 대해 친절히 안내해 드릴게요! (API 연동 대기 중)`;
 
-            // AI 응답을 화면에 표시
             appendMessage('bot', botReply);
 
         } catch (error) {
-            console.error('AI 응답 오류:', error);
-            appendMessage('bot', '죄송합니다. 오류가 발생했습니다.');
+            console.error('❌ API Error:', error);
+            appendMessage('bot', '서버와 연결이 원활하지 않습니다. 잠시 후 다시 시도해주세요.');
         }
     }
+    /* ===================================
+       [이벤트 리스너] 키보드/마우스 이벤트 처리
+    =================================== */
 
-    // =========================================================================
-    // 5. 이벤트 리스너 등록
-    // =========================================================================
-
-    // 입력창에서 Enter 키 입력 시 메시지 전송 (Shift+Enter는 줄바꿈)
-    document.getElementById('ai-input-field').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // 기본 엔터 동작(줄바꿈) 방지
-            handleSendMessage();
+    /**
+     * 이벤트 리스너 초기화 함수
+     */
+    function initEventListeners() {
+        // Enter 키로 메시지 전송 (Shift+Enter는 줄바꿈)
+        const inputField = document.getElementById('ai-input-field');
+        if (inputField) {
+            inputField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault(); // 기본 엔터 동작(줄바꿈) 방지
+                    handleSendMessage();
+                }
+            });
         }
-    });
 
-    // 아이콘 라이브러리 초기화 (동적으로 추가된 아이콘을 렌더링)
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
+        console.log('✅ 이벤트 리스너 등록 완료');
     }
-    
+
+    /* ===================================
+       [실행 영역] 위젯 자동 초기화
+    =================================== */
+
+    // CSS 로드
+    loadCSS();
+
+    // Lucide 아이콘 로드
+    loadLucideIcons();
+
+    // HTML 로드 및 초기화
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadWidgetHTML);
+    } else {
+        loadWidgetHTML();
+    }
+
+    console.log('🚀 AI 챗봇 위젯 초기화 시작');
+
 })();

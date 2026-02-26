@@ -36,7 +36,7 @@ public class UserController {
     // 메인 페이지 이동 (templates/main/main_Org.html 호출)
     @GetMapping("/main")
     public String mainPage() {
-        return "main/main_org"; 
+        return "main/main"; 
     }
 
     @GetMapping("/signup")

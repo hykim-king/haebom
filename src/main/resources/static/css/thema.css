@@ -1,6 +1,6 @@
 /* ===== HEADER ===== */
 .thema-header{
-    max-width: 1200px;
+    max-width: 1260px;
     margin: 40px auto 30px;
     border-bottom: #f97316 3px solid;
     padding-bottom: 15px;
@@ -58,8 +58,9 @@
 }
 
 .category-item span {
-    font-size: 13px;
+    font-size: 14px;
     color: #333;
+    font-weight: bold;
 }
 
 /* ===== SWIPER ===== */

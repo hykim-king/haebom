@@ -17,6 +17,7 @@
 const THEMES = [
     { id: 'mountain', icon: '⛰️', label: '산' },
     { id: 'waterfall', icon: '🌊', label: '폭포' },
+    { id: 'valley', icon: '💦', label: '계곡' },
     { id: 'sea', icon: '🏖️', label: '바다' },
     { id: 'lake', icon: '🚣', label: '호수' },
     { id: 'river', icon: '🏞️', label: '강' },
@@ -26,6 +27,7 @@ const THEMES = [
     { id: 'spa', icon: '♨️', label: '온천/스파' },
     { id: 'themepark', icon: '🎡', label: '테마공원' },
     { id: 'experience', icon: '🚜', label: '체험' },
+    { id: 'monument', icon: '🗼', label: '기념/전망' },
     { id: 'culture', icon: '🏛️', label: '문화시설' },
     { id: 'leisure', icon: '🚲', label: '레포츠' }
 ];

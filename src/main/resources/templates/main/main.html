@@ -14,33 +14,17 @@
 
 
     <!-- CSS -->
-    <link rel="stylesheet" href="../css/main.css" />
-    <link rel="stylesheet" href="../css/header.css" />
-    <link rel="stylesheet" href="../css/footer.css" />
-    <link rel="stylesheet" href="../css/ai-widget.css" />
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <link rel="stylesheet" th:href="@{/css/header.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/ai_widget.css}" />
 
   </head>
-
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.get("logout") === "true") {
-        alert("로그아웃 되었습니다.");
-        window.history.replaceState({}, document.title, "/user/main");
-    }
-
-    if (urlParams.get("loginSuccess") === "true") {
-        alert("해봄트립에 오신 것을 환영합니다!");
-        window.history.replaceState({}, document.title, "/user/main");
-    }
-  </script>
 
   <body>
     
     <!-- Header -->
-     <!-- Header -->
-    <div th:replace="~{main/header :: header}"></div>
-
+    <div id="header"></div>
 
     <!-- Main -->
     <main class="main">
@@ -71,68 +55,79 @@
 
       <!-- 테마 배너 -->
       <section class="container py-4">
-        <div
-          class="card border-0 text-white overflow-hidden shadow theme-banner"
-        >
+        <div class="theme-banner position-relative overflow-hidden rounded-4 shadow-lg mb-5">
           <div class="overlay-image"></div>
-          <div
-            class="card-body position-relative p-4 d-flex flex-column flex-md-row justify-content-between align-items-center text-center text-md-start"
-          >
-            <div>
-              <h3 class="fw-bold d-flex align-items-center gap-2 mb-2">
-                <i data-lucide="compass"></i>
-                나만의 맞춤 여행지 찾기
-              </h3>
-              <p class="text-light mb-0" style="font-size: 15px">
-                회원님의 여행 취향에 맞춘 맞춤 추천을 받아보세요.
-              </p>
-            </div>
-            <button
-              class="btn btn-light rounded-pill px-4 py-2 fw-bold text-btn mt-3 mt-md-0"
-            >
-              추천 받으러 가기
-            </button>
+          <div class="card-body p-5 text-center position-relative" style="z-index: 2;">
+            <h2 class="display-6 fw-bold mb-3">어디로 갈지 고민이신가요?</h2>
+            <p class="lead mb-4">해봄트립 AI가 당신의 취향에 딱 맞는 여행지를 추천해 드립니다.</p>
+            <a th:href="@{/ai/recommend.do}" class="btn btn-dark btn-lg px-5 rounded-pill shadow">AI 추천 받으러 가기</a>
           </div>
         </div>
       </section>
 
-      <!-- 실시간 인기 관광지 -->
-      <section class="container-fluid py-5 popular-section">
-        <h2 class="fw-bold mb-4 d-flex align-items-center gap-2">
-          <i data-lucide="trending-up" class="text-danger"></i>
-          실시간 인기 관광지
-        </h2>
-        <div id="popularList" class="list-group"></div>
+<!--      &lt;!&ndash; 실시간 인기 관광지 &ndash;&gt;-->
+<!--      <section class="container py-4">-->
+<!--        <h2 class="fw-bold mb-4 d-flex align-items-center gap-2">-->
+<!--          <i data-lucide="trending-up" class="text-danger"></i>-->
+<!--          실시간 인기 관광지-->
+<!--        </h2>-->
+<!--        <div id="popularList" class="list-group"></div>-->
+<!--      </section>-->
+
+      <section class="container py-4">
+        <div id="popularList" class="list-group">
+          <a th:each="trip, iterStat : ${popularList}"
+             th:href="@{/trip/doSelectOne.do(tripContsId=${trip.tripContsId})}"
+             class="list-group-item popular-item d-flex align-items-center shadow-sm rounded mb-4 border-0">
+
+            <div class="me-4 text-center" style="width: 50px;">
+              <span class="fs-1" th:text="${iterStat.count == 1 ? '🥇' : (iterStat.count == 2 ? '🥈' : '🥉')}"></span>
+            </div>
+
+            <div class="thumb me-4">
+              <img th:src="${trip.tripPathNm}" alt="관광지 이미지" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px;">
+            </div>
+
+            <div class="flex-grow-1">
+              <h4 class="fw-bold mb-1" th:text="${trip.tripNm}">관광지명</h4>
+              <p class="text-muted mb-0" th:text="${trip.tripAddr}">주소</p>
+            </div>
+
+            <div class="views-box d-flex align-items-center gap-1">
+              <i data-lucide="eye" style="width: 18px;"></i>
+              <span th:text="${trip.tripInqCnt != null ? #numbers.formatInteger(trip.tripInqCnt, 1, 'COMMA') : 0}">0</span>
+            </div>
+          </a>
+        </div>
       </section>
 
        <!-- 지역 슬라이더 (Regional Slider - Swiper) -->
-      <section class="region-slider-section">
-        <div class="region-inner">
+      <section class="container py-4">
+        <h2 class="fw-bold mb-4 d-flex align-items-center gap-2">
+          <i data-lucide="map-pin" class="text-primary"></i>
+          지역별 여행지 추천
+        </h2>
 
-          <h2 class="fw-bold mb-4 d-flex align-items-center gap-2">
-            <i data-lucide="map-pin" class="text-primary"></i>
-            지역별 여행지 추천
-          </h2>
-        
-        <!-- Swiper Container -->
-         <div class="position-relative">
-          <div class="swiper region-swiper">
-            <div class="swiper-wrapper" id="regionSliderWrapper">
-                <!-- Javascript will inject slides here -->
+        <div class="swiper regionSwiper position-relative overflow-hidden" style="min-height: 400px;">
+          <div class="swiper-wrapper">
+            <div th:each="region : ${randomRegionList}" class="swiper-slide p-2">
+              <div class="region-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="position-relative">
+                  <img th:src="${region.tripPathNm}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="추천 이미지">
+                  <span class="position-absolute top-0 start-0 m-3 badge bg-primary px-3 py-2" th:text="${region.tripTag}">지역</span>
+                </div>
+                <div class="card-body p-4 text-start">
+                  <h5 class="fw-bold mb-2 text-truncate" th:text="${region.tripNm}">관광지명</h5>
+                  <p class="card-text text-muted small mb-3 text-truncate" th:text="${region.tripAddr}">주소</p>
+                  <a th:href="@{/trip/doSelectOne.do(tripContsId=${region.tripContsId})}"
+                     class="btn btn-outline-dark w-100 rounded-pill">상세보기</a>
+                </div>
+              </div>
             </div>
-         
-        
-            <!-- Navigation buttons -->
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-button-next"></div>
-
-
-            <!-- Pagination -->
-            <div class="swiper-pagination"></div>
           </div>
+
+          <div class="swiper-pagination mt-4"></div>
         </div>
-        </div> 
-       </div>
       </section>
 
       <!-- 날씨 BEST -->
@@ -157,19 +152,25 @@
     <!-- Footer -->
     <div id="footer"></div>
 
+    <script>
+      fetch("header.html")
+              .then((res) => res.text())
+              .then((html) => (document.getElementById("header").innerHTML = html));
 
-    <!-- Footer -->
-    <div th:replace="~{main/footer :: footer}"></div>
+      fetch("footer.html")
+              .then((res) => res.text())
+              .then((html) => (document.getElementById("footer").innerHTML = html));
+    </script>
 
     <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- <script src="../javascript/header.js"></script> -->
+    <script src="../javascript/header.js"></script>
     <script src="../javascript/main.js"></script>
 
     <!-- AI Widget Script -->
-    <script src="../javascript/ai-widget.js"></script>
+    <script src="../javascript/ai_widget.js"></script>
 
   </body>
 </html>

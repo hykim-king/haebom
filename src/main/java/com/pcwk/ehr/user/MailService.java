@@ -19,9 +19,12 @@ public class MailService {
 
     public void sendVerificationCode(String to, String code) {
         SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom("msk924616@gmail.com");
         msg.setTo(to);
         msg.setSubject("[해봄트립] 이메일 인증번호 안내");
         msg.setText("인증번호는 [" + code + "] 입니다. 3분 이내 입력해주세요.");        
         mailSender.send(msg);
+
+        
     }
 }

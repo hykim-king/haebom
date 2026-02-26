@@ -27,7 +27,7 @@
     const widgetConfig = {
         // 봇 기본 정보
         botName: "AI 해봄",                          // 헤더에 표시될 봇 이름
-        botProfileImage: "/static/img/haebomhello.png",          // 프로필 이미지 경로
+        botProfileImage: "/static/img/haebom_hello.png",          // 프로필 이미지 경로
         greetingMessage: " 여행의 모든 것, 무엇이든 해봄이에게 물어보세요!", // 환영 메시지
         
         // 백엔드 API 설정

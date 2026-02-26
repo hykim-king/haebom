@@ -79,7 +79,7 @@ function loadCSS() {
      */
 function loadWidgetHTML() {
     // fetch 경로를 현재 구조에 맞춰 확인해야 합니다.
-    fetch('/static/html/ai_widget.html')
+    fetch('../html/ai_widget.html')
         .then(response => {
             if (!response.ok) throw new Error('HTML 파일을 찾을 수 없습니다.');
             return response.text();

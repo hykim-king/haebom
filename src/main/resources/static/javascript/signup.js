@@ -4,18 +4,21 @@
 
 // 1. 전역 설정 및 상태
 const THEMES = [
-  { id: 'healing', icon: '🌿', label: '힐링/휴식' },
-  { id: 'activity', icon: '🏃', label: '액티비티' },
-  { id: 'food', icon: '🥘', label: '맛집탐방' },
-  { id: 'photo', icon: '📸', label: '인생샷' },
-  { id: 'history', icon: '🏯', label: '역사/문화' },
-  { id: 'sea', icon: '🌊', label: '바다여행' },
-  { id: 'mountain', icon: '⛰️', label: '등산/트레킹' },
-  { id: 'camping', icon: '⛺', label: '캠핑/글램핑' },
-  { id: 'festival', icon: '🎉', label: '지역축제' },
-  { id: 'cafe', icon: '☕', label: '카페투어' },
-  { id: 'family', icon: '👨‍👩‍👧‍👦', label: '가족여행' },
-  { id: 'friend', icon: '👯', label: '우정여행' }
+    { id: 'mountain', icon: '⛰️', label: '산' },
+    { id: 'waterfall', icon: '🌊', label: '폭포' },
+    { id: 'valley', icon: '💦', label: '계곡' },
+    { id: 'sea', icon: '🏖️', label: '바다' },
+    { id: 'lake', icon: '🚣', label: '호수' },
+    { id: 'river', icon: '🏞️', label: '강' },
+    { id: 'cave', icon: '🦇', label: '동굴' },
+    { id: 'history', icon: '🏯', label: '역사 관광지' },
+    { id: 'temple', icon: '🙏', label: '사찰' },
+    { id: 'spa', icon: '♨️', label: '온천/스파' },
+    { id: 'themepark', icon: '🎡', label: '테마공원' },
+    { id: 'experience', icon: '🚜', label: '체험' },
+    { id: 'monument', icon: '🗼', label: '기념/전망' },
+    { id: 'culture', icon: '🏛️', label: '문화시설' },
+    { id: 'leisure', icon: '🚲', label: '레포츠' }
 ];
 
 const signupConfig = {

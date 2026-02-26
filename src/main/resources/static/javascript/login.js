@@ -58,10 +58,9 @@ $(document).ready(function () {
                 // 최근 스프링은 자동으로 JSON 객체로 변환해줍니다.
                 const response = typeof res === "string" ? JSON.parse(res) : res;
 
-                if(response.success) {
-                    // 로그인 성공 시 UserController의 @GetMapping("/main")으로 이동
-                    window.location.href = "/user/main";
-                } else {
+                if (response.success) {
+                    window.location.href = "/user/main?loginSuccess=true";
+                }else {
                     alert(response.message || "로그인 정보를 확인해주세요.");
                     toggleButtonLoading(submitBtn, false, originalText);
                 }

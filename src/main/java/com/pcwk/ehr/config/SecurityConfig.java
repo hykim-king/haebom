@@ -82,11 +82,6 @@ public class SecurityConfig {
 
 						// 방식2: 전체 허용 + 차단 목록 (임시적 허용)
 						.requestMatchers("/admin/**").hasRole("ADMIN") // 관리자만
-						.requestMatchers(
-								"/user/signup",
-								"/api/auth/**",
-								"/css/**", "/img/**", "/javascript/**")
-						.permitAll()
 						.anyRequest().permitAll() // 나머지 전부 허용
 				)
 				.formLogin(form -> form

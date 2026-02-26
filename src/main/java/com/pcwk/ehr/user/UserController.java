@@ -36,7 +36,7 @@ public class UserController {
     // 메인 페이지 이동 (templates/main/main_Org.html 호출)
     @GetMapping("/main")
     public String mainPage() {
-        return "main/main_Org"; 
+        return "main/main_org"; 
     }
 
     @GetMapping("/signup")
@@ -62,5 +62,11 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("{\"success\": false, \"message\": \"" + e.getMessage() + "\"}");
         }
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();      // 세션 완전 삭제
+        return "redirect:/user/main?logout=true";
     }
 }

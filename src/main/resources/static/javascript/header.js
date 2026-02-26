@@ -19,8 +19,8 @@ window.checkLoginStatus = function() {
     });
   } else {
     authButtons.innerHTML = `
-      <a href="../html/login.html">로그인</a>
-      <a href="../html/signup.html">회원가입</a>
+      <a href="/user/login">로그인</a>
+      <a href="/user/signup">회원가입</a>
     `;
   }
   if (window.lucide) lucide.createIcons();

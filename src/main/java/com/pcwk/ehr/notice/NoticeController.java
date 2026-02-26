@@ -54,6 +54,8 @@ public class NoticeController {
         return "notice/notice_write";
     }
 
+
+
     @GetMapping("/notice")
     public String notice(Model model) {
         log.info("┌──────────────────────────┐");

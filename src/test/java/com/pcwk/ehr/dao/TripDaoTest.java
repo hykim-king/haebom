@@ -97,7 +97,8 @@ class TripDaoTest {
 
 		searchVO.setPageSize(10);
 		searchVO.setPageNo(1);
-		searchVO.setSearchWord("몽고정");
+		searchVO.setSearchWord("일등");
+		searchVO.setTripCtpv(1);
 		// searchVO.setTripClsf(12); // TripVO의 필드
 		log.info("여행지 전체 수"+tripMapper.getCount());
 		List<TripVO> list = tripMapper.doRetrieve(searchVO);

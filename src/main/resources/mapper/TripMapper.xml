@@ -67,37 +67,49 @@
 
 
     <select id="doRetrieve" parameterType="TripVO" resultType="TripVO">
-        SELECT A.*, B.TOTAL_CNT AS totalCnt
+    SELECT A.*, B.TOTAL_CNT AS totalCnt
+    FROM (
+        SELECT TT1.*
         FROM (
-            SELECT TT1.*
+            SELECT ROWNUM AS RNUM, T1.*
             FROM (
-                SELECT ROWNUM AS RNUM, T1.*
-                FROM (
-                    SELECT *
-                    FROM TRIP
-                    WHERE 1=1
-                    <if test="searchWord != null and searchWord != ''">
-                        AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
-                    </if>
-                    <if test="tripTag != 0">
-                        AND TRIP_TAG = #{tripTag}
-                    </if>
-                    ORDER BY TRIP_CONTS_ID DESC
-                ) T1  
-                WHERE ROWNUM &lt;= #{pageSize} * (#{pageNo} - 1) + #{pageSize}
-            ) TT1
-            WHERE RNUM &gt;= #{pageSize} * (#{pageNo} - 1) + 1
-        ) A CROSS JOIN (
-            SELECT COUNT(*) TOTAL_CNT
-            FROM TRIP
-            WHERE 1=1
-            <if test="searchWord != null and searchWord != ''">
-                AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
-            </if>
-            <if test="tripTag != 0">
-                AND TRIP_TAG = #{tripTag}
-            </if>
-        ) B    
+                SELECT *
+                FROM TRIP
+                WHERE 1=1
+                <if test="searchWord != null and searchWord != ''">
+                    AND TRIP_NM LIKE '%' || #{searchWord} || '%'
+                </if>
+                <if test="tripTag != null and tripTag != ''">
+                    AND TRIP_TAG = #{tripTag}
+                </if>
+                <if test="tripCtpv != 0">
+                    AND TRIP_CTPV = #{tripCtpv}
+                </if>
+                <if test="tripGungu != 0">
+                    AND TRIP_GUNGU = #{tripGungu}
+                </if>
+                ORDER BY TRIP_CONTS_ID DESC
+            ) T1  
+            WHERE ROWNUM &lt;= #{pageSize} * (#{pageNo} - 1) + #{pageSize}
+        ) TT1
+        WHERE RNUM &gt;= #{pageSize} * (#{pageNo} - 1) + 1
+    ) A CROSS JOIN (
+        SELECT COUNT(*) TOTAL_CNT
+        FROM TRIP
+        WHERE 1=1
+        <if test="searchWord != null and searchWord != ''">
+            AND TRIP_NM LIKE '%' || #{searchWord} || '%'
+        </if>
+        <if test="tripTag != null and tripTag != ''">
+            AND TRIP_TAG = #{tripTag}
+        </if>
+        <if test="tripCtpv != 0">
+            AND TRIP_CTPV = #{tripCtpv}
+        </if>
+        <if test="tripGungu != 0">
+            AND TRIP_GUNGU = #{tripGungu}
+        </if>
+    ) B    
     </select>
 
      <!--인기관광지 -->

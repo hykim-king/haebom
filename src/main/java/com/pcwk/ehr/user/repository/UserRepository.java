@@ -20,5 +20,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Query("SELECT COUNT(u) FROM UserEntity u WHERE u.userEmlAddr LIKE concat(:email, '%') AND u.userDelYn = 'Y'")
     long countByEmailStartingWithAndUserDelYn(@Param("email") String email);
 
-    
+    Optional<UserEntity> findByUserProviderAndUserProviderId(String userProvider, String userProviderId);
 }

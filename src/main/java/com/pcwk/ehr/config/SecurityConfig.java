@@ -16,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.pcwk.ehr.user.OAuth2UserServiceImpl;
+
 /**
  * <pre>
  * Class Name : SecurityConfig
@@ -36,6 +38,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 	final Logger log = LogManager.getLogger(getClass());
+	private final OAuth2UserServiceImpl oAuth2UserService;
 
 	// id비번 hard 코딩
 	@Bean
@@ -100,6 +103,15 @@ public class SecurityConfig {
 						.clearAuthentication(true) // 인증 정보 제거
 						.deleteCookies("JSESSIONID") // 쿠기삭제
 				)
+				//outh2Login추가
+				.oauth2Login(oauth2 -> oauth2
+					.loginPage("/user/login")
+					.userInfoEndpoint(userInfo -> userInfo
+						.userService(oAuth2UserService)
+					)
+					.defaultSuccessUrl("/oauth2/success", true)
+				)
+
 
 		;
 

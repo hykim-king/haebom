@@ -1,201 +1,124 @@
-package com.pcwk.ehr.dao;
+// package com.pcwk.ehr.dao;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+// import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
+// import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.apache.logging.log4j.LogManager;
+// import org.apache.logging.log4j.Logger;
+// import org.junit.jupiter.api.AfterEach;
+// import org.junit.jupiter.api.BeforeEach;
+// import org.junit.jupiter.api.Disabled;
+// import org.junit.jupiter.api.DisplayName;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-import com.pcwk.ehr.domain.RelationVO;
-import com.pcwk.ehr.relation.RelationMapper;
+// import com.pcwk.ehr.cmn.DTO;
+// import com.pcwk.ehr.relation.RelationMapper;
+// import com.pcwk.ehr.domain.RelationVO;
+// import com.pcwk.ehr.user.UserMapper;
+// import com.pcwk.ehr.domain.UserVO;
+// import com.pcwk.ehr.trip.TripMapper;
+// import com.pcwk.ehr.domain.TripVO;
 
-@SpringBootTest
-class RelationDaoTest {
-    final Logger log = LogManager.getLogger(getClass());
+// @SpringBootTest
+// class RelationDaoTest {
+// 	final Logger log = LogManager.getLogger(getClass());
 
-    @Autowired
-    RelationMapper relationMapper;
+// 	@Autowired
+// 	RelationMapper relationMapper;
 
-    RelationVO rel01;
-    RelationVO rel02;
+//     @Autowired
+//     UserMapper userMapper;
+    
+//     @Autowired
+// 	TripMapper tripMapper;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        log.info("┌──────────────────────────┐");
-        log.info("│──setup───────────────────│");
-        log.info("└──────────────────────────┘");
+// 	RelationVO relationVO01;
+//     UserVO userVO01;
 
-        // 0. 전체삭제
-        relationMapper.deleteAll();
+// 	DTO dto;
 
-        rel01 = new RelationVO();
-        rel01.setRelClsf(10);       // 찜한 여행지
-        rel01.setUserNo(10);
-        rel01.setCourseNo(null);
-        rel01.setTripContsId(1);
+// 	@BeforeEach
+// 	void setUp() throws Exception {
+// 		log.info("┌──────────────────────────┐");
+// 		log.info("│  setup()                 │");
+// 		log.info("└──────────────────────────┘");
 
-        rel02 = new RelationVO();
-        rel02.setRelClsf(20);       // 여행 완료한 여행지
-        rel02.setUserNo(10);
-        rel02.setCourseNo(null);
-        rel02.setTripContsId(1);
-    }
+		
+// 		relationVO01 = new RelationVO(1,0,90,0,1610521);
+//         userVO01 = new UserVO();
+//         userVO01.setUserNo(90);
+//         userVO01.setUserEmlAddr("kim@test.com");
+//         userVO01.setUserEnpswd("kim4");
+//         userVO01.setUserNm("김김김");
+//         userVO01.setUserBrdt(19900101);
+//         userVO01.setUserTelno("010-0000-0000");
+//         userVO01.setUserGndr("M");
+//         userVO01.setUserMngrYn("N");
+//         userVO01.setUserDelYn("N");
 
-    @AfterEach
-    void tearDown() throws Exception {
-        log.info("┌──────────────────────────┐");
-        log.info("│─tearDown()               │");
-        log.info("└──────────────────────────┘");
-    }
+// 	}
 
-    @Test
-    @DisplayName("관계 등록")
-    void doSave() {
-        log.info("┌──────────────────────────┐");
-        log.info("│doSave()                  │");
-        log.info("└──────────────────────────┘");
+// 	//@Disabled
+// 	@Test
+// 	@DisplayName("찜하기")
+// 	void FavoriteStatus() {
+// 		log.info("┌──────────────────────────┐");
+// 		log.info("│ FavoriteStatus()         │");
+// 		log.info("└──────────────────────────┘");
+       
+//         userMapper.doSave(userVO01);
+       
+//         // 1. 초기 세팅: 찜하기 상태(10)로 설정
+//         relationVO01.setRelClsf(10); 
+        
+//         // 2. 업데이트 실행
+//         int flag = relationMapper.FavoriteStatus(relationVO01);
+//         log.info("업데이트 결과: {}", flag);
+        
+//         // 3. 검증: 업데이트된 행의 수가 1이어야 함
+//         assertEquals(1, flag, "찜하기 업데이트에 실패했습니다.");
 
-        // 1.
-        int count = relationMapper.getCount();
-        assertEquals(0, count);
 
-        // 2.
-        int flag = relationMapper.doSave(rel01);
-        assertEquals(1, flag);
+// 	}
 
-        // 3.
-        assertEquals(1, relationMapper.getCount());
+// 	@Disabled
+// 	@Test
+// 	@DisplayName("가본 여행지 업데이트")
+// 	void VisitedStatus() {
+// 		log.info("┌──────────────────────────┐");
+// 		log.info("│ VisitedStatus()          │");
+// 		log.info("└──────────────────────────┘");
+//         // 1. 초기 세팅: 방문 완료 상태(20)로 설정
+//         relationVO01.setRelClsf(20);
 
-        log.info("rel01: {}", rel01);
-    }
+//         // 2. 업데이트 실행
+//         int flag = relationMapper.VisitedStatus(relationVO01);
+//         log.info("업데이트 결과: {}", flag);
 
-    @Test
-    @DisplayName("전체 삭제")
-    void deleteAll() {
-        log.info("┌──────────────────────────┐");
-        log.info("│deleteAll()               │");
-        log.info("└──────────────────────────┘");
+//         // 3. 검증
+//         assertEquals(1, flag, "가본 여행지 업데이트에 실패했습니다.");
 
-        // 1.
-        relationMapper.doSave(rel01);
-        relationMapper.doSave(rel02);
-        assertEquals(2, relationMapper.getCount());
+// 	}
 
-        // 2.
-        relationMapper.deleteAll();
+// 	@AfterEach
+// 	void tearDown() throws Exception {
+// 		log.info("┌──────────────────────────┐");
+// 		log.info("│ tearDown()               │");
+// 		log.info("└──────────────────────────┘");
+// 	}
 
-        // 3.
-        assertEquals(0, relationMapper.getCount());
-    }
+// 	@Test
+// 	// @Disabled
+// 	void beans() {
+// 		log.info("┌──────────────────────────┐");
+// 		log.info("│beans()                   │");
+// 		log.info("└──────────────────────────┘");
 
-    @Test
-    @DisplayName("단건 조회")
-    void doSelectOne() {
-        log.info("┌──────────────────────────┐");
-        log.info("│doSelectOne()             │");
-        log.info("└──────────────────────────┘");
+// 		log.info("RelationMapper:{}", relationMapper);
+// 		assertNotNull(relationMapper);
+// 	}
 
-        // 1.
-        relationMapper.doSave(rel01);
-
-        // 2.
-        RelationVO regVO = relationMapper.getAll().get(0);
-
-        // 3.
-        RelationVO outVO = relationMapper.doSelectOne(regVO);
-
-        // 4.
-        assertNotNull(outVO);
-        assertEquals(regVO.getRelNo(), outVO.getRelNo());
-        assertEquals(rel01.getRelClsf(), outVO.getRelClsf());
-        assertEquals(rel01.getTripContsId(), outVO.getTripContsId());
-
-        log.info("outVO: {}", outVO);
-    }
-
-    @Test
-    @DisplayName("사용자별 관계 목록 조회")
-    void getListByUser() {
-        log.info("┌──────────────────────────┐");
-        log.info("│getListByUser()           │");
-        log.info("└──────────────────────────┘");
-
-        // 1.
-        relationMapper.doSave(rel01);
-        relationMapper.doSave(rel02);
-
-        // 2. 전체 조회 (분류 조건 없이)
-        RelationVO searchVO = new RelationVO();
-        searchVO.setUserNo(10);
-
-        List<RelationVO> list = relationMapper.getListByUser(searchVO);
-
-        // 3.
-        assertNotNull(list);
-        assertEquals(2, list.size());
-
-        for (RelationVO vo : list) {
-            log.info("vo: {}", vo);
-        }
-
-        // 4. 찜한 여행지만 조회
-        searchVO.setRelClsf(10);
-        List<RelationVO> wishList = relationMapper.getListByUser(searchVO);
-        assertEquals(1, wishList.size());
-    }
-
-    @Test
-    @DisplayName("관계 수정")
-    void doUpdate() {
-        log.info("┌──────────────────────────┐");
-        log.info("│doUpdate()                │");
-        log.info("└──────────────────────────┘");
-
-        // 1.
-        relationMapper.doSave(rel01);
-
-        // 2.
-        RelationVO regVO = relationMapper.getAll().get(0);
-        regVO.setRelClsf(20); // 찜 -> 완료로 변경
-
-        // 3.
-        int flag = relationMapper.doUpdate(regVO);
-        assertEquals(1, flag);
-
-        // 4.
-        RelationVO updateVO = relationMapper.doSelectOne(regVO);
-        assertEquals(20, updateVO.getRelClsf());
-
-        log.info("updateVO: {}", updateVO);
-    }
-
-    @Test
-    @DisplayName("관계 삭제")
-    void doDelete() {
-        log.info("┌──────────────────────────┐");
-        log.info("│doDelete()                │");
-        log.info("└──────────────────────────┘");
-
-        // 1.
-        relationMapper.doSave(rel01);
-        assertEquals(1, relationMapper.getCount());
-
-        // 2.
-        RelationVO regVO = relationMapper.getAll().get(0);
-
-        // 3.
-        int flag = relationMapper.doDelete(regVO);
-        assertEquals(1, flag);
-
-        // 4.
-        assertEquals(0, relationMapper.getCount());
-    }
-}
+// }

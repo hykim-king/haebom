@@ -17,7 +17,7 @@
           <li><a href="#">여행코스 AI</a></li>
         </ul>
       </li>
-        <li><a href="#">의료가이드</a></li>
+        <li><a th:href="@{/medical}">의료가이드</a></li>
       </ul>
 
       <div id="auth-buttons" class="nav-actions util-menu" th:if="${session.user == null}">

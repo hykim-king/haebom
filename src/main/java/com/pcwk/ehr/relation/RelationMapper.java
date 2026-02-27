@@ -13,6 +13,10 @@ public interface RelationMapper extends WorkDiv<RelationVO> {
 
     List<RelationVO> getAll();
 
+    int FavoriteStatus(RelationVO vo);
+
+    int VisitedStatus(RelationVO vo);
+
     int getCount();
 
     int deleteAll();

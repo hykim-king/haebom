@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>의료가이드 - 해봄트립</title>
+
+    <!-- External CSS -->
+     <link rel="stylesheet" href="../css/header.css" />
+    <link rel="stylesheet" href="../css/footer.css" />
+    <link rel="stylesheet" href="../css/medical.css" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Pretendard", "sans-serif"],
+            },
+            colors: {
+              orange: {
+                50: "#fff7ed",
+                100: "#ffedd5",
+                500: "#f97316",
+                600: "#ea580c",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body class="bg-slate-50">
+
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 pb-20 max-w-3xl">
+      <!-- Page Title -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">
+          우리동네 의료가이드
+        </h1>
+        <p class="text-slate-500">
+          여행 중 아플 때, 가까운 병원과 약국을 찾아보세요.
+        </p>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="flex p-1 bg-slate-200 rounded-xl mb-6 relative">
+        <div
+          id="tab-indicator"
+          class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-out left-1"
+        ></div>
+        <button
+          onclick="switchTab('hospital')"
+          id="tab-hospital"
+          class="flex-1 relative z-10 py-3 text-center font-bold text-slate-700 transition-colors duration-300"
+        >
+          <span class="flex items-center justify-center gap-2">
+            <i data-lucide="stethoscope" class="w-5 h-5"></i> 병원
+          </span>
+        </button>
+        <button
+          onclick="switchTab('pharmacy')"
+          id="tab-pharmacy"
+          class="flex-1 relative z-10 py-3 text-center font-bold text-slate-500 transition-colors duration-300"
+        >
+          <span class="flex items-center justify-center gap-2">
+            <i data-lucide="pill" class="w-5 h-5"></i> 약국
+          </span>
+        </button>
+      </div>
+
+      <!-- Region Selector & Search -->
+      <div class="space-y-4 mb-6">
+        <!-- Region Scroll -->
+        <div class="relative group">
+          <div
+            class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none md:hidden"
+          ></div>
+          <div
+            class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none md:hidden"
+          ></div>
+
+          <div
+            class="overflow-x-auto pb-2 scrollbar-hide"
+            id="region-scroll-area"
+          >
+            <div class="flex gap-2 min-w-max px-1" id="region-list">
+              <!-- Regions will be injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative w-full">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="병원명, 약국명 또는 도로명 주소 검색"
+            class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-white transition-all shadow-sm"
+          />
+          <i
+            data-lucide="search"
+            class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"
+          ></i>
+        </div>
+      </div>
+
+      <!-- List Content -->
+      <div id="medical-list" class="space-y-3 min-h-[400px]">
+        <!-- Items injected by JS -->
+        <div
+          class="bg-white p-8 rounded-2xl text-center shadow-sm border border-slate-100"
+        >
+          <div
+            class="animate-spin inline-block w-8 h-8 border-4 border-orange-200 border-t-orange-600 rounded-full mb-4"
+          ></div>
+          <p class="text-slate-500">정보를 불러오는 중입니다...</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mt-8 flex justify-center items-center gap-2" id="pagination">
+        <!-- Pagination injected by JS -->
+      </div>
+
+      <!-- Chatbot Floating Button -->
+      <div class="fixed bottom-6 right-6 z-50">
+        <button
+          class="w-14 h-14 bg-orange-600 rounded-full shadow-lg shadow-orange-300 flex items-center justify-center text-white hover:bg-orange-700 transition-transform hover:scale-105 group"
+        >
+          <i data-lucide="message-circle" class="w-7 h-7"></i>
+          <span
+            class="absolute right-full mr-3 bg-slate-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+          >
+            무엇이든 물어보세요!
+          </span>
+        </button>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <div id="footer"></div>
+
+        <script>
+      fetch("../html/header.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("header").innerHTML = html));
+
+      fetch("../html/footer.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("footer").innerHTML = html));
+    </script>
+
+    <!-- Scripts -->
+     <script src="../javascript/header_Org.js"></script>
+    <script src="../javascript/medical.js"></script>
+  </body>
+</html>

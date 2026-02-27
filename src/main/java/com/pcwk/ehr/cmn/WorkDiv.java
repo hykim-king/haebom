@@ -8,7 +8,8 @@ public interface WorkDiv<T> {
 	/**
 	 * 
 	 * Description :
-	 * 회원목록 조회 
+	 * 회원목록 조회
+	 * 
 	 * @param DTO 검색조건
 	 * @return List<MemberVO>
 	 * @throws
@@ -19,7 +20,8 @@ public interface WorkDiv<T> {
 	 * 
 	 * Description :
 	 * 단건수정
-	 * @param  T 
+	 * 
+	 * @param T
 	 * @return 성공(1)/실패(0)
 	 * @throws
 	 */
@@ -28,7 +30,8 @@ public interface WorkDiv<T> {
 	/**
 	 * 
 	 * Description :
-	 * 단건 삭제 
+	 * 단건 삭제
+	 * 
 	 * @param T
 	 * @return 성공(1)/실패(0)
 	 * @throws
@@ -38,13 +41,15 @@ public interface WorkDiv<T> {
 	/**
 	 * 
 	 * Description : 단건조회
+	 * 
 	 * @param T
-     * 
+	 * 
 	 */
 	T doSelectOne(T param);
 
 	/**
 	 * 단건 등록
+	 * 
 	 * @param param
 	 * @return 성공(1)/실패(0)
 	 */

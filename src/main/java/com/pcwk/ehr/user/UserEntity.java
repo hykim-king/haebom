@@ -38,7 +38,7 @@ public class UserEntity {
     @Column(name = "user_enpswd", nullable = false, length = 256)
     private String userEnpswd; // VARCHAR2(256), N-N
 
-    @Column(name = "user_nm", nullable = false, length = 7)
+    @Column(name = "user_nm", nullable = false, length = 20)
     private String userNm; // NVARCHAR2(7), N-N
 
     @Column(name = "user_brdt", nullable = false, precision = 8)
@@ -114,6 +114,7 @@ public class UserEntity {
             this.userRegHm = now.format(DateTimeFormatter.ofPattern("HHmm"));
         }
     }
+
     /**
      * 휴면 처리 기능: 휴면 여부를 Y로 바꾸고 날짜와 시간을 기록함
      */
@@ -133,7 +134,7 @@ public class UserEntity {
         this.userDelYn = "Y";
         this.userDelDt = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         this.userDelHm = now.format(DateTimeFormatter.ofPattern("HHmm"));
-        
+
         this.userNick = truncateString(this.userNick.replaceAll("_del\\d+", "") + suffix, 30);
         this.userEmlAddr = truncateString(this.userEmlAddr.replaceAll("_del\\d+", "") + suffix, 320);
         this.userTelno = truncateString(this.userTelno.replaceAll("_del\\d+", "") + suffix, 200);

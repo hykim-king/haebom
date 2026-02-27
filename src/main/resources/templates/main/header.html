@@ -1,28 +1,37 @@
-<nav class="header">
-  <div class="header-inner">
-    <a href="/public/index.html" class="logo">
-      <img src="../../static/img/haebom_header_logo.png" alt="해봄이" class="logo-icon">
-      <!-- <span class="logo-text"></span> -->
-    </a>
+<div th:fragment="header">
+  <nav class="header">
+    <div class="header-inner">
+      <a href="/public/index.html" class="logo">
+        <img src="../img/haebom_header_logo.png" alt="해봄이" class="logo-icon">
+        <!-- <span class="logo-text"></span> -->
+      </a>
 
-    <ul class="nav-menu">
-      <li><a href="#">여행지</a></li>
-      <li><a href="#">여행지 코스</a></li>
-      <li><a href="#">테마</a></li>
-      <li class="dropdown">
-      <a href="#" class="dropdown-toggle">추천 AI</a>
-      <ul class="dropdown-menu">
-        <li><a href="#">여행지 AI</a></li>
-        <li><a href="#">여행코스 AI</a></li>
+      <ul class="nav-menu">
+        <li><a href="#">여행지</a></li>
+        <li><a href="#">여행지 코스</a></li>
+        <li><a href="#">테마</a></li>
+        <li class="dropdown">
+        <a href="#" class="dropdown-toggle">추천 AI</a>
+        <ul class="dropdown-menu">
+          <li><a href="#">여행지 AI</a></li>
+          <li><a href="#">여행코스 AI</a></li>
+        </ul>
+      </li>
+        <li><a href="#">의료가이드</a></li>
       </ul>
-    </li>
-      <li><a href="#">의료가이드</a></li>
-    </ul>
 
-    <div id="auth-buttons" class="nav-actions util-menu">
-      <a href="../../static/html/login.html">로그인</a>
-      <a href="../../static/html/signup.html">회원가입</a>
-     <!-- <a href="#" class="highlight">마이페이지</a> -->
+      <div id="auth-buttons" class="nav-actions util-menu" th:if="${session.user == null}">
+        <a th:href="@{/user/login}">로그인</a>
+        <a th:href="@{/user/signup}">회원가입</a>
+      </div>
+
+      <div class="util-menu" th:if="${session.user != null}">
+        <span class="welcome" th:text="${session.user.userNm} + '님 환영합니다'">사용자님 환영합니다</span>
+
+        <form th:action="@{/user/logout}" method="post" style="margin:0;">
+          <button type="submit" class="logout-link">로그아웃</button>
+        </form>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
+</div>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 해봄트립</title>
+    
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="h-screen w-full bg-orange-50/30 overflow-hidden flex items-center justify-center">
+
+    <div class="w-full h-full md:h-auto md:w-[1000px] md:rounded-3xl bg-white shadow-2xl overflow-hidden flex relative">
+        
+        <div class="hidden md:flex md:w-1/2 relative bg-orange-100 items-center justify-center overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1642840580793-6920cbc8f9b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Travel Mood" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-orange-900/40 backdrop-blur-[2px]"></div>
+            
+            <div class="relative z-10 text-center p-10 text-white">
+                <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-6 border border-white/30 shadow-lg">
+                    <span class="text-4xl">🐯</span>
+                </div>
+                <h2 class="text-3xl font-bold mb-4">만나서 반가워요!</h2>
+                <p class="text-orange-100 text-lg leading-relaxed">
+                    함께 설레는 여행 계획을 세워볼까요?
+                </p>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-white relative">
+            
+            <a th:href="@{/user/main}" class="absolute top-8 right-8 text-slate-400 hover:text-orange-600 transition-colors flex items-center gap-1 text-sm font-medium">
+                <i data-lucide="home" class="w-4 h-4"></i> 홈으로
+            </a>
+
+            <div class="md:hidden mb-8 text-center">
+                <span class="text-3xl font-black text-orange-600 tracking-tighter">해봄트립</span>
+            </div>
+
+            <div class="mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">로그인</h1>
+                <p class="text-slate-500">계정이 없으신가요? <a th:href="@{/user/signup}" class="text-orange-600 font-bold hover:underline">회원가입</a></p>
+            </div>
+
+            <form id="login-form" th:object="${userVO}" class="space-y-5">
+                <div class="space-y-1.5">
+                    <label for="userEmlAddr" class="text-sm font-bold text-slate-700">이메일</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="mail" class="text-slate-400 h-5 w-5"></i>
+                        </div>
+                        <input type="email" th:field="*{userEmlAddr}"
+                               class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder:text-slate-400" 
+                               placeholder="이메일을 입력하세요" required>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label for="userEnpswd" class="text-sm font-bold text-slate-700">비밀번호</label>
+                        <a href="#" class="text-xs text-orange-600 font-medium hover:underline">비밀번호 찾기</a>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="lock" class="text-slate-400 h-5 w-5"></i>
+                        </div>
+                        <input type="password" th:field="*{userEnpswd}"
+                               class="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder:text-slate-400" 
+                               placeholder="••••••••" required>
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                            <i data-lucide="eye" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-base font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all shadow-orange-200">
+                    로그인
+                </button>
+            </form>
+
+            <div class="relative mt-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-slate-100"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-slate-400">간편 로그인</span>
+                </div>
+            </div>
+
+            <!-- Social Buttons -->
+            <div class="mt-6 flex justify-center">
+                <button type="button" onclick="loginWithKakao()" class="kakao-btn w-full flex items-center justify-center px-4 py-3 rounded-xl shadow-sm transition-all">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 3c-4.97 0-9 3.185-9 7.115 0 2.557 1.707 4.8 4.27 6.054-.188.702-.682 2.545-.78 2.922-.123.477.175.47.37.34.153-.102 2.445-1.66 3.434-2.33.24.035.485.054.736.054 4.97 0 9-3.185 9-7.115S16.97 3 12 3z"/>
+                        </svg>
+                        <span class="text-[#3A1D1D] font-bold text-sm">카카오 로그인</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+        </div>
+    </div> 
+
+    <script th:src="@{/javascript/login.js}"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

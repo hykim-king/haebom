@@ -66,7 +66,11 @@
                NTC_MOD,
                NTC_MOD_HM,
                REG_NO,
-               MOD_NO
+               MOD_NO,
+               LAG(NTC_NO) OVER (ORDER BY NTC_NO),
+               LAG(NTC_TTL) over (ORDER BY NTC_NO),
+               LEAD(NTC_NO) over (ORDER BY NTC_NO),
+               LEAD(NTC_TTL) over (ORDER BY NTC_NO)
         FROM NOTICE
         WHERE NTC_NO = #{ntcNo}
     </select>

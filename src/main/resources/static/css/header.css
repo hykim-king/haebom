@@ -176,3 +176,44 @@
   color: #f97316;
   font-weight: 600;
 }
+
+/* ===== 로그인 후(환영문구/로그아웃) ===== */
+.util-menu .welcome {
+  color: #6b7280;      /* 기존 util-menu a 색상과 동일 톤 */
+  padding: 0 12px;
+  white-space: nowrap;
+  font-weight: 600;    /* 살짝 강조 */
+}
+
+/* 로그아웃 버튼을 a 처럼 보이게 */
+.util-menu .logout-link {
+  background: none;
+  border: none;
+  color: #6b7280;
+  padding: 0 12px;
+  cursor: pointer;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+/* hover도 a와 동일하게 */
+.util-menu .logout-link:hover {
+  color: #f97316;
+}
+
+/* ✅ 구분선: a 뿐만 아니라 welcome에도 적용되게 */
+.util-menu > :not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 14px;
+  background: #d1d5db;
+}
+
+/* 위 규칙이 작동하려면 각 항목을 relative로 */
+.util-menu > * {
+  position: relative;
+}

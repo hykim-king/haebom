@@ -21,23 +21,24 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody UserVO vo, HttpSession session) {
         try {
-            // 로그인 검증 및 회원 정보 가져오기
             UserVO loginUser = userService.loginDetail(vo.getUserEmlAddr(), vo.getUserEnpswd());
-            
-            // 세션에 로그인 정보 저장
-            session.setAttribute("user", loginUser);
-            
-            return ResponseEntity.ok().body("{\"success\": true}");
+            if (loginUser != null) {
+                session.setAttribute("user", loginUser);
+                System.out.println("로그인 성공: " + loginUser); // 디버깅 로그 추가
+                return ResponseEntity.ok().body("{\"success\": true}");
+            } else {
+                return ResponseEntity.status(401).body("{\"success\": false, \"message\": \"Invalid credentials\"}");
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("{\"success\": false, \"message\": \"" + e.getMessage() + "\"}");
+            return ResponseEntity.status(500).body("{\"success\": false, \"message\": \"" + e.getMessage() + "\"}");
         }
     }
 
-    // 메인 페이지 이동 (templates/main/main_Org.html 호출)
-    @GetMapping("/main")
-    public String mainPage() {
-        return "main/main"; 
-    }
+    // // 메인 페이지 이동 (templates/main/main_Org.html 호출)
+    // @GetMapping("/main")
+    // public String mainPage() {
+    //     return "main/main"; 
+    // }
 
     @GetMapping("/signup")
     public String signUpForm(Model model) {
@@ -67,6 +68,6 @@ public class UserController {
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();      // 세션 완전 삭제
-        return "redirect:/user/main?logout=true";
+        return "redirect:/main/main.do?logout=true";
     }
 }

@@ -59,7 +59,8 @@ $(document).ready(function () {
                 const response = typeof res === "string" ? JSON.parse(res) : res;
 
                 if (response.success) {
-                    window.location.href = "/user/main?loginSuccess=true";
+                    alert("해봄트립에 오신 것을 환영합니다!");
+                    window.location.href = "/main/main.do?loginSuccess=true";
                 }else {
                     alert(response.message || "로그인 정보를 확인해주세요.");
                     toggleButtonLoading(submitBtn, false, originalText);

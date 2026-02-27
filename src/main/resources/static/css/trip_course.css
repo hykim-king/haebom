@@ -25,5 +25,30 @@ body { display: flex; flex-direction: column; font-family: 'Pretendard', sans-se
 .star-rating label:hover,
 .star-rating label:hover ~ label { color: #fbbf24; }
 
+
+/* 별점: 마우스 호버 및 선택 시 노란색 처리 */
+.star-rating-input { 
+    display: flex; 
+    flex-direction: row-reverse; /* 별을 역순으로 배치해야 색칠 로직이 작동합니다 */
+    justify-content: flex-end; 
+    gap: 4px; 
+}
+
+/* 체크된 라디오 버튼과 그 앞의 별들을 노란색으로 */
+.star-rating-input input:checked ~ label,
+.star-rating-input label:hover,
+.star-rating-input label:hover ~ label { 
+    color: #facc15 !important; 
+    fill: #facc15; 
+}
+
+/* 기본 별 색상 (회색) */
+.star-rating-input label { 
+    color: #d1d5db; 
+    cursor: pointer; 
+    transition: 0.2s; 
+}
+
+
 /* 코스 타임라인 스타일 */
 .course-dot { position: absolute; left: -31px; top: 0; width: 22px; height: 22px; background: #3b82f6; border: 4px solid #fff; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.1); }

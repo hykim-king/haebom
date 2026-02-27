@@ -1,6 +1,8 @@
-/* 1. 기본 변수 및 초기화 (지원 페이지 공통 스타일 통합) */
+/* support.css */
+
 :root {
-    --primary-color: #0d6efd;
+    --primary-color: #f97316;
+    --primary-hover: #ea580c;
     --bg-light: #f8f9fa;
     --text-dark: #2c3e50;
     --text-muted: #6c757d;
@@ -15,27 +17,27 @@ html {
 }
 
 body {
-    background-color: var(--bg-light);
+    background-color: #fff;
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* 뷰포트 전체 높이 확보 */
+    min-height: 100vh;
     margin: 0;
     font-family: 'Pretendard', -apple-system, sans-serif;
     color: var(--text-dark);
 }
 
-/* 3. 메인 컨텐츠 영역 */
 main {
-    flex: 1; /* 푸터를 하단에 고정하기 위해 남은 공간을 모두 차지 */
+    flex: 1;
 }
 
-/* Tab Buttons */
+/* Tab Navigation */
 .tab-container {
     display: flex;
     justify-content: center;
     gap: 20px;
     margin: 40px 0;
 }
+
 .tab-btn {
     padding: 12px 40px;
     border-radius: 12px;
@@ -47,10 +49,11 @@ main {
     cursor: pointer;
     min-width: 180px;
 }
+
 .tab-btn.active {
     background: var(--primary-color);
     color: white;
-    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2);
 }
 
 /* Content Sections */
@@ -71,6 +74,7 @@ main {
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
+
 .faq-header {
     padding: 20px;
     display: flex;
@@ -78,8 +82,16 @@ main {
     align-items: center;
     cursor: pointer;
     font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.faq-header:hover { background-color: #fcfcfc; }
+
+.faq-header:hover {
+    background-color: rgba(249, 115, 22, 0.03);
+    color: var(--primary-color);
+    padding-left: 25px;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.08);
+}
+
 .faq-body {
     padding: 0 20px;
     max-height: 0;
@@ -87,14 +99,15 @@ main {
     transition: all var(--transition-speed) ease;
     background: #fafbfc;
     color: var(--text-muted);
-    border-top: 0 solid #eee;
 }
+
 .faq-item.open .faq-body {
     padding: 20px;
-    max-height: 200px;
-    border-top-width: 1px;
+    max-height: 300px;
+    border-top: 1px solid #eee;
 }
-.faq-item.open .chevron { transform: rotate(180deg); }
+
+.faq-item.open .chevron { transform: rotate(180deg); color: var(--primary-color); }
 .chevron { transition: transform var(--transition-speed) ease; }
 
 /* Inquiry Board */
@@ -104,6 +117,7 @@ main {
     padding: 25px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.04);
 }
+
 .inquiry-item {
     padding: 18px;
     border-bottom: 1px solid #f1f5f9;
@@ -113,8 +127,77 @@ main {
     text-decoration: none;
     color: inherit;
     transition: background 0.2s;
+    border-radius: 10px;
 }
+
 .inquiry-item:last-child { border-bottom: none; }
-.inquiry-item:hover { background: #f8f9ff; }
-.inquiry-title { font-weight: 500; }
-.write-btn-container { text-align: right; margin-top: 25px; }
+.inquiry-item:hover { background: rgba(249, 115, 22, 0.05); }
+
+/* 📌 글쓰기 버튼 컨테이너 (오른쪽 정렬 및 간격 수정) */
+.write-btn-container {
+    text-align: right;
+    margin-top: 32px; /* 라인과 버튼 사이의 간격 */
+    margin-bottom: 8px;
+}
+
+/* 📌 글쓰기 버튼 스타일 (주황색 유지 및 그림자 강화) */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border: none !important;
+    color: white !important;
+    padding: 12px 32px !important;
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease-in-out !important;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.25) !important;
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* 답변완료 배지 */
+.badge-done {
+    background-color: rgba(249, 115, 22, 0.1) !important;
+    color: var(--primary-hover) !important;
+    border: 1px solid rgba(249, 115, 22, 0.2) !important;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.badge-done::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    30% { left: 100%; }
+    100% { left: 100%; }
+}
+
+/* 처리중 배지 */
+.badge-processing {
+    background-color: #f1f5f9 !important;
+    color: #64748b !important;
+    border: 1px solid #e2e8f0 !important;
+}

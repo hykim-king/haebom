@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.comment.CommentMapper;
 import com.pcwk.ehr.domain.CommentVO;
+import com.pcwk.ehr.report.ReportMapper;
 
 @SpringBootTest
 class CommentDaoTest {
@@ -26,6 +27,9 @@ class CommentDaoTest {
 
     @Autowired                                                                                                                                                            
     CommentMapper commentMapper;
+
+    @Autowired
+    ReportMapper reportMapper;
 
     CommentVO comment01;
     CommentVO comment02;
@@ -37,24 +41,25 @@ class CommentDaoTest {
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
 
-        // 0. 전체삭제
+        // 0. 전체삭제 (report → cmt 순서: FK_CMT_TO_REPORT)
+        reportMapper.deleteAll();
         commentMapper.deleteAll();
 
         comment01 = new CommentVO();
         comment01.setCmtCn("좋은 여행지입니다!");
         comment01.setCmtStarng(5);
         comment01.setCmtClsf(1);
-        comment01.setTripCourseNo(1);
+        comment01.setTripCourseNo(6);
         comment01.setCmtHideYn("N");
-        comment01.setRegNo(1);
+        comment01.setRegNo(10);
 
         comment02 = new CommentVO();
         comment02.setCmtCn("경치가 아름다워요");
         comment02.setCmtStarng(4);
         comment02.setCmtClsf(1);
-        comment02.setTripCourseNo(1);
+        comment02.setTripCourseNo(6);
         comment02.setCmtHideYn("N");
-        comment02.setRegNo(1);
+        comment02.setRegNo(10);
 
         comment03 = new CommentVO();
         comment03.setCmtCn("다음에 또 가고 싶어요");
@@ -62,7 +67,7 @@ class CommentDaoTest {
         comment03.setCmtClsf(2);
         comment03.setTripCourseNo(2);
         comment03.setCmtHideYn("N");
-        comment03.setRegNo(1);
+        comment03.setRegNo(10);
     }
 
     @AfterEach
@@ -114,7 +119,7 @@ class CommentDaoTest {
         // 2.
         comment01.setCmtCn("수정된 댓글 내용입니다.");
         comment01.setCmtStarng(4);
-        comment01.setModNo(1);
+        comment01.setModNo(10);
         int flag = commentMapper.doUpdate(comment01);
         assertEquals(1, flag);
 
@@ -127,7 +132,7 @@ class CommentDaoTest {
     }  
 
 
-    @Disabled
+    //@Disabled
     @Test
     @DisplayName("목록 조회")
     void doRetrieve() {
@@ -163,7 +168,7 @@ class CommentDaoTest {
         }
     }
 
-    @Disabled
+    //@Disabled
     @Test
     @DisplayName("객체생성 확인")
     void beans() {

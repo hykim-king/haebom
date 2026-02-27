@@ -29,7 +29,7 @@ class SupportDaoTest {
         log.info("┌──────────────────────────┐");
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
-
+        // 하니님 원본 유지 (9개 필드 생성자/세터 구조)
         support01 = new SupportVO(0, "문의 내용 01", "답변 대기 중", null, null, null, "N", 13, null);
     }
 
@@ -72,32 +72,29 @@ class SupportDaoTest {
         log.info("│ doDelete()               │");
         log.info("└──────────────────────────┘");
 
-        // 1. 전체 삭제
         supportMapper.deleteAll();
 
-        // 2. 데이터 1건 등록
-        SupportVO vo = new SupportVO();
-        vo.setSupCn("삭제 테스트용 문의 내용");
-        vo.setSupAnsCn("삭제 테스트용 답변 내용");
-        vo.setRegNo(11);
-        supportMapper.doSave(vo);
+        for (int i = 1; i <= 10; i++) {
+            SupportVO vo = new SupportVO();
+            vo.setSupCn("문의 내용 " + i);
+            vo.setSupAnsCn("답변 내용 " + i);
+            vo.setRegNo(13);
+            supportMapper.doSave(vo);
+        }
 
-        // 3. 등록 확인
-        assertEquals(1, supportMapper.getCount());
+        int count = supportMapper.getCount();
+        log.info("생성된 데이터 건수: {}", count);
+        assertEquals(10, count);
 
-        // 4. 삭제
         List<SupportVO> list = supportMapper.getAll();
         SupportVO outVO = list.get(0);
 
-        // 5. 삭제 확인
         int flag = supportMapper.doDelete(outVO);
         assertEquals(1, flag);
         log.info("삭제 된 건수: {}", flag);
 
-        // 6. 0인지 확인
-        assertEquals(0, supportMapper.getCount());
-        log.info("DB 저장 건수: {}", supportMapper.getCount());
-
+        assertEquals(9, supportMapper.getCount());
+        log.info("삭제 후 전체 건수: {}", supportMapper.getCount());
     }
 
     @Test
@@ -112,7 +109,7 @@ class SupportDaoTest {
         SupportVO vo = new SupportVO();
         vo.setSupCn("테스트 내용입니다.");
         vo.setSupAnsCn("답변 완료 되었습니다");
-        vo.setRegNo(11);
+        vo.setRegNo(13);
         vo.setSupYn("N");
 
         int flag = supportMapper.doSave(vo);
@@ -174,7 +171,7 @@ class SupportDaoTest {
         for(int i=1; i<=30; i++) {
             SupportVO vo = new SupportVO();
             vo.setSupCn("검색 문의사항 " + i);
-            vo.setRegNo(11);
+            vo.setRegNo(13);
             supportMapper.doSave(vo);
         }
 

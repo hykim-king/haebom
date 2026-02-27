@@ -92,4 +92,40 @@
         ) B    
     </select>
 
+        <!--인기관광지 -->
+    <select id="selectTop3Popular" resultType="TripVO">
+        SELECT *
+        FROM (
+                 SELECT
+                     TRIP_CONTS_ID,
+                     TRIP_NM,
+                     TRIP_PATH_NM,
+                     TRIP_ADDR,
+                     TRIP_INQ_CNT
+                 FROM TRIP
+                 ORDER BY TRIP_INQ_CNT DESC
+             )
+    <![CDATA[ WHERE ROWNUM <= 3 ]]>
+    </select>
+
+    <!-- 지역별 관광지 랜덤 추천 -->
+    <select id="selectRandomPerRegion" resultType="TripVO">
+        SELECT *
+        FROM (
+                 SELECT
+                     TRIP_CONTS_ID,
+                     TRIP_NM,
+                     TRIP_PATH_NM,
+                     TRIP_ADDR,
+                     TRIP_TAG,
+                     TRIP_CTPV,
+                     ROW_NUMBER() OVER (PARTITION BY TRIP_CTPV ORDER BY DBMS_RANDOM.VALUE) as rn
+                 FROM TRIP
+                 WHERE TRIP_CTPV IN (11, 26, 30, 31, 32) -- 예: 서울(11), 부산(26), 대전(30), 울산(31), 세종(32) 등 필요한 지역코드
+             )
+        WHERE rn = 1
+        ORDER BY DBMS_RANDOM.VALUE -- 가져온 지역들 사이에서도 순서를 랜덤하게 섞음
+    </select>
+
+
 </mapper>

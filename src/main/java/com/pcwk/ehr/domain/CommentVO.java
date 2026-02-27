@@ -22,9 +22,7 @@ public class CommentVO extends DTO {
     private String cmtHideYn;    // 댓글 히든처리
     private int    tripCourseNo; // 여행지,코스 고유번호
     private String cmtReg;       // 댓글 등록시간
-    private String cmtRegHm;     // 댓글 등록시간(시간까지만)
     private String cmtMod;       // 댓글 수정시간
-    private String cmtModHm;     // 댓글 수정시간(시간까지만)
     private int    regNo;        // 등록자 고유번호
     private int    modNo;        // 수정자 고유번호
 }

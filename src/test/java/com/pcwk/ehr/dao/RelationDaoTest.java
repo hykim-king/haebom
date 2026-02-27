@@ -40,13 +40,13 @@ class RelationDaoTest {
         rel01.setRelClsf(10);       // 찜한 여행지
         rel01.setUserNo(10);
         rel01.setCourseNo(null);
-        rel01.setTripContsId(1);
+        rel01.setTripContsId(3);
 
         rel02 = new RelationVO();
         rel02.setRelClsf(20);       // 여행 완료한 여행지
         rel02.setUserNo(10);
         rel02.setCourseNo(null);
-        rel02.setTripContsId(1);
+        rel02.setTripContsId(3);
     }
 
     @AfterEach

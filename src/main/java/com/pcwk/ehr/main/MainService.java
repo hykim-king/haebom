@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface MainService extends WorkDiv<TripVO> {
 
-    List<TripVO> getTop3Popular();
+    List<TripVO> popularTop3();
 
-    List<TripVO> getRandomPerRegion();
+    List<TripVO> randomRegion();
 }

@@ -27,7 +27,7 @@
     const widgetConfig = {
         // 봇 기본 정보
         botName: "AI 해봄",                          // 헤더에 표시될 봇 이름
-        botProfileImage: "/static/img/haebom_hello.png",          // 프로필 이미지 경로
+        botProfileImage: "/img/haebom_hello.png",          // 프로필 이미지 확인해야함
         greetingMessage: " 여행의 모든 것, 무엇이든 해봄이에게 물어보세요!", // 환영 메시지
         
         // 백엔드 API 설정
@@ -41,19 +41,15 @@
        [초기화 영역] 페이지 로드 시 실행
     =================================== */
 
-    /**
-     * CSS 스타일시트 동적 로드
-     * - HTML에 <link> 태그를 직접 넣지 않아도 스타일 적용 가능
-     */
-function loadCSS() {
-    // 중복 로드를 방지하기 위해 이미 link 태그가 있는지 확인합니다.
-    if (!document.querySelector('link[href*="/css/ai_widget.css"]')) {
-        const style = document.createElement('link');
-        style.rel = 'stylesheet';
-        style.href = '../css/ai_widget.css'; // 경로가 맞는지 꼭 확인하세요!
-        document.head.appendChild(style);
+    /* [초기화 영역] */
+    function loadCSS() {
+        if (!document.querySelector('link[href*="ai_widget.css"]')) {
+            const style = document.createElement('link');
+            style.rel = 'stylesheet';
+            style.href = '/static/css/ai_widget.css';
+            document.head.appendChild(style);
+        }
     }
-}
 
     /**
      * Lucide 아이콘 라이브러리 로드
@@ -77,26 +73,28 @@ function loadCSS() {
      * HTML 구조 동적 로드 및 삽입
      * - ai-widget.html 파일을 가져와서 body에 추가
      */
-function loadWidgetHTML() {
-    // fetch 경로를 현재 구조에 맞춰 확인해야 합니다.
-    fetch('../html/ai_widget.html')
-        .then(response => {
-            if (!response.ok) throw new Error('HTML 파일을 찾을 수 없습니다.');
-            return response.text();
-        })
-        .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
-            
-            // 핵심: HTML이 삽입된 직후에 Lucide 아이콘을 생성합니다.
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
-            
-            applyConfig();
-            initEventListeners();
-        })
-        .catch(error => console.error('❌ AI 위젯 로드 실패:', error));
-}
+    function loadWidgetHTML() {
+        // 1. 이미 위젯이 로드되어 있는지 확인
+        if (document.getElementById('ai-widget-root')) return;
+
+        fetch('/html/ai_widget.html') // 경로를 프로젝트 구조에 맞게 (절대경로 시작)
+            .then(response => {
+                if (!response.ok) throw new Error('HTML 로드 실패');
+                return response.text();
+            })
+            .then(html => {
+                document.body.insertAdjacentHTML('beforeend', html);
+
+                // 핵심: 렌더링을 보장하기 위해 0ms(다음 이벤트 루프)에 실행
+                setTimeout(() => {
+                    applyConfig();
+                    if (window.lucide) window.lucide.createIcons();
+                    initEventListeners();
+                    console.log('✅ 위젯 초기화 완료');
+                }, 0);
+            })
+            .catch(err => console.error("❌ 위젯 로딩 에러:", err));
+    }
 
 // 초기화 실행
 loadCSS();
@@ -107,28 +105,37 @@ loadWidgetHTML();
      * - widgetConfig의 값들을 실제 화면에 반영
      */
     function applyConfig() {
-        // 봇 이름 설정
         const botNameElement = document.getElementById('ai-bot-name');
-        if (botNameElement) {
-            botNameElement.textContent = widgetConfig.botName;
-        }
-
-        // 환영 메시지 설정
         const greetingElement = document.getElementById('ai-greeting-text');
-        if (greetingElement) {
-            greetingElement.textContent = widgetConfig.greetingMessage;
-        }
-
-        // 프로필 이미지 설정
         const profileImg = document.getElementById('aiProfileImg');
-        if (profileImg) {
-            profileImg.src = widgetConfig.botProfileImage;
+
+        if (botNameElement) botNameElement.textContent = widgetConfig.botName;
+        if (greetingElement) greetingElement.textContent = widgetConfig.greetingMessage;
+        function applyConfig() {
+            const profileImg = document.getElementById('aiProfileImg');
+            if (profileImg) {
+                profileImg.src = widgetConfig.botProfileImage;
+                // 이미지 로드 실패 시 무한 호출 방지 및 기본 아이콘 처리
+                profileImg.onerror = function() {
+                    this.src = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png";
+                    this.onerror = null;
+                };
+            }
+
+            // 이미지 로드 실패 시 실행되는 로직
+            profileImg.onerror = function() {
+                console.warn("⚠️ 프로필 이미지를 찾을 수 없습니다. 경로를 확인하세요.");
+                // 해결책: 서버에 없는 파일 대신, 외부의 무료 아이콘 주소를 임시로 넣거나
+                // onerror를 null로 만들어 반복 호출을 차단합니다.
+                this.src = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png";
+                this.onerror = null; // 중요: 이 라인이 없으면 404가 계속 뜹니다.
+            };
+
         }
 
-        // CSS 변수로 사이드바 너비 설정
-        document.documentElement.style.setPropertyValue('--ai-sidebar-width', widgetConfig.sidebarWidth);
+        // setProperty 사용
+        document.documentElement.style.setProperty('--ai-sidebar-width', widgetConfig.sidebarWidth);
     }
-
     /* ===================================
        [UI 제어 함수] 채팅창 열기/닫기/모드 전환
     =================================== */

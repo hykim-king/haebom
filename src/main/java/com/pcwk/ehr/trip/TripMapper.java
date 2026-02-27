@@ -12,9 +12,9 @@ public interface TripMapper extends WorkDiv<TripVO> {
     int getCount();
 
         //인기 관광지 top3
-    List<TripVO> selectTop3Popular();
+    List<TripVO> popularTop3();
 
     //지역별 관광지 랜덤 추천
-    List<TripVO> selectRandomPerRegion();
+    List<TripVO> randomRegion();
     
 }

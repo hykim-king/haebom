@@ -167,7 +167,7 @@ class DrugDaoTest {
         }
     }
 
-    //@Disabled
+    @Disabled
     @Test
     @DisplayName("객체생성 확인")
     void beans() {

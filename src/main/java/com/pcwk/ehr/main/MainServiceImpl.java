@@ -16,13 +16,13 @@ public class MainServiceImpl implements MainService{
     private final TripMapper tripMapper;
 
     @Override
-    public List<TripVO> getTop3Popular() {
-        return tripMapper.selectTop3Popular();
+    public List<TripVO> popularTop3() {
+        return tripMapper.popularTop3();
     }
 
     @Override
-    public List<TripVO> getRandomPerRegion() {
-        return tripMapper.selectRandomPerRegion();
+    public List<TripVO> randomRegion() {
+        return tripMapper.randomRegion();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MainServiceImpl implements MainService{
 
     @Override
     public TripVO doSelectOne(TripVO param) {
-        return null;
+        return tripMapper.doSelectOne(param);
     }
 
     @Override

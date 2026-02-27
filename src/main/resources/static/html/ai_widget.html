@@ -46,7 +46,7 @@
                 <!-- 반짝이는 별 아이콘 -->
                 <i data-lucide="sparkles" size="18"></i>
                 <!-- 봇 이름 (JavaScript에서 동적으로 설정됨) -->
-                <span id="ai-bot-name">AI 해봄</span>
+                <span id="ai-bot-name">AI 해봄? 지금 해봄!</span>
             </div>
             
             <!-- 우측: 제어 버튼 그룹 -->
@@ -123,17 +123,20 @@
                 </div>
                 
                 <!-- 실제 텍스트 입력 영역 (textarea) -->
-                <textarea id="ai-input-field" 
-                          class="ai-textarea" 
-                          placeholder="메시지를 입력하세요..." 
+                <textarea id="ai-input-field"
+                          class="ai-textarea"
+                          placeholder="메시지를 입력하세요..."
+                          aria-label="AI 챗봇 메시지 입력창"
+                          name="ai-message"
                           rows="1"></textarea>
                 
                 <!-- 입력창 하단 액션 버튼 영역 -->
                 <div class="ai-input-actions" style="justify-content: flex-end;">
                     <!-- 전송 버튼 (종이비행기 아이콘) -->
-                    <button class="ai-send-btn" 
-                            id="ai-send-btn" 
-                            title="전송" 
+                    <button class="ai-send-btn"
+                            id="ai-send-btn"
+                            type="button"
+                            aria-label="메시지 전송"
                             onclick="handleSendMessage()">
                         <i data-lucide="arrow-up" size="18"></i>
                     </button>

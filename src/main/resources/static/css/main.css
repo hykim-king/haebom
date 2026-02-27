@@ -18,6 +18,7 @@
 
 .theme-banner .card-body {
   position: relative;
+    color: #0f172a;
   z-index: 2;
 }
 
@@ -34,8 +35,6 @@
   margin: 0 auto;
   position: relative;
   z-index: 3;
-  position: relative;
-  z-index: 2;
 }
 
 .hero-badge {
@@ -506,7 +505,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-top: 20px;
-  padding-top: 3rem !important;
+  padding-top: 1.5rem !important;
   border-top: 1px solid #f1f5f9;
 }
 

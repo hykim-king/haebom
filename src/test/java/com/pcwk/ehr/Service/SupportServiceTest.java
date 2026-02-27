@@ -9,11 +9,10 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 class SupportServiceTest {
@@ -28,6 +27,8 @@ class SupportServiceTest {
 
     SupportVO support01;
 
+    final int EXISTING_USER_NO = 1;
+
     @BeforeEach
     void setUp() {
         log.info("┌──────────────────────────┐");
@@ -35,71 +36,80 @@ class SupportServiceTest {
         log.info("└──────────────────────────┘");
 
         supportMapper.deleteAll();
-        support01 = new SupportVO(0, "문의 내용 01", "답변 대기 중", null, null, null, "N", 13, null);
+
+        support01 = new SupportVO();
+        support01.setSupCn("문의 내용01");
+        support01.setSupAnsCn("답변 대기 중...");
+        support01.setRegNo(EXISTING_USER_NO);
+        support01.setSupYn("N");
     }
 
     @Test
     @DisplayName("등록 확인")
-    @Disabled
     void doSave(){
         log.info("┌──────────────────────────┐");
         log.info("│ doSave()                 │");
         log.info("└──────────────────────────┘");
 
         supportMapper.deleteAll();
-        assertEquals(0, supportMapper.getCount());
 
-        List<SupportVO> list = new ArrayList<>();
-        for(int i=1; i<=3; i++) {
+        for(int i=1; i<=5; i++) {
             SupportVO vo = new SupportVO();
             vo.setSupCn("문의사항 내용 " + i);
             vo.setSupAnsCn("답변 완료 " + i);
-            vo.setRegNo(11);
-            supportMapper.doSave(vo);
+            vo.setRegNo(EXISTING_USER_NO);
+            vo.setSupYn("N");
+
+            supportService.doSave(vo);
         }
 
         int totalCount = supportMapper.getCount();
         log.info("DB 저장 건수: {}", totalCount);
-        assertEquals(3, totalCount);
+        assertEquals(5, totalCount);
     }
 
     @Test
     @DisplayName("삭제 확인")
-    @Disabled
     void doDelete(){
         log.info("┌──────────────────────────┐");
         log.info("│ doDelete()               │");
         log.info("└──────────────────────────┘");
 
-        // 1. 전체 삭제 후 1건 등록
         supportMapper.deleteAll();
-        SupportVO vo = new SupportVO();
-        vo.setSupCn("삭제 테스트용 문의 내용");
-        vo.setSupAnsCn("삭제 테스트용 답변 내용");
-        vo.setRegNo(11);
-        supportMapper.doSave(vo);
 
-        // 2. 데이터 가져오기
+        supportService.doSave(support01);
+
         List<SupportVO> list = supportMapper.getAll();
         SupportVO outVO = list.get(0);
 
-        // 3. 삭제
         int flag = supportService.doDelete(outVO);
         assertEquals(1, flag);
         log.info("삭제 된 건수: {}", flag);
 
-        // 4. 확인
-        assertEquals(0,supportMapper.getCount());
-        log.info("DB 저장 건수: {}", supportMapper.getCount());
-
+        // --- 확인 로직 보완 ---
+        int finalCount = supportMapper.getCount();
+        log.info("삭제 후 DB 건수: {}", finalCount);
+        assertEquals(0, finalCount);
     }
 
     @Test
-    @DisplayName("조회 확인")
+    @DisplayName("단건 조회 확인")
     void doSelectOne(){
         log.info("┌──────────────────────────┐");
         log.info("│ doSelectOne()            │");
         log.info("└──────────────────────────┘");
+
+        supportMapper.deleteAll();
+        supportService.doSave(support01);
+
+        List<SupportVO> list = supportMapper.getAll();
+        SupportVO savedVO = list.get(0);
+
+        SupportVO outVO = supportService.doSelectOne(savedVO);
+
+        assertNotNull(outVO);
+        assertEquals(savedVO.getSupCn(), outVO.getSupCn());
+        log.info("조회된 내용: {}", outVO.getSupCn());
     }
 
     @AfterEach

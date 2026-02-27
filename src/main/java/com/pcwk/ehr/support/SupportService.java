@@ -21,4 +21,6 @@ public interface SupportService extends WorkDiv<SupportVO> {
 
     List<SupportVO> doRetrieve(DTO dto);
 
+    int getUserIdByEmail(String email);
+
 }

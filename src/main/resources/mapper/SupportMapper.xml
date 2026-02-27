@@ -2,28 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.support.SupportMapper">
 
-    <insert id="doSave" parameterType="SupportVO">
+<insert id="doSave" parameterType="SupportVO">
         INSERT INTO SUPPORT (
-             SUP_NO,
-             SUP_CN,
-             SUP_ANS_CN,
-             SUP_REG,
-             SUP_REG_HM,
-             SUP_ANS_REG,
-             SUP_ANS_REG_HM,
-             REG_NO,
-             SUP_YN)
-        VALUES (
-            SEQ_SUP_NO.NEXTVAL,
-            #{supCn},
-            #{supAnsCn},
-            TO_CHAR(SYSDATE, 'YYYYMMDD'),
-            TO_CHAR(SYSDATE, 'HH24MI'),
-            #{supAnsReg},
-            #{supAnsRegHm},
-            #{regNo},
-            'N'
-               )
+            SUP_NO,
+            SUP_CN,
+            SUP_ANS_CN,
+            SUP_REG,
+            SUP_REG_HM,
+            REG_NO,
+            SUP_YN
+        ) VALUES (
+             SEQ_SUP_NO.NEXTVAL,
+             #{supCn},
+             #{supAnsCn},
+             TO_CHAR(SYSDATE, 'YYYYMMDD'),
+             TO_CHAR(SYSDATE, 'HH24MI'),
+             #{regNo},
+             'N'
+                 )
     </insert>
 
     <select id="doSelectOne" parameterType="SupportVO">
@@ -35,34 +31,36 @@
         WHERE sup_no = #{supNo}
     </select>
 
-    <select id="doRetrieve" parameterType="DTO" resultType="SupportVO">
+<select id="doRetrieve" parameterType="DTO" resultType="SupportVO">
         SELECT *
         FROM (
             SELECT ROWNUM AS rnum, T1.*
             FROM (
                 SELECT
-                    SUP_NO,
-                    SUP_CN,
-                    SUP_ANS_CN,
-                    SUP_REG,
-                    SUP_REG_HM,
-                    SUP_ANS_REG,
-                    SUP_ANS_REG_HM,
-                    REG_NO,
-                    SUP_YN
-            FROM support
+                    t1.SUP_NO,
+                    t1.SUP_CN,
+                    t1.SUP_ANS_CN,
+                    t1.SUP_REG,
+                    t1.SUP_REG_HM,
+                    t1.SUP_ANS_REG,
+                    t1.SUP_ANS_REG_HM,
+                    t1.REG_NO,
+                    t1.SUP_YN,
+                    COUNT(*) OVER() as totalCnt
+            FROM support t1
+            LEFT JOIN SS_USER t2 ON t1.REG_NO = t2.USER_NO
             WHERE 1 = 1
-            <if test="searchWord != null and searchWord != ''">
-                    <choose>
-                        <when test="searchDiv == '10'">
-                            AND SUP_CN LIKE '%' || #{searchWord} || '%'
-                        </when>
-                        <when test="searchDiv == '20'">
-                            AND SUP_ANS_CN LIKE '%' || #{searchWord} || '%'
-                        </when>
-                    </choose>
-                </if>
-                ORDER BY SUP_NO ASC
+<!--            <if test="searchWord != null and searchWord != ''">-->
+<!--                    <choose>-->
+<!--                        <when test="searchDiv == '10'">-->
+<!--                            AND t1.SUP_CN LIKE '%' || #{searchWord} || '%'-->
+<!--                        </when>-->
+<!--                        <when test="searchDiv == '20'">-->
+<!--                            AND t1.SUP_ANS_CN LIKE '%' || #{searchWord} || '%'-->
+<!--                        </when>-->
+<!--                    </choose>-->
+<!--                </if>-->
+<!--                ORDER BY t1.SUP_NO DESC-->
             ) T1
             <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
         ) TT1
@@ -75,15 +73,20 @@
             SUP_ANS_CN  = #{supAnsCn},
             SUP_ANS_REG = TO_CHAR(SYSDATE, 'YYYYMMDD'),
             SUP_ANS_REG_HM = TO_CHAR(SYSDATE, 'HH24MI'),
-            SUP_YN      = 'Y'
+            SUP_YN      = #{supYn}
         WHERE SUP_NO = #{supNo}
     </update>
 
     <select id="getAll">
-        SELECT SUP_NO, SUP_CN, SUP_ANS_CN,
-               SUP_REG, SUP_REG_HM,
-               SUP_ANS_CN, SUP_ANS_REG_HM,
-               REG_NO, SUP_YN
+        SELECT SUP_NO,
+               SUP_CN,
+               SUP_ANS_CN,
+               TO_CHAR(TO_DATE(SUP_REG, 'YYYYMMDD'), 'YYYY.MM.DD') AS SUP_REG,
+               SUP_REG_HM,
+               TO_CHAR(TO_DATE(SUP_ANS_REG, 'YYYYMMDD'), 'YYYY.MM.DD') AS SUP_ANS_REG,
+               SUP_ANS_REG,
+               REG_NO,
+               SUP_YN
         FROM SUPPORT
         ORDER BY SUP_NO DESC
     </select>
@@ -99,5 +102,11 @@
     <delete id="doDelete" parameterType="SupportVO">
         DELETE FROM SUPPORT WHERE SUP_NO = #{supNo}
     </delete>
+
+    <select id="getUserIdByEmail" parameterType="string" resultType="int">
+    SELECT USER_NO
+    FROM ss_user
+    WHERE USER_EML_ADDR = #{email}
+</select>
 
 </mapper>

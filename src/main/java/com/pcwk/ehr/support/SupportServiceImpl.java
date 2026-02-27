@@ -31,6 +31,12 @@ public class SupportServiceImpl implements SupportService {
     @Override
     public int doUpdate(SupportVO inVO) {
         log.info("SupportServiceImpl doUpdate: {}", inVO);
+
+        if(inVO.getSupAnsCn() != null && !inVO.getSupAnsCn().trim().isEmpty()){
+            inVO.setSupYn("Y");
+        } else{
+            inVO.setSupYn("N");
+        }
         // 문의사항 수정 시 답변 상태(supYn) 변경 로직이 mapper에 포함되어 있습니다.
         return supportMapper.doUpdate(inVO);
     }
@@ -48,7 +54,11 @@ public class SupportServiceImpl implements SupportService {
 
     @Override
     public List<SupportVO> doRetrieve(DTO dto) {
-        return List.of();
+        return supportMapper.doRetrieve(dto);
     }
 
+    @Override
+    public int getUserIdByEmail(String email) {
+        return supportMapper.getUserIdByEmail(email);
+    }
 }

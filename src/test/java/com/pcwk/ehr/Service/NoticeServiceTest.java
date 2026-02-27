@@ -4,14 +4,12 @@ import com.pcwk.ehr.domain.NoticeVO;
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.notice.NoticeMapper;
 import com.pcwk.ehr.notice.NoticeService;
-import com.pcwk.ehr.user.UserMapper;
 import com.pcwk.ehr.user.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 

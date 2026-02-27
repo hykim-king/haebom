@@ -50,17 +50,6 @@
             FROM support t1
             LEFT JOIN SS_USER t2 ON t1.REG_NO = t2.USER_NO
             WHERE 1 = 1
-<!--            <if test="searchWord != null and searchWord != ''">-->
-<!--                    <choose>-->
-<!--                        <when test="searchDiv == '10'">-->
-<!--                            AND t1.SUP_CN LIKE '%' || #{searchWord} || '%'-->
-<!--                        </when>-->
-<!--                        <when test="searchDiv == '20'">-->
-<!--                            AND t1.SUP_ANS_CN LIKE '%' || #{searchWord} || '%'-->
-<!--                        </when>-->
-<!--                    </choose>-->
-<!--                </if>-->
-<!--                ORDER BY t1.SUP_NO DESC-->
             ) T1
             <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
         ) TT1
@@ -69,8 +58,7 @@
 
     <update id="doUpdate" parameterType="SupportVO">
         UPDATE SUPPORT
-        SET SUP_CN      = #{supCn},
-            SUP_ANS_CN  = #{supAnsCn},
+        SET SUP_ANS_CN      = #{supAnsCn},
             SUP_ANS_REG = TO_CHAR(SYSDATE, 'YYYYMMDD'),
             SUP_ANS_REG_HM = TO_CHAR(SYSDATE, 'HH24MI'),
             SUP_YN      = #{supYn}

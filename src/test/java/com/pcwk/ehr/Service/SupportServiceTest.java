@@ -53,7 +53,7 @@ class SupportServiceTest {
 
         supportMapper.deleteAll();
 
-        for(int i=1; i<=5; i++) {
+        for(int i=1; i<=100; i++) {
             SupportVO vo = new SupportVO();
             vo.setSupCn("문의사항 내용 " + i);
             vo.setSupAnsCn("답변 완료 " + i);
@@ -65,7 +65,7 @@ class SupportServiceTest {
 
         int totalCount = supportMapper.getCount();
         log.info("DB 저장 건수: {}", totalCount);
-        assertEquals(5, totalCount);
+        assertEquals(100, totalCount);
     }
 
     @Test

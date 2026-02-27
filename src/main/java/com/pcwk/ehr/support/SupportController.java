@@ -4,23 +4,21 @@ import com.pcwk.ehr.domain.SupportVO;
 import com.pcwk.ehr.domain.UserVO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Log4j2 // 💡 LogManager 대신 lombok 어노테이션으로 코드를 한 줄 줄입니다.
 @Controller
 @RequestMapping("/support")
 @RequiredArgsConstructor
 public class SupportController {
 
     private final SupportService supportService;
-    private final Logger log = LogManager.getLogger(getClass());
 
-    // 1. 리스트 조회 및 메인 화면
     @GetMapping("/support")
     public String support(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
                           Model model, HttpSession session) {
@@ -28,89 +26,86 @@ public class SupportController {
         String userMngrYn = "N";
 
         if (loginUser != null) {
-            // 💡 [디버깅] 현재 로그인한 사람의 이메일이 정확히 뭔지 서버 콘솔에 찍어봅니다.
-            log.info("현재 로그인 유저 이메일: [{}]", loginUser.getUserEmlAddr());
+            // 💡 권한 체크 로직 통합 (Optional하게 처리 가능하지만 직관성을 위해 유지)
+            userMngrYn = (loginUser.getUserMngrYn() != null) ? loginUser.getUserMngrYn().trim().toUpperCase() : "N";
 
-            // 💡 이메일 주소를 복사해서 아래 따옴표 안에 정확히 넣으세요. (대소문자 구분 필수!)
-            if ("하니님의_실제_이메일@naver.com".equals(loginUser.getUserEmlAddr())) {
+            // 💡 테스트 계정 보험 로직
+            if ("N".equals(userMngrYn) && "ss@s".equals(loginUser.getUserEmlAddr())) {
                 userMngrYn = "Y";
-                log.info("성공: 관리자 이메일 일치! Y를 부여합니다.");
-            } else {
-                userMngrYn = (loginUser.getUserMngrYn() != null) ? loginUser.getUserMngrYn() : "N";
             }
         }
-        model.addAttribute("userMngrYn", userMngrYn);
-        log.info("HTML로 전달되는 최종 값: [{}]", userMngrYn);
 
-        // 페이징 및 리스트 조회
+        // 1. 데이터 조회 및 페이징 계산
         int pageSize = 10;
         SupportVO searchVO = new SupportVO();
         searchVO.setPageNo(pageNo);
         searchVO.setPageSize(pageSize);
 
         List<SupportVO> list = supportService.doRetrieve(searchVO);
-        log.info("조회된 리스트 개수: {}", (list != null) ? list.size() : 0);
+
         int totalCount = (list != null && !list.isEmpty()) ? list.get(0).getTotalCnt() : 0;
         int totalPages = (int) Math.ceil((double) totalCount / pageSize);
         int startPage = ((pageNo - 1) / 5) * 5 + 1;
         int endPage = Math.min(startPage + 4, totalPages);
 
+        // 2. 모델 전달 (중복 로그 제거 및 정제)
         model.addAttribute("list", list);
+        model.addAttribute("userMngrYn", userMngrYn);
         model.addAttribute("currentPage", pageNo);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("totalPages", totalPages);
 
-        log.info("최종적으로 HTML에 던지는 값: [{}]", model.getAttribute("userMngrYn"));
+        log.info("지원 페이지 접속 - 유저: {}, 권한: {}, 리스트: {}건",
+                (loginUser != null ? loginUser.getUserEmlAddr() : "비로그인"), userMngrYn, totalCount);
 
         return "support/support";
     }
 
-    // 2. 문의글 저장 (관리자 작성 차단 포함)
     @PostMapping("/doSave.do")
     @ResponseBody
     public String doSave(@RequestBody SupportVO inVO, HttpSession session) {
         UserVO loginUser = (UserVO) session.getAttribute("user");
         if (loginUser == null) return "로그인 정보가 없습니다.";
 
-        // 관리자 글쓰기 차단
-        if ("Y".equals(loginUser.getUserMngrYn()) || "하니관리자계정@naver.com".equals(loginUser.getUserEmlAddr())) {
+        // 💡 관리자 차단 (보험 로직 포함)
+        if ("Y".equals(loginUser.getUserMngrYn()) || "ss@s".equals(loginUser.getUserEmlAddr())) {
             return "관리자 계정으로는 문의글 작성이 불가능합니다.";
         }
 
-        // 유저 번호 복구 로직
+        // 유저 번호 복구 (supportService 활용)
         if (loginUser.getUserNo() == null) {
             int recoveredNo = supportService.getUserIdByEmail(loginUser.getUserEmlAddr());
             if (recoveredNo > 0) loginUser.setUserNo(recoveredNo);
+            else return "유저 정보를 찾을 수 없습니다.";
         }
 
         inVO.setRegNo(loginUser.getUserNo());
         return String.valueOf(supportService.doSave(inVO));
     }
 
-    // 3. 답변 등록 (관리자 전용)
     @PostMapping("/doUpdate.do")
     @ResponseBody
     public String doUpdate(@RequestBody SupportVO inVO, HttpSession session) {
         UserVO loginUser = (UserVO) session.getAttribute("user");
-        if (loginUser == null || !"Y".equals(loginUser.getUserMngrYn())) {
+
+        if (loginUser == null || (!"Y".equals(loginUser.getUserMngrYn()) && !"ss@s".equals(loginUser.getUserEmlAddr()))) {
             return "관리자만 답변 등록이 가능합니다.";
         }
-        return String.valueOf(supportService.doUpdate(inVO));
+
+        int flag = supportService.doUpdate(inVO);
+        return String.valueOf(flag);
     }
 
-    // 4. 삭제 로직
     @PostMapping("/doDelete.do")
     @ResponseBody
     public String doDelete(SupportVO inVO) {
         return String.valueOf(supportService.doDelete(inVO));
     }
 
-    // 5. 💡 드디어 여기 있습니다! 단건 조회 (상세 보기용)
     @PostMapping("/doSelectOne.do")
     @ResponseBody
     public SupportVO doSelectOne(@RequestBody SupportVO inVO) {
-        log.info("단건 조회 요청: {}", inVO.getSupNo());
         return supportService.doSelectOne(inVO);
     }
 }

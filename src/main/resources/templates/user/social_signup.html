@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>카카오 추가 정보 입력 - 해봄트립</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Pretendard', 'sans-serif'] },
+          colors: { orange: { 500: '#f97316', 600: '#ea580c' } }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="min-h-screen w-full bg-orange-50/30 flex items-center justify-center py-6">
+
+  <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+    <div class="mb-8">
+      <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">추가 정보 입력</h1>
+      <p class="text-slate-500">
+        카카오 로그인으로 가입을 시작했어요. <b>닉네임만</b> 입력하면 가입이 완료됩니다.
+      </p>
+    </div>
+
+    <!-- ✅ 카카오에서 넘어온 값 표시(없을 수 있음) -->
+    <div class="mb-6 p-4 rounded-2xl bg-slate-50">
+      <p class="text-sm text-slate-600">
+        카카오 닉네임: <span class="font-semibold text-slate-800" th:text="${kakaoNick}">-</span>
+      </p>
+      <p class="text-sm text-slate-600">
+        카카오 이메일: <span class="font-semibold text-slate-800" th:text="${kakaoEmail}">-</span>
+      </p>
+      <p class="text-xs text-slate-400 mt-2">
+        ※ 카카오 동의 항목/사용자 설정에 따라 일부 정보는 비어 있을 수 있어요. (없는 경우 서버에서 자동 생성)
+      </p>
+    </div>
+
+    <!-- ✅ 에러 메시지 표시 -->
+    <div th:if="${error}" class="mb-6 p-4 rounded-2xl bg-red-50 border border-red-100">
+      <p class="text-sm text-red-600 font-semibold" th:text="${error}">에러 메시지</p>
+    </div>
+
+    <form th:action="@{/user/social-signup}" method="post" class="space-y-6">
+
+      <!-- ✅ 닉네임만 필수 -->
+      <div class="space-y-2">
+        <label class="text-sm font-bold text-slate-700">닉네임 <span class="text-orange-500">*</span></label>
+        <input type="text"
+               name="userNick"
+               th:value="${kakaoNick}"
+               class="w-full h-12 px-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+               placeholder="예: 해봄여행왕"
+               required
+               minlength="2"
+               maxlength="30" />
+        <p class="text-xs text-slate-400">
+          닉네임은 서비스에서 공개될 수 있어요. (중복이면 다시 입력 요청됩니다)
+        </p>
+      </div>
+
+      <button type="submit"
+              class="w-full py-4 px-6 bg-orange-600 text-white text-lg font-bold rounded-xl hover:bg-orange-700 transition-all shadow-lg shadow-orange-200">
+        가입 완료
+      </button>
+    </form>
+  </div>
+
+</body>
+</html>

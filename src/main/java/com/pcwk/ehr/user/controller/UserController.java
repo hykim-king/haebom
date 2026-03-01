@@ -1,4 +1,4 @@
-package com.pcwk.ehr.user;
+package com.pcwk.ehr.user.controller;
 
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.user.UserService;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
     // 메인 페이지 화면 이동 (가입/로그인 성공 후 리다이렉트 될 곳)
     @PostMapping("/login")
     @ResponseBody
@@ -37,7 +38,7 @@ public class UserController {
     // // 메인 페이지 이동 (templates/main/main_Org.html 호출)
     // @GetMapping("/main")
     // public String mainPage() {
-    //     return "main/main"; 
+    // return "main/main";
     // }
 
     @GetMapping("/signup")
@@ -49,10 +50,10 @@ public class UserController {
     // 2. 로그인 페이지 이동 (추가된 부분)
     @GetMapping("/login")
     public String loginForm(Model model) {
-    // 폼 객체 바인딩을 위해 빈 UserVO를 넘겨줍니다.
-    model.addAttribute("userVO", new UserVO());
-    return "user/login"; 
-}
+        // 폼 객체 바인딩을 위해 빈 UserVO를 넘겨줍니다.
+        model.addAttribute("userVO", new UserVO());
+        return "user/login";
+    }
 
     @PostMapping("/signup")
     @ResponseBody // AJAX 응답을 위해 추가
@@ -67,7 +68,7 @@ public class UserController {
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();      // 세션 완전 삭제
+        session.invalidate(); // 세션 완전 삭제
         return "redirect:/main/main.do?logout=true";
     }
 }

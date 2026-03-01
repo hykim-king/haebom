@@ -103,14 +103,15 @@
 
             <!-- Social Buttons -->
             <div class="mt-6 flex justify-center">
-                <button type="button" onclick="loginWithKakao()" class="kakao-btn w-full flex items-center justify-center px-4 py-3 rounded-xl shadow-sm transition-all">
+                <a th:href="@{/oauth2/authorization/kakao}"
+                    class="kakao-btn w-full flex items-center justify-center px-4 py-3 rounded-xl shadow-sm transition-all">
                     <span class="flex items-center gap-2">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 3c-4.97 0-9 3.185-9 7.115 0 2.557 1.707 4.8 4.27 6.054-.188.702-.682 2.545-.78 2.922-.123.477.175.47.37.34.153-.102 2.445-1.66 3.434-2.33.24.035.485.054.736.054 4.97 0 9-3.185 9-7.115S16.97 3 12 3z"/>
-                        </svg>
-                        <span class="text-[#3A1D1D] font-bold text-sm">카카오 로그인</span>
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3c-4.97 0-9 3.185-9 7.115 0 2.557 1.707 4.8 4.27 6.054-.188.702-.682 2.545-.78 2.922-.123.477.175.47.37.34.153-.102 2.445-1.66 3.434-2.33.24.035.485.054.736.054 4.97 0 9-3.185 9-7.115S16.97 3 12 3z"/>
+                    </svg>
+                    <span class="text-[#3A1D1D] font-bold text-sm">카카오 로그인</span>
                     </span>
-                </button>
+                </a>
             </div>
         </div>
         </div>

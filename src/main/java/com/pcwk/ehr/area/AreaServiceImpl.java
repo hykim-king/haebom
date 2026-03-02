@@ -13,21 +13,31 @@ public class AreaServiceImpl implements AreaService {
 
     private final AreaMapper areaMapper;
 
-    // --- WorkDiv 상속 메서드 구현 (에러 해결 핵심) ---
+   
     @Override
-    public int doSave(AreaVO param) { return areaMapper.doSave(param); }
+    public int doSave(AreaVO param) { 
+        return areaMapper.doSave(param);
+     }
 
     @Override
-    public int doDelete(AreaVO param) { return areaMapper.doDelete(param); }
+    public int doDelete(AreaVO param) { 
+        return areaMapper.doDelete(param);
+     }
 
     @Override
-    public int doUpdate(AreaVO param) { return areaMapper.doUpdate(param); }
+    public int doUpdate(AreaVO param) { 
+        return areaMapper.doUpdate(param); 
+    }
 
     @Override
-    public AreaVO doSelectOne(AreaVO param) { return areaMapper.doSelectOne(param); }
+    public AreaVO doSelectOne(AreaVO param) { 
+        return areaMapper.doSelectOne(param); 
+    }
 
     @Override
-    public List<AreaVO> doRetrieve(DTO param) { return areaMapper.doRetrieve(param); }
+    public List<AreaVO> doRetrieve(DTO param) { 
+        return areaMapper.doRetrieve(param); 
+    }
     // ------------------------------------------
 
     // 기존 추가 메서드들

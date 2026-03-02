@@ -1,18 +1,18 @@
 package com.pcwk.ehr.trip;
+
 import java.util.List;
-
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.ui.Model;
 
 import lombok.RequiredArgsConstructor;
 import com.pcwk.ehr.domain.TripVO;
-
+import com.pcwk.ehr.area.AreaService; 
+import com.pcwk.ehr.domain.AreaVO;
 
 @Controller
 @RequestMapping("/trip")
@@ -21,61 +21,83 @@ public class TripController {
     final Logger log = LogManager.getLogger(getClass());
 
     private final TripService tripService;
-    /* 여행지 목록 조회 */
-    @GetMapping("/trip_list")
-    public String tripList( TripVO tripVO, Model model) {
+    private final AreaService areaService; 
 
-        int pageGroup = 10;
-
-        // 값이 0(초기값)일 때만 1과 10으로 세팅하고, 값이 넘어오면 그 값을 유지합니다.
+    /**
+     * 1. 여행지 목록 화면 (초기 로딩용)
+     */
+    @GetMapping("/trip")
+    public String tripList(TripVO tripVO, Model model) {
+        // 초기 로딩 시 기본값 설정
         if (tripVO.getPageNo() == 0) tripVO.setPageNo(1);
         if (tripVO.getPageSize() == 0) tripVO.setPageSize(10);
 
+        // 초기 리스트 조회
         List<TripVO> list = tripService.doRetrieve(tripVO);
-
-        int pageNo = tripVO.getPageNo();
-        int pageSize = tripVO.getPageSize();
-
-        String viewName = "trip/trip_list";
+        
+        // 데이터가 없을 경우를 대비한 totalCnt 처리
+        int totalCnt = (list != null && !list.isEmpty()) ? list.get(0).getTotalCnt() : 0;
 
         model.addAttribute("list", list);
+        model.addAttribute("totalCnt", totalCnt);
+        model.addAttribute("vo", tripVO);
 
-        // 총글수
-        int totalCnt = (list.size() > 0) ? list.get(0).getTotalCnt() : 0;
-
-        // 전체페이지 (int)Math.ceil((double)1004/10)
-        int totalPage = (int) Math.ceil((double) totalCnt / pageSize);
-
-        // 시작페이지
-        int startPage = ((pageNo - 1) / pageGroup) * pageGroup + 1;
-
-        // 종료페이지
-        int endPage = Math.min(startPage + pageGroup - 1, totalPage);
-
-        model.addAttribute("list", list);
-        model.addAttribute("vo", tripVO); // 검색어와 현재 페이지 정보가 들어있음
-        model.addAttribute("startPage", startPage);
-        model.addAttribute("endPage", endPage);
-        model.addAttribute("totalPage", totalPage);
-
-        return viewName;
+        return "trip/trip";
     }
-    /* 여행지 상세조회 */
+
+    /**
+     * 2. 여행지 상세 화면
+     */
     @GetMapping("/trip_view")
     public String tripView(TripVO tripVO, Model model) {
-
-        // 1. 단건 조회 서비스 호출 및 조회수 1 증가(보통 doSelectOne 또는 doSelect)
         TripVO outVO = tripService.upDoSelectOne(tripVO);
-
-        // 2. 조회 결과가 있을 경우 화면에 전달
         if (outVO != null) {
             model.addAttribute("vo", outVO);
         }
-
-        // 3. 이동할 뷰 이름 (상세보기 페이지)
         return "trip/trip_view";
     }
 
+    /**
+     * 3. 여행지 목록 API (JS fetch 연동용)
+     */
+    @GetMapping("/doRetrieveJson.do")
+    @ResponseBody 
+    public List<TripVO> doRetrieveJson(TripVO tripVO) {
+        if (tripVO.getPageNo() == 0) tripVO.setPageNo(1);
+        if (tripVO.getPageSize() == 0) tripVO.setPageSize(10);
 
+        return tripService.doRetrieve(tripVO);
+    }
+
+    /**
+     * 4. [중요] 시도 목록 API
+     * trip.js의 fetchAreaTags()에서 호출
+     */
+    @GetMapping("/getCtpvList.do")
+    @ResponseBody
+    public List<AreaVO> getCtpvList() {
+        return areaService.getCtpvList();
+    }
+
+    /**
+     * 5. [중요] 특정 시도의 시군구 목록 API
+     * trip.js의 handleCityClick()에서 호출
+     */
+    @GetMapping("/getGnguList.do")
+    @ResponseBody
+    public List<AreaVO> getGnguList(AreaVO areaVO) {
+        // areaVO에 담긴 tripCtpv 값을 사용하여 조회
+        return areaService.getGnguList(areaVO);
+    }
+
+    /**
+ * 6. 실제 사용 중인 테마 태그 목록 조회 (중복 제거)
+ */
+    @GetMapping("/getTripTags.do")
+    @ResponseBody
+    public List<String> getTripTags() {
+    // 서비스에서 SELECT DISTINCT TRIP_TAG FROM TRIP 쿼리 실행 결과 반환
+    return tripService.getDistinctTags(); 
+    }
 
 }

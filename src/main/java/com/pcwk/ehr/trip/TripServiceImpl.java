@@ -49,5 +49,10 @@ public class TripServiceImpl implements TripService {
 
 		return tripVO;
 	}
+    
+    @Override
+    public List<String> getDistinctTags() {
+        return tripMapper.getDistinctTags();
+    }
 
 }

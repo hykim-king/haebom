@@ -17,7 +17,15 @@ public interface RelationMapper extends WorkDiv<RelationVO> {
 
     int VisitedStatus(RelationVO vo);
 
-    int getCount();
+    int getCount(int tripContsId);
 
     int deleteAll();
+
+    int deleteFavorite(RelationVO vo);
+
+    // [추가] 마이페이지 내 찜 개수 조회
+    int getCountByUser(RelationVO vo);
+
+    // [추가] 마이페이지 내 찜 목록 전체 삭제
+    int deleteAllByUser(RelationVO vo);
 }

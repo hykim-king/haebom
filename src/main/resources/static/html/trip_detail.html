@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해봄트립 - 여행지 상세</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/header.css" />
+    <style>
+        .star-rating-input label:hover,
+        .star-rating-input label:hover~label,
+        .star-rating-input input:checked~label { color: #fbbf24; }
+    </style>
+</head>
+<body class="bg-white">
+    <div id="header"></div>
+
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        <div class="text-center mb-10">
+            <p id="detail-region" class="text-gray-400 text-xs mb-2"></p>
+            <h1 id="detail-title" class="text-3xl font-bold mb-4 text-slate-900 leading-tight">로딩 중...</h1>
+            <div id="detail-tag" class="px-4 py-1 bg-orange-50 text-orange-600 font-bold inline-block text-[11px] rounded-sm shadow-sm border border-orange-100"></div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex gap-4 text-gray-500 text-sm font-medium">
+                <button onclick="handleLike()" class="flex items-center gap-1.5 hover:text-red-500 transition-colors">
+                    <i data-lucide="heart" id="like-icon" size="18"></i>
+                    <span id="detail-likes" class="text-red-500 font-bold">0</span>
+                </button>
+                <span class="flex items-center gap-1.5">
+                    <i data-lucide="eye" size="18"></i>
+                    <span id="detail-views">0</span>
+                </span>
+            </div>
+            <a href="/trip/trip_list" class="flex items-center gap-1.5 font-bold text-orange-600 hover:underline">
+                <i data-lucide="list" size="18"></i> 목록보기
+            </a>
+        </div>
+
+        <div class="relative mb-12">
+            <img id="detail-img" src="" class="w-full h-[450px] object-cover rounded-[32px] mb-12 shadow-lg bg-gray-100">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 mb-16 border-b pb-16">
+            <div class="space-y-8">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <span class="w-1.5 h-5 bg-orange-600 rounded-full"></span> 여행지 정보
+                </h3>
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="p-2 bg-gray-50 rounded-lg"><i data-lucide="map-pin" class="text-gray-400" size="20"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">주소</p>
+                            <p id="detail-addr" class="text-gray-500 text-sm mt-1"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="p-2 bg-gray-50 rounded-lg"><i data-lucide="phone" class="text-gray-400" size="20"></i></div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">문의처</p>
+                            <p id="detail-tel" class="text-gray-500 text-sm mt-1"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-8">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <span class="w-1.5 h-5 bg-orange-600 rounded-full"></span> 소개
+                </h3>
+                <div id="detail-info" class="text-gray-600 leading-relaxed text-sm whitespace-pre-wrap"></div>
+            </div>
+        </div>
+
+        <div class="mt-20">
+            <h3 class="text-lg font-bold mb-6">후기 및 댓글 <span id="comment-count" class="text-orange-500 ml-1 text-sm font-normal">0</span></h3>
+            <div class="bg-gray-50/50 border border-gray-100 rounded-2xl p-8 mb-10">
+                <div class="space-y-6">
+                    <div class="flex items-center gap-6">
+                        <span class="text-sm font-bold text-gray-700 w-16">별점 등록</span>
+                        <div class="flex flex-row-reverse justify-end star-rating-input">
+                            <input type="radio" id="st5" name="rating" value="5" class="hidden"><label for="st5" class="cursor-pointer text-gray-300 text-2xl">★</label>
+                            <input type="radio" id="st4" name="rating" value="4" class="hidden"><label for="st4" class="cursor-pointer text-gray-300 text-2xl">★</label>
+                            <input type="radio" id="st3" name="rating" value="3" class="hidden"><label for="st3" class="cursor-pointer text-gray-300 text-2xl">★</label>
+                            <input type="radio" id="st2" name="rating" value="2" class="hidden"><label for="st2" class="cursor-pointer text-gray-300 text-2xl">★</label>
+                            <input type="radio" id="st1" name="rating" value="1" class="hidden"><label for="st1" class="cursor-pointer text-gray-300 text-2xl">★</label>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <span class="text-sm font-bold text-gray-700 w-16">사진 첨부</span>
+                        <label for="image-upload" class="bg-white border px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer hover:bg-gray-50 transition-colors">파일 선택</label>
+                        <input type="file" id="image-upload" class="hidden" accept="image/*">
+                        <span id="file-name" class="text-xs text-gray-400">선택된 파일 없음</span>
+                    </div>
+                    <div class="relative">
+                        <textarea id="comment-input" class="w-full p-5 border border-gray-200 rounded-xl h-32 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-all" placeholder="여행지의 생생한 후기를 남겨주세요."></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="submitComment()" class="bg-orange-500 text-white px-10 py-3 rounded-xl font-bold hover:bg-orange-600 shadow-lg shadow-orange-500/20 transition-all">등록하기</button>
+                    </div>
+                </div>
+            </div>
+            <div id="comment-list" class="divide-y divide-gray-100 border-t"></div>
+        </div>
+    </main>
+
+    <script src="../javascript/trip.js"></script>
+    <script>
+        // 헤더 로드
+        fetch("header.html")
+            .then(res => res.text())
+            .then(html => document.getElementById("header").innerHTML = html);
+    </script>
+</body>
+</html>

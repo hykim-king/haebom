@@ -17,4 +17,7 @@ public interface TripMapper extends WorkDiv<TripVO> {
 
     //지역별 관광지 랜덤 추천
     List<TripVO> selectRandomPerRegion();
+
+    // 중복 없는 태그 리스트 가져오기 (SELECT DISTINCT TRIP_TAG ...)
+    List<String> getDistinctTags();
 }

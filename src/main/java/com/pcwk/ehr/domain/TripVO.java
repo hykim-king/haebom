@@ -26,4 +26,6 @@ public class TripVO extends DTO {
     private int tripCtpv; // 여행지 시도
     private int tripGungu; // 여행지 군구
     private int tripInqCnt; // 여행지 조회수
+
+    private String orderType;   // 정렬 타입 (new/pop)
 }

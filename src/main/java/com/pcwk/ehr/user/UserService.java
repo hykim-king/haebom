@@ -1,21 +1,22 @@
 package com.pcwk.ehr.user;
 
-import com.pcwk.ehr.user.UserEntity;
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
+    private final MailService mailService; // ✅ [추가]
 
     public void signUp(UserVO vo) {
         UserEntity entity = new UserEntity();
-        // VO -> Entity 데이터 복사 (생년월일 등)
         entity.setUserEmlAddr(vo.getUserEmlAddr());
         entity.setUserEnpswd(vo.getUserEnpswd()); // 실제론 암호화 필요
         entity.setUserNick(vo.getUserNick());
@@ -27,29 +28,21 @@ public class UserService {
         entity.setUserDaddr(vo.getUserDaddr());
         entity.setUserGndr(vo.getUserGndr());
 
-        // 가입 날짜/시간 설정 (CHAR 8, 4)
         LocalDateTime now = LocalDateTime.now();
         entity.setUserReg(now.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         entity.setUserRegHm(now.format(DateTimeFormatter.ofPattern("HHmm")));
-        
-        // 기본값 설정
+
         entity.setUserDelYn("N");
         entity.setUserDrmYn("N");
         entity.setUserMngrYn("N");
 
-        //자바 객체를 생성하고 save() 메섣,에 던지기만 하면, JPA가 알아서 INSERT 쿼리를 생성
         userRepository.save(entity);
-
     }
 
-    // UserService.java에 추가
     public boolean login(String email, String password) {
-        // 1. 이메일로 사용자 조회
         return userRepository.findByUserEmlAddr(email)
                 .map(user -> {
-                    // 2. 비밀번호 일치 확인 (실제 운영시 암호화 필요)
                     if (user.getUserEnpswd().equals(password)) {
-                        // 3. 탈퇴 여부 등 추가 검증 가능
                         return "N".equals(user.getUserDelYn());
                     }
                     return false;
@@ -57,20 +50,42 @@ public class UserService {
                 .orElse(false);
     }
 
-    // 닉네임 등을 세션에 담기 위해 사용자 정보를 통째로 가져오는 메서드도 유용합니다.
     public UserVO loginDetail(String email, String password) {
         UserEntity user = userRepository.findByUserEmlAddr(email)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-                
-        if(!user.getUserEnpswd().equals(password)) {
+
+        if (!user.getUserEnpswd().equals(password)) {
             throw new RuntimeException("비밀번호가 틀렸습니다.");
         }
-        
-        // Entity를 VO로 변환해서 반환
+
         UserVO vo = new UserVO();
         vo.setUserNick(user.getUserNick());
         vo.setUserEmlAddr(user.getUserEmlAddr());
         vo.setUserNm(user.getUserNm());
         return vo;
+    }
+
+    // ✅ [추가] 비밀번호 찾기: 이메일+이름 확인 → 임시 비번 발급/저장/메일 발송
+    public void resetPasswordAndSendTemp(String email, String name) {
+        UserEntity user = userRepository.findByUserEmlAddr(email)
+                .orElseThrow(() -> new RuntimeException("일치하는 사용자가 없습니다."));
+
+        // 이름 일치 확인 (공백 제거 비교)
+        String inputName = (name == null) ? "" : name.trim();
+        String dbName = (user.getUserNm() == null) ? "" : user.getUserNm().trim();
+
+        if (!dbName.equals(inputName)) {
+            throw new RuntimeException("일치하는 사용자가 없습니다.");
+        }
+
+        // 임시 비밀번호 생성
+        String tempPw = mailService.generateTempPassword(10);
+
+        // ✅ 현재 로그인 로직이 equals 비교이므로, 일단 평문 저장(기존 코드 유지)
+        user.setUserEnpswd(tempPw);
+        userRepository.save(user);
+
+        // 이메일 발송
+        mailService.sendTempPassword(email, tempPw);
     }
 }

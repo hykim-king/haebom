@@ -40,6 +40,11 @@ public class UserController {
     // public String mainPage() {
     // return "main/main";
     // }
+    @GetMapping("/findPw")
+    public String findPwForm(Model model) {
+        model.addAttribute("userVO", new UserVO());
+        return "user/find_pw"; // templates/user/findPw.html 호출
+    }
 
     @GetMapping("/signup")
     public String signUpForm(Model model) {

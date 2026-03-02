@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import com.pcwk.ehr.user.MailService;
+import com.pcwk.ehr.user.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -14,6 +15,33 @@ import com.pcwk.ehr.user.MailService;
 public class AuthEmailController {
 
     private final MailService mailService;
+    private final UserService userService;
+
+    // ✅ [추가] 비밀번호 찾기(임시 비밀번호 발송)
+    @PostMapping("/reset-password")
+    public Map<String, Object> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String name = body.get("name");
+
+        // 1) 이메일 형식 검증
+        if (email == null || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            return Map.of("success", false, "message", "이메일 형식이 올바르지 않습니다.");
+        }
+        if (name == null || name.trim().isEmpty()) {
+            return Map.of("success", false, "message", "이름을 입력해주세요.");
+        }
+
+        try {
+            // 2) 사용자 확인 + 임시 비번 저장 + 메일 발송
+            userService.resetPasswordAndSendTemp(email.trim(), name.trim());
+
+            // 3) 프론트 alert 용 성공 메시지
+            return Map.of("success", true, "message", "이메일로 임시 비밀번호를 발송 하였습니다!");
+        } catch (Exception e) {
+            // 보안상 상세 원인 숨기고 동일 메시지 처리(계정 존재 여부 노출 방지)
+            return Map.of("success", false, "message", "일치하는 사용자가 없습니다.");
+        }
+    }
 
     @PostMapping("/send-email")
     public Map<String, Object> sendEmail(@RequestBody Map<String, String> body,

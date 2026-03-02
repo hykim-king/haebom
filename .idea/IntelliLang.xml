@@ -28,6 +28,14 @@
       <place><![CDATA[psiParameter().ofMethod(2, psiMethod().withName("DbQuery").withParameterCount(3).definedInClass("jodd.db.DbQuery"))]]></place>
     </injection>
     <injection language="SQL" injector-id="java">
+      <display-name>MyBatis @Select/@Delete/@Insert/@Update</display-name>
+      <single-file value="true" />
+      <place><![CDATA[psiMethod().withName("value").withParameters().definedInClass("org.apache.ibatis.annotations.Delete")]]></place>
+      <place><![CDATA[psiMethod().withName("value").withParameters().definedInClass("org.apache.ibatis.annotations.Insert")]]></place>
+      <place><![CDATA[psiMethod().withName("value").withParameters().definedInClass("org.apache.ibatis.annotations.Select")]]></place>
+      <place><![CDATA[psiMethod().withName("value").withParameters().definedInClass("org.apache.ibatis.annotations.Update")]]></place>
+    </injection>
+    <injection language="SQL" injector-id="java">
       <display-name>QueryRunner (org.apache.commons.dbutils)</display-name>
       <single-file value="true" />
       <place><![CDATA[psiParameter().ofMethod(0, psiMethod().withName("batch").withParameterCount(2).definedInClass("org.apache.commons.dbutils.QueryRunner"))]]></place>

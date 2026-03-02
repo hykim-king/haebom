@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.trip.TripDetailMapper">
+
+    <insert id="doSave" parameterType="TripDetailVO">
+        INSERT INTO TRIPDETAIL (
+            TRIP_CONTS_ID,
+            TRIPDTL_INFO,
+            TRIPDTL_DYOFF_YMD,
+            TRIPDTL_PRK_PSBLTY,
+            TRIPDTL_OPER_HR,
+            TRIPDTL_TEL,
+            TRIPDTL_STROLLER,
+            TRIPDTL_PET,
+            TRIPDTL_CRG,
+            TRIPDTL_HMPG
+        ) VALUES (
+            #{tripContsId},
+            #{tripdtlInfo},
+            #{tripdtlDyoffYmd},
+            #{tripdtlPrkPsblty},
+            #{tripdtlOperHr},
+            #{tripdtlTel},
+            #{tripdtlStroller},
+            #{tripdtlPet},
+            #{tripdtlCrg},
+            #{tripdtlHmpg}
+        )
+    </insert>
+    
+    <delete id="doDelete" parameterType="TripDetailVO">
+        DELETE FROM TRIPDETAIL 
+        WHERE TRIP_CONTS_ID = #{tripContsId}
+    </delete>
+
+    <select id="doSelectOne" parameterType="TripDetailVO" 
+            resultType="TripDetailVO">
+        SELECT 
+            TRIP_CONTS_ID,
+            TRIPDTL_INFO,
+            TRIPDTL_DYOFF_YMD,
+            TRIPDTL_PRK_PSBLTY,
+            TRIPDTL_OPER_HR,
+            TRIPDTL_TEL,
+            TRIPDTL_STROLLER,
+            TRIPDTL_PET,
+            TRIPDTL_CRG,
+            TRIPDTL_HMPG,
+            TRIPDTL_REG,
+            TRIPDTL_MOD
+        FROM 
+            TRIPDETAIL
+        WHERE
+            TRIP_CONTS_ID = #{tripContsId}
+    </select>
+
+</mapper>

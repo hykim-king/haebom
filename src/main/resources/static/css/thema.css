@@ -1,0 +1,230 @@
+/* ===== HEADER ===== */
+.thema-header{
+    max-width: 1260px;
+    margin: 40px auto 30px;
+    border-bottom: #f97316 3px solid;
+    padding-bottom: 15px;
+}
+
+.thema-title{
+    font-weight: 700;
+}
+
+.thema-sub{
+    color:#666;
+}
+
+/* ===== CATEGORY ===== */
+.theme-bar-wrapper {
+    background: #fff;
+    padding: 14px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.theme-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.category-item {
+    width: 80px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.2s;
+}
+
+.category-item:hover {
+    transform: translateY(-3px);
+}
+
+.category-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #fef2e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto 6px;
+    font-size: 22px;
+    transition: 0.2s;
+}
+
+.category-item:hover .category-icon {
+    background: #f97316;
+    color: #fff;
+}
+
+.category-item span {
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* ===== SWIPER ===== */
+.category-swiper-wrap {
+    position: relative;
+}
+
+.category-swiper .swiper-slide {
+    width: auto;
+}
+
+.category-swiper-wrap .swiper-button-prev,
+.category-swiper-wrap .swiper-button-next {
+    position: absolute;
+    top: 60%;
+    transform: translateY(-50%);
+    width: 35px;
+    height: 35px;
+    background: white;
+    border: 2px solid #f97316;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.category-swiper-wrap .swiper-button-prev { left: -60px; }
+.category-swiper-wrap .swiper-button-next { right: -60px; }
+
+.category-swiper-wrap .swiper-button-prev:after,
+.category-swiper-wrap .swiper-button-next:after {
+    display: none;
+}
+
+.category-swiper-wrap .swiper-button-prev svg,
+.category-swiper-wrap .swiper-button-next svg {
+    width: 28px;
+    height: 28px;
+    color: #f97316;
+    stroke-width: 2.5;
+}
+
+.category-swiper-wrap .swiper-button-prev:hover,
+.category-swiper-wrap .swiper-button-next:hover {
+    background: #f97316;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+}
+
+.category-swiper-wrap .swiper-button-prev:hover svg,
+.category-swiper-wrap .swiper-button-next:hover svg {
+    color: white;
+}
+
+.category-swiper-wrap .swiper-button-disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ===== CARD ===== */
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card img {
+    height: 170px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 12px;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.card-sub {
+    font-size: 15px;
+    color: #777;
+}
+
+/* ===== TITLE + HEART ROW ===== */
+.card-title-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:6px;
+}
+
+/* 하트 버튼 */
+.btn-wish{
+    border:none;
+    background:none;
+    cursor:pointer;
+    font-size:18px;
+    color:#999;
+    padding:0;
+    line-height:1;
+
+    transform: translateY(0) scale(1);
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1),
+    color 0.2s ease;
+}
+
+/* hover 시만 위로 */
+.btn-wish:hover{
+    color:#f97316;
+    transform: translateY(-3px) scale(1.15);
+}
+
+/* active 상태는 색상만 변경 */
+.btn-wish.active{
+    transform: translateY(0) scale(1);   /* 다시 내려오게 */
+}
+
+.btn-wish.active i{
+    color:#e11d48;
+}
+
+/* 위치 텍스트 (기존 card-sub 대신 사용 가능) */
+.card-location{
+    font-size:14px;
+    color:#777;
+    display:block;
+}
+
+/* ===== LOAD MORE ===== */
+.btn-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin:40px auto;
+    padding: 14px 60px;
+    background-color: #f8f9fa;
+    border: 1.5px solid #f97316;
+    border-radius: 50px;
+    color: #f97316;
+    font-weight: 800;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-more:hover {
+    background-color: #f97316;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(249,115,22,0.3);
+}

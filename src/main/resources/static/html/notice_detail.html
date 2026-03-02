@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쑥쑥 - 공지사항 상세</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="../css/header.css" />
+    <link rel="stylesheet" href="../css/footer.css" />
+  <link rel="stylesheet" href="../css/notice_detail.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <div id="header"></div>
+
+<!-- Notice Detail View -->
+<div class="notice-container">
+  <article class="notice-card">
+    <!-- Header Section -->
+    <div class="notice-header">
+      <span class="notice-category">공지사항</span>
+      <h1 class="notice-title">여름 휴가철 대비 인기 여행지 시스템 고도화 및 서버 점검 안내</h1>
+      <div class="notice-info">
+        <div class="info-left">
+          <span>작성자: <b>관리자</b></span>
+          <span>날짜: 2026.02.11</span>
+        </div>
+        <div>조회수: 2,451</div>
+      </div>
+    </div>
+
+    <!-- Content Section (The 'Text Area' from screenshot) -->
+    <div class="notice-body">
+      안녕하세요, 여행의 즐거움을 더하는 <strong>쑥쑥(SSUK SSUK)</strong> 운영팀입니다.<br><br>
+      다가오는 여름 휴가철을 맞아 더욱 빠르고 안정적인 여행 정보를 제공해 드리기 위해 시스템 고도화 작업을 진행하고자 합니다. 이번 업데이트에는 많은 분들이 요청하신 <b>AI 기반 여행 코스 추천 기능</b>의 엔진 최적화가 포함됩니다.<br><br>
+      점검 기간 동안에는 일부 서비스 이용이 제한될 수 있으니 여행 계획 수립에 참고해 주시기 바랍니다.<br><br>
+      <strong>[점검 상세 안내]</strong><br>
+      - 점검 일시: 2026년 2월 20일(금) 01:00 ~ 05:00 (총 4시간)<br>
+      - 점검 내용: 메인 서버 데이터베이스 최적화 및 신규 지역 데이터 동기화<br>
+      - 영향 범위: 서비스 전체 (웹사이트 및 모바일 앱)<br><br>
+      항상 쑥쑥을 이용해 주시는 여러분께 감사드리며, 더 나은 서비스로 보답하겠습니다.<br>
+      즐거운 여행 되세요!<br><br>
+      - 쑥쑥 운영진 드림
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="notice-footer">
+      <a href="#" class="btn-list">목록으로</a>
+      <div class="action-group">
+        <button class="btn-edit">수정</button>
+        <button class="btn-edit" style="color: #ef4444; border-color: #fee2e2;">삭제</button>
+      </div>
+    </div>
+  </article>
+
+  <!-- Prev/Next Navigation -->
+  <div class="notice-nav">
+    <a href="#" class="nav-item">
+      <span class="nav-label">이전글</span>
+      <span>[이벤트] 2월 한 달간 제주권 여행지 리뷰 이벤트 안내</span>
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-label">다음글</span>
+      <span class="text-muted">다음글이 없습니다.</span>
+    </a>
+  </div>
+</div>
+
+  <!-- Footer -->
+    <div id="footer"></div>
+
+   <script>
+      fetch("../html/header.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("header").innerHTML = html));
+
+      fetch("../html/footer.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("footer").innerHTML = html));
+    </script>
+
+    <!-- JS -->
+    <script src="../javascript/header_Org.js"></script>
+    <script src="../javascript/notice_detail.js"></script>
+
+
+</body>
+</html>

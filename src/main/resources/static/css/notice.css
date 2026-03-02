@@ -1,0 +1,143 @@
+/* notice.css */
+
+:root {
+    --primary-color: #f97316;
+    --primary-light: rgba(249, 115, 22, 0.1);
+    --bg-light: #f8f9fa;
+    --text-dark: #2c3e50;
+    --text-muted: #6c757d;
+    --card-radius: 16px;
+    --transition-speed: 0.3s;
+}
+
+body {
+    background-color: var(--bg-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+a { text-decoration: none; color: inherit; transition: var(--transition-speed); }
+
+/* 페이지 레이아웃 */
+.page-title-section { padding: 4rem 0 2.5rem; text-align: center; }
+.page-title-section h2 { font-size: 2.5rem; letter-spacing: -1px; font-weight: bold; }
+
+/* 검색창 하이라이트 스타일 (추가) */
+.count-highlight {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Search Card */
+.search-card {
+    border: none;
+    border-radius: var(--card-radius);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    background: white;
+}
+
+.search-input-group input {
+    height: 52px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding-left: 1.25rem;
+}
+
+.search-input-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-light);
+    outline: none;
+}
+
+#search-button {
+    background-color: var(--primary-color) !important;
+    border: none !important;
+}
+
+/* Notice Table Style */
+.notice-card {
+    border: none;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    background: white;
+}
+
+.table thead th {
+    background-color: #fcfcfc;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* 호브 시 인터렉션 */
+.table tbody tr {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border-left: 4px solid transparent;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(249, 115, 22, 0.04) !important;
+    border-left: 4px solid var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.table td { padding: 1.2rem 1rem; border-bottom: 1px solid #f1f5f9; }
+
+.notice-title {
+    font-weight: 500;
+}
+
+.table tbody tr:hover .notice-title {
+    color: var(--primary-color);
+}
+
+/* Badges */
+.badge-important {
+    background: #fff1f0; color: #ff4d4f; border: 1px solid #ffa39e;
+    padding: 0.4em 0.8em; border-radius: 6px; font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* NEW 배지 샤이닝 애니메이션 */
+.badge-new {
+    background: rgba(249, 115, 22, 0.3); color: #f97316; font-size: 0.65rem;
+    padding: 0.2em 0.5em; margin-left: 6px; border-radius: 4px;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.badge-new::after {
+    content: '';
+    position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    animation: shimmer-new 2.5s infinite;
+}
+
+@keyframes shimmer-new {
+    0% { left: -100%; }
+    30% { left: 100%; }
+    100% { left: 100%; }
+}
+
+/* Pagination */
+.pagination .page-link {
+    border: none; color: var(--text-muted); margin: 0 4px;
+    border-radius: 10px; width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+}

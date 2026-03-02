@@ -1,0 +1,144 @@
+<!-- 
+    ===================================
+    AI 챗봇 위젯 HTML 구조
+    ===================================
+    설명: 해봄트립의 AI 여행 가이드 채팅 위젯
+    기능: 
+    - 플로팅 버튼을 통한 채팅 시작
+    - 미니 팝업 모드 / 사이드바 모드 전환
+    - 실시간 메시지 송수신 UI
+    ===================================
+-->
+
+<!-- ===================================
+     전체 위젯 컨테이너
+     - 모든 위젯 요소를 감싸는 최상위 div
+=================================== -->
+<div id="ai-widget-root">
+    
+    <!-- ===================================
+         [영역 1] 플로팅 액션 버튼 (FAB)
+         - 화면 우측 하단에 고정된 원형 버튼
+         - 클릭 시 채팅창 열기/닫기
+    =================================== -->
+    <div id="ai-fab" class="ai-fab-container">
+        <button class="ai-fab-btn" onclick="toggleAIChat()" aria-label="AI 채팅 열기">
+            <!-- Lucide 아이콘: 메시지 원형 아이콘 -->
+            <i data-lucide="message-circle-more"></i>
+        </button>
+    </div>
+
+    <!-- ===================================
+         [영역 2] 채팅 메인 윈도우
+         - 채팅 인터페이스 전체를 담는 컨테이너
+         - 헤더, 본문, 푸터로 구성됨
+    =================================== -->
+    <div id="ai-chat-window" class="ai-chat-window">
+        
+        <!-- ===================================
+             [영역 2-1] 헤더 (상단 바)
+             - AI 봇 이름 표시
+             - 사이드바 전환, 최소화 버튼
+        =================================== -->
+        <div class="ai-header">
+            <!-- 좌측: AI 봇 타이틀 -->
+            <div class="ai-title">
+                <!-- 반짝이는 별 아이콘 -->
+                <i data-lucide="sparkles" size="18"></i>
+                <!-- 봇 이름 (JavaScript에서 동적으로 설정됨) -->
+                <span id="ai-bot-name">AI 해봄</span>
+            </div>
+            
+            <!-- 우측: 제어 버튼 그룹 -->
+            <div class="ai-controls">
+                <!-- 사이드바 모드 전환 버튼 -->
+                <button class="ai-btn-icon" onclick="toggleSidebarMode()" title="사이드바 모드 전환">
+                    <i data-lucide="panel-right-open"></i>
+                </button>
+                
+                <!-- 최소화 버튼 (대화 내용 유지) -->
+                <button class="ai-btn-icon" onclick="minimizeAIChat()" title="채팅창 숨기기 (대화 유지)">
+                    <i data-lucide="minus"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===================================
+             [영역 2-2] 본문 (채팅 내용 영역)
+             - 환영 메시지, 추천 질문, 대화 내역 표시
+             - 스크롤 가능
+        =================================== -->
+        <div class="ai-body" id="ai-chat-body">
+            
+            <div class="ai-welcome">
+                <!-- AI 마스코트 프로필 이미지 -->
+                <div class="ai-profile-container">
+                    <img src="/img/haebom_ai.png"
+                         class="ai-mascot-lg" 
+                         alt="AI 프로필" 
+                         id="aiProfileImg">
+                </div>
+                
+                <!-- 환영 인사말 (JavaScript에서 설정 가능) -->
+                 <h3 id="ai-greeting-text"></h3>
+        </div>
+            
+            <!-- [본문 - 중간] 추천 질문 버튼 리스트 -->
+            <div class="ai-suggestions" id="ai-suggestions">
+                <!-- 추천 질문 1: 여행 코스 추천 -->
+                <button class="ai-suggestion-btn" onclick="sendSuggestion('제주도 2박 3일 힐링 코스 추천해줘')">
+                    <i data-lucide="map-pin"></i>
+                    <span>제주도 여행 코스 추천해줘</span>
+                </button>
+                
+                <!-- 추천 질문 2: 여행지 사진 요청 -->
+                <button class="ai-suggestion-btn" onclick="sendSuggestion('지금 보고 있는 여행지 사진 더 보여줘')">
+                    <i data-lucide="camera"></i>
+                    <span>지금 보고 있는 여행지 사진 더 보여줘</span>
+                </button>
+                
+                <!-- 추천 질문 3: 맛집/카페 추천 -->
+                <button class="ai-suggestion-btn" onclick="sendSuggestion('주변 맛집이랑 카페 추천해줘')">
+                    <i data-lucide="utensils"></i>
+                    <span>주변 맛집이랑 카페 추천해줘</span>
+                </button>
+            </div>
+
+            <!-- [본문 - 하단] 실제 대화 메시지가 표시되는 영역 -->
+            <!-- JavaScript에서 동적으로 메시지 추가됨 -->
+            <div id="ai-message-list"></div>
+        </div>
+
+        <!-- ===================================
+             [영역 2-3] 푸터 (입력 영역)
+             - 메시지 입력창
+             - 전송 버튼
+        =================================== -->
+        <div class="ai-footer">
+            <!-- 입력창을 감싸는 박스 -->
+            <div class="ai-input-box">
+                <!-- AI Assistant 태그 (입력창 상단 라벨) -->
+                <div class="ai-input-tag">
+                    <span>AI Assistant</span>
+                </div>
+                
+                <!-- 실제 텍스트 입력 영역 (textarea) -->
+                <textarea id="ai-input-field" 
+                          class="ai-textarea" 
+                          placeholder="메시지를 입력하세요..." 
+                          rows="1"></textarea>
+                
+                <!-- 입력창 하단 액션 버튼 영역 -->
+                <div class="ai-input-actions" style="justify-content: flex-end;">
+                    <!-- 전송 버튼 (종이비행기 아이콘) -->
+                    <button class="ai-send-btn" 
+                            id="ai-send-btn" 
+                            title="전송" 
+                            onclick="handleSendMessage()">
+                        <i data-lucide="arrow-up" size="18"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

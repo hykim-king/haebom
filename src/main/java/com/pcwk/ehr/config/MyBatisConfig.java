@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan("com.pcwk.ehr")
+@MapperScan(basePackages = "com.pcwk.ehr", annotationClass = org.apache.ibatis.annotations.Mapper.class)
 
 public class MyBatisConfig {
 
@@ -35,7 +35,10 @@ public class MyBatisConfig {
             applicationContext.getResources("classpath:mapper/*.xml")
         );
         //alias
-        factory.setTypeAliasesPackage("com.pcwk.ehr");
+        factory.setTypeAliasesPackage(
+              "com.pcwk.ehr.domain"
+            + ",com.pcwk.ehr.cmn"
+        );
 
 		return factory.getObject();
 

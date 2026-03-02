@@ -5,38 +5,38 @@
 <mapper namespace="com.pcwk.ehr.hospital.HospitalMapper">
 
     <!-- 병원 등록 -->
-    <insert id="doSave" parameterType="com.pcwk.ehr.hospital.HospitalVO">
+    <insert id="doSave" parameterType="HospitalVO">
         INSERT INTO hospital (
-            hp_id,
-            hp_name,
-            hp_add,
-            hp_ems,
-            hp_tel1,
-            hp_tel2,
-            hp_mapx,
-            hp_mapy,
-            hp_open,
-            hp_close,
-            hp_holiday
+            HP_NO,
+            HP_NM,
+            HP_ADDR,
+            HP_EMRM_YN,
+            HP_TELNO1,
+            HP_TELNO2,
+            HP_LAT,
+            HP_LOT,
+            HP_OP_TM,
+            HP_END_TM,
+            HP_WKND_OPEN_YN
         ) VALUES (
-            #{hpId},
-            #{hpName},
-            #{hpAdd},
-            #{hpEms},
-            #{hpTel1},
-            #{hpTel2},
-            #{hpMapx},
-            #{hpMapy},
-            #{hpOpen},
-            #{hpClose},
-            #{hpHoliday}
+            #{hpNo},
+            #{hpNm},
+            #{hpAddr},
+            #{hpEmrmYn},
+            #{hpTelno1},
+            #{hpTelno2},
+            #{hpLat},
+            #{hpLot},
+            #{hpOpTm},
+            #{hpEndTm},
+            #{hpWkndOpenYn}
         )
     </insert>
 
     <!-- 병원 삭제 -->
-    <delete id="doDelete" parameterType="com.pcwk.ehr.hospital.HospitalVO">
+    <delete id="doDelete" parameterType="HospitalVO">
         DELETE FROM hospital
-        WHERE hp_id = #{hpId}
+        WHERE HP_NO = #{hpNo}
     </delete>
 
     <!-- 전체 삭제 -->
@@ -47,6 +47,61 @@
     <!-- 건수 조회 -->
     <select id="getCount" resultType="int">
         SELECT COUNT(*) FROM hospital
+    </select>
+
+    <!-- 단건 조회 -->
+    <select id="doSelectOne" parameterType="HospitalVO" resultType="HospitalVO">
+        SELECT
+            HP_NO,
+            HP_NM,
+            HP_ADDR,
+            HP_EMRM_YN,
+            HP_TELNO1,
+            HP_TELNO2,
+            HP_LAT,
+            HP_LOT,
+            HP_OP_TM,
+            HP_END_TM,
+            HP_WKND_OPEN_YN
+        FROM hospital
+        WHERE HP_NO = #{hpNo}
+    </select>
+
+    <!-- 목록 조회 -->
+    <select id="doRetrieve" parameterType="DTO" resultType="HospitalVO">
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS rnum, T1.*
+            FROM (
+                SELECT
+                    HP_NO,
+                    HP_NM,
+                    HP_ADDR,
+                    HP_EMRM_YN,
+                    HP_TELNO1,
+                    HP_TELNO2,
+                    HP_LAT,
+                    HP_LOT,
+                    HP_OP_TM,
+                    HP_END_TM,
+                    HP_WKND_OPEN_YN
+                FROM hospital
+                WHERE 1 = 1
+                <if test="searchWord != null and searchWord != ''">
+                    <choose>
+                        <when test="searchDiv == '10'">
+                            AND HP_NM LIKE '%' || #{searchWord} || '%'
+                        </when>
+                        <when test="searchDiv == '20'">
+                            AND HP_ADDR LIKE '%' || #{searchWord} || '%'
+                        </when>
+                    </choose>
+                </if>
+                ORDER BY HP_NO ASC
+            ) T1
+            <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
+        ) TT1
+        <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
     </select>
 
 </mapper>

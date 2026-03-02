@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상세 정보 - 해봄트립 의료가이드</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/medical-guide.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    colors: {
+                        orange: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316',
+                            600: '#ea580c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        .map-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            background-color: #f1f5f9;
+        }
+        
+        /* Map looks cleaner without blur overlay for direct view */
+        .map-view {
+            transition: transform 0.5s ease;
+        }
+
+        .info-card {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        
+        <!-- Breadcrumb & Back -->
+        <div class="mb-6 flex items-center gap-2 text-sm text-slate-500">
+            <a href="medical-guide.html" class="hover:text-orange-600 flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> 목록
+            </a>
+            <span class="text-slate-300">|</span>
+            <span id="breadcrumb-current">상세 정보</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Left Column: Information -->
+            <div class="md:col-span-2 space-y-6">
+                
+                <!-- Title Card -->
+                <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-orange-100 info-card">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span id="detail-type-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 mb-3">
+                                분류
+                            </span>
+                            <h1 id="detail-name" class="text-3xl font-bold text-slate-900 mb-3">
+                                <!-- Name injected here -->
+                            </h1>
+                            <div id="detail-tags" class="flex flex-wrap gap-2">
+                                <!-- Tags injected here with colors -->
+                            </div>
+                        </div>
+                        <div class="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 shrink-0 border border-orange-100 shadow-sm">
+                            <i id="type-icon" data-lucide="building-2" class="w-7 h-7"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail Info Card -->
+                <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-100 info-card" style="animation-delay: 100ms;">
+                    <h2 class="text-lg font-bold text-slate-800 mb-6 border-b border-slate-50 pb-3 flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-orange-500"></i> 기본 정보
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Address -->
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-slate-400 mb-1">주소</p>
+                                <p id="detail-address" class="text-slate-700 font-medium leading-relaxed text-lg">
+                                    <!-- Address -->
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Hours -->
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+                                <i data-lucide="clock" class="w-4 h-4"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-slate-400 mb-1">영업시간</p>
+                                <p id="detail-time" class="text-slate-700 font-medium text-lg">
+                                    <!-- Time -->
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Phone Numbers Container -->
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 shrink-0">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                            </div>
+                            <div class="flex-1 space-y-4" id="phone-container">
+                                <!-- Phone numbers injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Map -->
+            <div class="md:col-span-1 space-y-6 info-card" style="animation-delay: 200ms;">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 h-full flex flex-col">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 px-2 flex items-center gap-2">
+                        <i data-lucide="map" class="w-4 h-4 text-orange-500"></i> 위치
+                    </h2>
+                    
+                    <!-- Map Visual -->
+                    <div class="map-container w-full aspect-square md:aspect-auto md:flex-1 relative border border-slate-200">
+                        <!-- Simulated Map Image -->
+                        <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXAlMjBzdHJlZXR8ZW58MHx8fHwxNzcwODIzNDU2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" 
+                             alt="Map View" 
+                             class="absolute inset-0 w-full h-full object-cover map-view">
+                        
+                        <!-- Map Pin -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                            <div class="w-10 h-10 bg-orange-600 rounded-full border-4 border-white shadow-xl flex items-center justify-center text-white z-10">
+                                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-500/20 rounded-full animate-ping absolute top-0 left-0 -z-10"></div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-slate-400 mt-3 px-2 leading-relaxed text-center">
+                        <span id="map-address-caption" class="font-medium text-slate-600 block mb-1"></span>
+                        지도를 참고하여 방문해 주세요.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+  <!-- Footer -->
+    <div id="footer"></div>
+
+    
+    <script>
+      fetch("../html/header.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("header").innerHTML = html));
+
+      fetch("../html/footer.html")
+        .then((res) => res.text())
+        .then((html) => (document.getElementById("footer").innerHTML = html));
+    </script>
+
+    <!-- Script -->
+    <script src="../javascript/header.js"></script>
+    <script src="../javascript/medicaldetail.js"></script>
+</body>
+</html>

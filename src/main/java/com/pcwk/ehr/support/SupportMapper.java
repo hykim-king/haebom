@@ -1,7 +1,13 @@
 package com.pcwk.ehr.support;
 
+import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.cmn.WorkDiv;
+import com.pcwk.ehr.domain.NoticeVO;
+import com.pcwk.ehr.domain.SupportVO;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface SupportMapper extends WorkDiv<SupportVO> {
@@ -10,6 +16,8 @@ public interface SupportMapper extends WorkDiv<SupportVO> {
 
     int deleteAll();    // 전체 삭제
 
-    int saveAll();      // 전체 저장
+    List<SupportVO> getAll();
+
+    int getUserIdByEmail(String email);
 
 }

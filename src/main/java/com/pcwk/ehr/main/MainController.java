@@ -8,7 +8,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.net.HttpURLConnection;
 import java.util.List;
 
 @Controller
@@ -74,4 +77,47 @@ public class MainController {
         // 3. trip_detail.html로 이동 (파일 위치에 맞게 경로 조정)
         return "trip/trip_detail";
     }
+
+    // 날씨 API
+    @GetMapping("/weather/api")
+    @ResponseBody
+    public String getWeatherData() {
+        try {
+            // tmfc=0:최근 예보시간 자동 선택  / disp=1:구역정보와 날씨 수치를 포함해 출력
+            String apiUrl = "https://apihub.kma.go.kr/api/typ01/url/fct_shrt_reg.php?tmfc=0&disp=1&help=0&authKey=r9rKC29-R_uaygtvfnf7AQ";
+            java.net.URL url = new java.net.URL(apiUrl);
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+
+            // 2. 응답 코드 확인
+            int respCode = conn.getResponseCode();
+            java.io.InputStream is = (respCode >= 200 && respCode <= 300)
+                    ? conn.getInputStream() : conn.getErrorStream();
+
+            // 3. 인코딩 수정: 기상청 APIHub는 UTF-8을 지원하기도 하므로
+            // 만약 EUC-KR에서 깨진다면 UTF-8로 변경해 보세요.
+            java.io.BufferedReader rd = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(is, "EUC-KR")
+            );
+
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            rd.close();
+
+            // [중요] 서버 콘솔에서 데이터가 실제로 숫자를 포함하는지 꼭 확인하세요!
+            System.out.println("DEBUG API DATA: " + (sb.length() > 200 ? sb.substring(0, 200) : sb.toString()));
+
+            return sb.toString();
+
+        } catch (Exception e) {
+            return "{\"error\":\"" + e.getMessage() + "\"}";
+        }
+    }
 }
+

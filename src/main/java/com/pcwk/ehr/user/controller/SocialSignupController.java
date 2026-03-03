@@ -1,5 +1,7 @@
 package com.pcwk.ehr.user.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,7 +33,7 @@ public class SocialSignupController {
             return "redirect:/user/login";
         }
 
-        // 화면 표시용(없을 수도 있음)
+        // 화면 표시용(카카오에서 받은 기본 닉네임 등을 전달)
         model.addAttribute("kakaoEmail", session.getAttribute("kakaoEmail"));
         model.addAttribute("kakaoNick", session.getAttribute("kakaoNick"));
 
@@ -39,13 +41,20 @@ public class SocialSignupController {
     }
 
     /**
-     * ✅ 혼합 설계 (추가정보 페이지 유지 + 닉네임만 필수)
-     * - userNick만 받는다.
-     * - 나머지 ss_user NOT NULL 컬럼은 "컬럼 형식에 맞춰" 자동 생성한다.
+     * 카카오 소셜 가입 추가 정보 처리
+     * - signup.html의 항목들(전화번호, 주소, 생년월일, 성별, 여행테마)을 추가로 받음
+     * - 이메일은 유니크 제약 조건을 피하기 위해 랜덤값으로 생성
      */
     @PostMapping("/user/social-signup")
     public String socialSignup(
             @RequestParam String userNick,
+            @RequestParam String userTelno,
+            @RequestParam String userZip,
+            @RequestParam String userAddr,
+            @RequestParam(required = false) String userDaddr,
+            @RequestParam Integer userBrdt,
+            @RequestParam String userGndr,
+            @RequestParam(required = false) String userTag, // 여행 테마 (#힐링,#액티비티 형태)
             HttpSession session,
             Model model) {
 
@@ -57,77 +66,63 @@ public class SocialSignupController {
         String provider = "kakao";
         String providerId = kakaoId;
 
-        // 1) 이미 가입된 카카오 회원인지 체크(중복가입 방지)
+        // 1) 기존 소셜 계정 가입 여부 확인
         Optional<UserEntity> already = userRepository.findByUserProviderAndUserProviderId(provider, providerId);
         if (already.isPresent()) {
             session.setAttribute("user", already.get());
             return "redirect:/main/main.do";
         }
 
-        // 2) 닉네임 필수 + 공백 제거
-        userNick = userNick == null ? "" : userNick.trim();
-        if (userNick.isEmpty()) {
-            // 같은 페이지로 돌려보내며 메시지 표출(필요시 화면에서 th로 표시)
-            model.addAttribute("error", "닉네임은 필수입니다.");
-            model.addAttribute("kakaoEmail", session.getAttribute("kakaoEmail"));
-            model.addAttribute("kakaoNick", session.getAttribute("kakaoNick"));
-            return "user/social_signup";
-        }
-
-        // 3) 닉네임 중복 체크
+        // 2) 닉네임 중복 체크 (DB 유니크 제약 조건 대비)
         if (userRepository.existsByUserNick(userNick)) {
-            model.addAttribute("error", "이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해 주세요.");
-            model.addAttribute("kakaoEmail", session.getAttribute("kakaoEmail"));
-            model.addAttribute("kakaoNick", session.getAttribute("kakaoNick"));
+            model.addAttribute("error", "이미 사용 중인 닉네임입니다.");
+            model.addAttribute("kakaoNick", userNick);
             return "user/social_signup";
         }
 
-        // 4) 카카오에서 받을 수 있는 값(없을 수 있음)
-        String sessionEmail = (String) session.getAttribute("kakaoEmail");
-        String sessionNick = (String) session.getAttribute("kakaoNick");
+        // 3) 이메일 랜덤 생성 (유니크 제약 조건 ORA-00001 방지)
+        // 형식: k_랜덤8자리@kakao.user
+        String uniqueEmail = "k_" + UUID.randomUUID().toString().substring(0, 8) + "@kakao.user";
 
-        // 5) ss_user NOT NULL 컬럼 자동 생성(형식 맞춤)
-        // - 이메일: 있으면 사용, 없으면 임시 이메일 생성
-        String userEmlAddr = (sessionEmail != null && !sessionEmail.isBlank())
-                ? sessionEmail.trim()
-                : ("kakao_" + providerId + "@social.local");
+        // 4) 가입 일시 데이터 생성 (DB 스키마 N-N 제약 조건 반영)
+        LocalDateTime now = LocalDateTime.now();
+        String regDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String regTime = now.format(DateTimeFormatter.ofPattern("HHmm"));
 
-        // - 이름: 카카오 닉네임이 있으면 활용, 없으면 기본값
-        String userNm = (sessionNick != null && !sessionNick.isBlank())
-                ? sessionNick.trim()
-                : "카카오회원";
-
-        // - 생년월일(정수 yyyymmdd): 기본값 20000101
-        Integer userBrdt = 20000101;
-
-        // - 전화번호(문자열): 기본값(11자리 숫자 문자열)
-        String userTelno = "01000000000";
-
-        // - 성별(CHAR(1) NOT NULL): 기본값
-        // ⚠️ DB에 CHECK 제약으로 M/F만 허용이면 'M' 또는 'F' 중 하나만 써야 함.
-        // 대표님 DB가 M/F만 받는 구조로 보이므로 기본값 'M'으로 둠.
-        String userGndr = "M";
-
-        // - 비밀번호(소셜은 폼로그인에 안 쓰더라도 NOT NULL): UUID 생성 후 BCrypt 저장
-        String encPw = passwordEncoder.encode(UUID.randomUUID().toString());
-
-        // 6) 엔티티 저장
+        // 5) 엔티티 생성 및 데이터 세팅
         UserEntity user = new UserEntity();
+        
+        // 소셜 정보
         user.setUserProvider(provider);
         user.setUserProviderId(providerId);
-
+        
+        // 입력 받은 정보
         user.setUserNick(userNick);
-        user.setUserEmlAddr(userEmlAddr);
-        user.setUserEnpswd(encPw);
-
-        user.setUserNm(userNm);
-        user.setUserBrdt(userBrdt);
         user.setUserTelno(userTelno);
+        user.setUserZip(userZip);
+        user.setUserAddr(userAddr);
+        user.setUserDaddr(userDaddr);
+        user.setUserBrdt(userBrdt);
         user.setUserGndr(userGndr);
+        user.setUserTag(userTag); // 여행 테마 저장
+        
+        // 자동 생성 및 기본값 정보
+        user.setUserEmlAddr(uniqueEmail); // 랜덤 이메일
+        user.setUserEnpswd(passwordEncoder.encode(UUID.randomUUID().toString())); // 임시 비번
+        user.setUserNm((String) session.getAttribute("kakaoNick") != null ? 
+                       (String) session.getAttribute("kakaoNick") : "카카오회원");
+        
+        // DB 상태값 및 가입일시 설정
+        user.setUserDelYn("N");
+        user.setUserDrmYn("N");
+        user.setUserMngrYn("N");
+        user.setUserReg(regDate);
+        user.setUserRegHm(regTime);
 
+        // 6) DB 저장
         userRepository.save(user);
 
-        // 7) 로그인 처리(세션 저장)
+        // 7) 세션에 사용자 정보 저장 후 로그인 처리
         session.setAttribute("user", user);
 
         return "redirect:/main/main.do";

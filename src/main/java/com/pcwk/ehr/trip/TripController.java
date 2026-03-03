@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.area.AreaService; 
 import com.pcwk.ehr.domain.AreaVO;
+import com.pcwk.ehr.domain.TripDetailVO;
+
 
 @Controller
 @RequestMapping("/trip")
@@ -22,6 +24,7 @@ public class TripController {
 
     private final TripService tripService;
     private final AreaService areaService; 
+    private final TripDetailService tripDetailService;
 
     /**
      * 1. 여행지 목록 화면 (초기 로딩용)
@@ -45,17 +48,32 @@ public class TripController {
         return "trip/trip";
     }
 
-    /**
-     * 2. 여행지 상세 화면
-     */
-    @GetMapping("/trip_view")
-    public String tripView(TripVO tripVO, Model model) {
-        TripVO outVO = tripService.upDoSelectOne(tripVO);
-        if (outVO != null) {
-            model.addAttribute("vo", outVO);
-        }
-        return "trip/trip_view";
+/**
+ * 2. 여행지 상세 화면
+ */
+@GetMapping("/trip_view")
+public String tripView(TripVO tripVO, Model model) {
+    // 1. 기본 정보 조회 (제목, 주소, 이미지 경로 등)
+    TripVO outVO = tripService.upDoSelectOne(tripVO);
+    
+    // 2. 상세 정보 조회 (전화번호, 상세소개 등)
+    // TripDetailVO 객체를 생성하고 ID를 세팅하여 조회합니다.
+    TripDetailVO detailSearch = new TripDetailVO();
+    detailSearch.setTripContsId(tripVO.getTripContsId());
+    
+    // TripDetailService에서 doSelectOne을 호출 (서비스명이 다를 수 있으니 확인 필요)
+    TripDetailVO detailVO = tripDetailService.doSelectOne(detailSearch);
+
+    if (outVO != null) {
+        model.addAttribute("vo", outVO);           // 기본 정보는 "vo"로 전달
     }
+    
+    if (detailVO != null) {
+        model.addAttribute("detailVo", detailVO); // 상세 정보는 "detailVo"로 전달
+    }
+
+    return "trip/trip_view";
+}
 
     /**
      * 3. 여행지 목록 API (JS fetch 연동용)

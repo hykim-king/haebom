@@ -27,5 +27,9 @@ public class TripVO extends DTO {
     private int tripGungu; // 여행지 군구
     private int tripInqCnt; // 여행지 조회수
 
+
     private String orderType;   // 정렬 타입 (new/pop)
+    private String tripTagNm;   // DB 에서 끌어와서 모은 tag 값을 저장하는 객체 
+
+
 }

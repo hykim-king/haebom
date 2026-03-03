@@ -36,19 +36,44 @@ searchInput?.addEventListener("input", (e) => {
         fetchList(); 
     }, 300);
 });
-// 리셋 버튼 클릭 이벤트
+// 리셋 버튼 클릭 이벤트 (모든 필터 초기화)
 const clearBtn = document.getElementById("clear-btn");
 
 clearBtn?.addEventListener("click", () => {
     // 1. 입력창 텍스트 비우기
-    searchInput.value = "";
-    // 2. 상태(State) 초기화
+    const searchInput = document.getElementById("search-input");
+    if(searchInput) searchInput.value = "";
+
+    // 2. 상태(State) 모두 초기값으로 되돌리기
     tripState.searchWord = "";
-    tripState.pageNo = 1;
-    // 3. 즉시 목록 갱신 (리셋은 지연 시간 없이 바로 실행하는 게 좋습니다)
+    tripState.tripTag    = ""; // 테마 초기화
+    tripState.tripCtpv   = 0;  // 시도 초기화
+    tripState.tripGungu  = 0;  // 군구 초기화
+    tripState.pageNo     = 1;  // 1페이지로
+
+    // 3. UI 텍스트 복구
+    document.getElementById("view-title").innerText = "전체";
+    document.getElementById("sub-region-tags").classList.add("hidden"); // 군구 목록 숨기기
+
+    // 4. 모든 버튼의 활성화(주황색/굵게) 스타일 제거
+    // 지역 버튼, 테마 버튼, 군구 버튼 모두 찾아서 회색으로 변경
+    document.querySelectorAll(".area-tag, .theme-btn, .gngu-btn").forEach(btn => {
+        btn.classList.remove("text-orange-500", "text-orange-600", "font-bold", "border-b-2", "border-orange-500", "text-gray-900");
+        btn.classList.add("text-gray-400");
+    });
+
+    // 5. '전체' 지역 버튼만 다시 활성화 상태로 만들기
+    const allBtn = document.querySelector(".area-tag"); // 보통 첫 번째 버튼이 '전체'
+    if (allBtn) {
+        allBtn.classList.replace("text-gray-400", "text-orange-500");
+        allBtn.classList.add("font-bold", "border-b-2", "border-orange-500");
+    }
+
+    // 6. 즉시 목록 갱신 (서버에는 빈 파라미터들이 전달되어 전체 리스트가 옵니다)
     fetchList();
-    // 4. 입력창에 다시 포커스 (사용자 편의성)
-    searchInput.focus();
+
+    // 7. 입력창에 다시 포커스
+    searchInput?.focus();
 });
 
     // 정렬 버튼 클릭 이벤트
@@ -64,6 +89,33 @@ clearBtn?.addEventListener("click", () => {
         });
     });
 }
+
+// 상세 페이지 전 전용 로드 함수
+function fetchDetailData(tripContsId) {
+    if (!tripContsId) return;
+
+    fetch(`/trip/getTripDetail.do?tripContsId=${tripContsId}`)
+        .then(res => {
+            if (!res.ok) throw new Error('상세 데이터 응답 오류');
+            return res.json();
+        })
+        .then(detail => {
+            // 1. 문의처 채우기
+            const telElem = document.getElementById("detail-tel");
+            if (telElem) telElem.innerText = detail.tripdtlTel || '-';
+
+            // 2. 상세 소개 채우기
+            const infoElem = document.getElementById("detail-info");
+            if (infoElem) infoElem.innerText = detail.tripdtlInfo || '정보가 없습니다.';
+
+            // 3. 기타 필요한 정보들 (주차, 시간 등)
+            // document.getElementById("detail-parking").innerText = detail.tripdtlPrkPsblty || '불가';
+        })
+        .catch(err => {
+            console.error("상세 정보 로드 실패:", err);
+        });
+}
+
 
 // [조회] 시도(CTPV) 목록 로드
 function fetchAreaTags() {
@@ -135,25 +187,32 @@ function handleGnguClick(gnguCode, btnElem) {
 
 // [기능] 테마 클릭 (TripVO tripTag 연동)
 function filterTheme(tag, btnElem) {
+    // 1. 이미 선택된 태그를 다시 눌렀는지 확인 (해제 로직)
     const isSame = (tripState.tripTag === tag);
     
+    // 2. 모든 테마 버튼의 디자인 초기화
     document.querySelectorAll(".theme-btn").forEach(b => {
         b.classList.remove("text-orange-600", "font-bold");
         b.classList.add("text-gray-400");
     });
 
     if (isSame) {
+        // 이미 선택된 걸 다시 누르면 -> 선택 해제 (전체 보기)
         tripState.tripTag = ""; 
     } else {
+        // 새로운 태그 선택
         tripState.tripTag = tag;
-        btnElem.classList.replace("text-gray-400", "text-orange-600");
-        btnElem.classList.add("font-bold");
+        // 선택된 버튼만 강조
+        btnElem.classList.remove("text-gray-400");
+        btnElem.classList.add("text-orange-600", "font-bold");
     }
+    
+    // 3. 페이지 1로 초기화 후 리스트 새로고침
     tripState.pageNo = 1;
     fetchList();
 }
 
-// [메인] 데이터 fetch 및 화면 갱신
+// trip.js의 fetchList 함수 수정
 function fetchList() {
     const params = new URLSearchParams(tripState).toString();
     fetch(`/trip/doRetrieveJson.do?${params}`)
@@ -161,10 +220,16 @@ function fetchList() {
         .then(data => {
             renderDestList(data);
             const totalCount = data.length > 0 ? (data[0].totalCnt || 0) : 0;
-            document.getElementById("total-count").innerText = totalCount;
+
+            // [수정] 요소가 존재할 때만 innerText 설정 (상세페이지 에러 방지)
+            const totalCountElem = document.getElementById("total-count");
+            if (totalCountElem) {
+                totalCountElem.innerText = totalCount;
+            }
+
             renderPagination(totalCount);
         })
-        .catch(err => console.error("데이터 로드 실패:", err));
+        .catch(err => console.error("데이터 로드 실패:", err)); // 여기서 에러가 잡힘
 }
 
 // [렌더링] 리스트 출력
@@ -195,7 +260,7 @@ function renderDestList(list) {
                 </div>
                 <div class="mb-4">
                     <span class="px-3 py-1 bg-orange-50 text-orange-600 font-bold text-xs rounded-lg border border-orange-100">
-                        ${item.tripTag || '관련 테마 없음'}
+                        ${item.tripTagNm || '관련 테마 없음'}
                     </span>
                 </div>
                 <div class="flex items-center gap-4 text-xs text-gray-400">

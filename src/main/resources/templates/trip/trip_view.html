@@ -21,7 +21,7 @@
 
 <body class="bg-white">
 
-    <div th:insert="~{main/header}"></div>
+    <div th:replace="~{main/header :: header}"></div>
 
     <main class="max-w-5xl mx-auto px-4 py-8">
         <div class="text-center mb-10">
@@ -32,7 +32,7 @@
 
             <div id="detail-tag"
                 class="px-4 py-1 bg-orange-50 text-orange-600 font-bold inline-block text-[11px] rounded-sm shadow-sm border border-orange-100"
-                th:text="${vo != null and vo.tripTag != null and vo.tripTag != '' ? vo.tripTag : '관련 테마 없음'}">
+                th:text="${vo != null and vo.tripTagNm != null and vo.tripTagNm != '' ? vo.tripTagNm : '관련 테마 없음'}">
             </div>
         </div>
 
@@ -73,11 +73,15 @@
                         </div>
                     </div>
                     <div class="flex items-start gap-4">
-                        <div class="p-2 bg-gray-50 rounded-lg"><i data-lucide="phone" class="text-gray-400"
-                                size="20"></i></div>
+                        <div class="p-2 bg-gray-50 rounded-lg">
+                            <i data-lucide="phone" class="text-gray-400" size="20"></i>
+                        </div>
                         <div>
                             <p class="text-sm font-bold text-gray-800">문의처</p>
-                            <p id="detail-tel" class="text-gray-500 text-sm mt-1">-</p>
+                            <p id="detail-tel" class="text-gray-500 text-sm mt-1"
+                                th:text="${detailVo != null and detailVo.tripdtlTel != null ? detailVo.tripdtlTel : '-'}">
+                                -
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -87,7 +91,8 @@
                     <span class="w-1.5 h-5 bg-orange-600 rounded-full"></span> 소개
                 </h3>
                 <div id="detail-info" class="text-gray-600 leading-relaxed text-sm whitespace-pre-wrap"
-                    th:text="${vo != null ? vo.tripNm + '에 대한 정보입니다.' : ''}"></div>
+                    th:text="${detailVo != null and detailVo.tripdtlInfo != null ? detailVo.tripdtlInfo : vo.tripNm + '에 대한 정보입니다.'}">
+                </div>
             </div>
         </div>
 
@@ -134,7 +139,7 @@
         </div>
     </main>
 
-    <div th:insert="~{main/footer}"></div>
+    <div th:replace="~{main/footer :: footer}"></div>
 
     <script th:src="@{/javascript/trip.js}"></script>
     <script th:inline="javascript">

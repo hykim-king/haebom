@@ -11,6 +11,9 @@ import org.springframework.ui.Model;
 
 import lombok.RequiredArgsConstructor;
 import com.pcwk.ehr.domain.TripVO;
+
+import jakarta.servlet.http.HttpSession;
+
 import com.pcwk.ehr.area.AreaService; 
 import com.pcwk.ehr.domain.AreaVO;
 import com.pcwk.ehr.domain.TripDetailVO;
@@ -52,7 +55,10 @@ public class TripController {
  * 2. 여행지 상세 화면
  */
 @GetMapping("/trip_view")
-public String tripView(TripVO tripVO, Model model) {
+public String tripView(TripVO tripVO, Model model, HttpSession session) {
+    
+    Integer userNo = (Integer) session.getAttribute("userNo");
+    
     // 1. 기본 정보 조회 (제목, 주소, 이미지 경로 등)
     TripVO outVO = tripService.upDoSelectOne(tripVO);
     
@@ -61,7 +67,7 @@ public String tripView(TripVO tripVO, Model model) {
     TripDetailVO detailSearch = new TripDetailVO();
     detailSearch.setTripContsId(tripVO.getTripContsId());
     
-    // TripDetailService에서 doSelectOne을 호출 (서비스명이 다를 수 있으니 확인 필요)
+    // TripDetailService에서 doSelectOne을 호출
     TripDetailVO detailVO = tripDetailService.doSelectOne(detailSearch);
 
     if (outVO != null) {
@@ -71,6 +77,7 @@ public String tripView(TripVO tripVO, Model model) {
     if (detailVO != null) {
         model.addAttribute("detailVo", detailVO); // 상세 정보는 "detailVo"로 전달
     }
+    model.addAttribute("userNo", userNo);
 
     return "trip/trip_view";
 }
@@ -88,7 +95,7 @@ public String tripView(TripVO tripVO, Model model) {
     }
 
     /**
-     * 4. [중요] 시도 목록 API
+     * 4. 시도 목록 API
      * trip.js의 fetchAreaTags()에서 호출
      */
     @GetMapping("/getCtpvList.do")
@@ -98,7 +105,7 @@ public String tripView(TripVO tripVO, Model model) {
     }
 
     /**
-     * 5. [중요] 특정 시도의 시군구 목록 API
+     * 5. 특정 시도의 시군구 목록 API
      * trip.js의 handleCityClick()에서 호출
      */
     @GetMapping("/getGnguList.do")
@@ -114,7 +121,7 @@ public String tripView(TripVO tripVO, Model model) {
     @GetMapping("/getTripTags.do")
     @ResponseBody
     public List<String> getTripTags() {
-    // 서비스에서 SELECT DISTINCT TRIP_TAG FROM TRIP 쿼리 실행 결과 반환
+
     return tripService.getDistinctTags(); 
     }
 

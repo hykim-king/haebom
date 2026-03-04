@@ -41,12 +41,7 @@ class TripDetailDaoTest {
 		log.info("┌──────────────────────────┐");
 		log.info("│  setup()                 │");
 		log.info("└──────────────────────────┘");
-
-		// 1번 데이터: 관광지(12), 이름에 '정서진' 포함
-		tripVO01 = new TripVO(1, "정서진 관광지", "null", "인천 서구", 37.5, 37.5, "자연", 12, 28, 1, 0);
-
-		tripDetailVO01 = new TripDetailVO(1,"상세정보","휴뮤일","주차","운영 시간","전화번호","유모차","동물","요금","홈페이지","20240522",null);
-		
+	
 		
 	
 	}
@@ -58,18 +53,6 @@ class TripDetailDaoTest {
 		log.info("┌──────────────────────────┐");
 		log.info("│doSelectOne               │");
 		log.info("└──────────────────────────┘");
-		// 단건 삭제
-		//tripDetailMapper.doDelete(tripDetailVO01);
-		//tripMapper.doDelete(tripVO01);
-
-		// 여행지 단건 등록
-		//int h = tripMapper.doSave(tripVO01);
-		//log.info("등록 여행지 데이터"+h);
-		// 여행지 상세정보 단건 등록
-		//int flag = tripDetailMapper.doSave(tripDetailVO01);
-
-		//assertEquals(1, flag);
-		//log.info("flag:" + flag);
 
 		// 단건조회
 		TripDetailVO inputVO = new TripDetailVO();

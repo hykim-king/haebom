@@ -74,7 +74,7 @@
         SELECT
             TRIP_CONTS_ID, 
             TRIP_NM, 
-            TRIP_PATH_NM, 
+            NVL(T.TRIP_PATH_NM, AF.FILE_PATH_NM) AS TRIP_PATH_NM, 
             TRIP_ADDR,
             TRIP_LAT, 
             TRIP_LOT, 
@@ -101,8 +101,12 @@
             WHEN TRIP_TAG LIKE 'A03%' THEN '레포츠'
             ELSE '기타'
           END AS tripTagNm
-        FROM TRIP
+        FROM TRIP T
+        LEFT OUTER JOIN ATTACH_FILE AF
+        ON T.TRIP_CONTS_ID = AF.BOARD_ID
+        AND AF.BOARD_CLSF = 'trip'
         WHERE TRIP_CONTS_ID = #{tripContsId}
+          AND ROWNUM = 1
     </select>
 
     <select id="getCount" resultType="int">
@@ -141,7 +145,7 @@
                 FROM TRIP T
                 WHERE 1=1
                 <if test="searchWord != null and searchWord != ''">
-                    AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
+                    AND (TRIP_NM LIKE '%' || #{searchWord} || '%')
                 </if>
                 
                 <if test="tripTag != null and tripTag != ''">
@@ -188,7 +192,7 @@
         FROM TRIP
         WHERE 1=1
         <if test="searchWord != null and searchWord != ''">
-            AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
+            AND (TRIP_NM LIKE '%' || #{searchWord} || '%')
         </if>
         <if test="tripTag != null and tripTag != ''">
             <choose>

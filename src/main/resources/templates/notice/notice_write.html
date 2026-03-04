@@ -45,7 +45,11 @@
             </div>
 
             <div class="attachment-bar">
-                <div class="attach-item">📎 파일 첨부</div>
+                <input type="file" id="fileInput" name="file" style="display: none;" multiple>
+                <div class="attach-item" id="btn-file" style="cursor: pointer;">
+                    <i data-lucide="paperclip" class="me-1"></i> 📎 파일 첨부하기
+                </div>
+                <div id="file-list" class="mt-2" style="font-size: 0.9rem; color: #666;"></div>
             </div>
 
             <div class="write-footer">

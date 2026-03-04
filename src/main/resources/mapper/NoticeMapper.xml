@@ -24,7 +24,7 @@
         WHERE USER_EML_ADDR = #{email}
     </select>
 
-<select id="doRetrieve" parameterType="NoticeVO" resultType="NoticeVO">
+    <select id="doRetrieve" parameterType="NoticeVO" resultType="NoticeVO">
         SELECT *
         FROM (
             SELECT ROWNUM as rnum, T1.*
@@ -58,10 +58,8 @@
 
                 ORDER BY
                     CASE
-                        WHEN NTC_TTL LIKE '%[긴급]%' THEN 0  WHEN NTC_TTL LIKE '%[중요]%' THEN 1  ELSE 2                               END ASC,
-
-                    NTC_NO DESC
-            ) T1
+                        WHEN NTC_TTL LIKE '🚨 [긴급]%' THEN 1  WHEN NTC_TTL LIKE '⭐ [중요]%' THEN 2  ELSE 3                                END ASC,
+                    NTC_NO DESC ) T1
             <![CDATA[ WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize} ]]>
         )
         <![CDATA[ WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1 ]]>

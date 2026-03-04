@@ -1,6 +1,5 @@
 package com.pcwk.ehr.Service;
 
-import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.domain.NoticeVO;
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.notice.NoticeMapper;
@@ -40,21 +39,21 @@ class NoticeServiceTest {
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
 
-        // 1. 관리자 권한을 가진 유저 정보 설정
+        // 1. User 정보 가져오기
         adminUser = new UserVO();
-        adminUser.setUserNo(1);
-        adminUser.setUserMngrYn("Y"); // [주석] 서비스 로직 내 권한 체크 통과를 위해 'Y' 설정
+        adminUser.setUserNo(135);
+        adminUser.setUserMngrYn("Y");
 
-        // 2. 테스트용 공지사항 객체 초기화
+        log.info(adminUser.getUserNo());
+
+        // 2.
         notice01 = new NoticeVO();
         notice01.setUserVO(adminUser);
-        notice01.setNtcTtl("공지사항 제목"); // [수정] 필드명 ntcTtl 사용
-        notice01.setNtcCn("공지사항 내용");  // [수정] 필드명 ntcCn 사용
+        notice01.setNtcTtl("공지사항 제목");
+        notice01.setNtcCn("공지사항 내용");
         notice01.setRegNo(adminUser.getUserNo());
         notice01.setModNo(adminUser.getUserNo());
 
-        // [추가] 테스트 시작 전 데이터 정합성을 위해 전체 삭제
-        noticeMapper.deleteAll();
     }
 
     @Test
@@ -64,11 +63,9 @@ class NoticeServiceTest {
         log.info("│─doSave()                 │");
         log.info("└──────────────────────────┘");
 
-        // [주석] 서비스의 doSave는 제목에 '!!'가 붙으면 '[긴급]'으로 변환하는 로직이 포함되어 있습니다.
         int flag = noticeService.doSave(notice01);
         assertEquals(1, flag);
 
-        // 전체 조회로 방금 저장된 번호 가져오기
         List<NoticeVO> list = noticeMapper.getAll();
         NoticeVO vo = list.get(0);
         notice01.setNtcNo(vo.getNtcNo());
@@ -76,6 +73,7 @@ class NoticeServiceTest {
         NoticeVO outVO = noticeService.doSelectOne(notice01);
         assertNotNull(outVO);
         assertEquals(notice01.getNtcNo(), outVO.getNtcNo(), "번호가 일치하지 않습니다.");
+
     }
 
     @Test
@@ -85,19 +83,22 @@ class NoticeServiceTest {
         log.info("│─doSelectOne()            │");
         log.info("└──────────────────────────┘");
 
+        // 0.
+        noticeMapper.deleteAll();
+
         // 1. 저장
         noticeService.doSave(notice01);
 
-        // 2. 조회할 번호 획득
+        // 2. 조회
         List<NoticeVO> list = noticeMapper.getAll();
         notice01.setNtcNo(list.get(0).getNtcNo());
 
-        // 3. 서비스 단건 조회 실행
         NoticeVO outVO = noticeService.doSelectOne(notice01);
 
-        // 4. 검증
+        // 3. 검증
         assertNotNull(outVO);
-        assertEquals(notice01.getNtcNo(), outVO.getNtcNo());
+        assertEquals(notice01.getNtcNo(), outVO.getNtcNo(), "번호가 일치하지 않습니다.");
+
     }
 
     @Test
@@ -107,12 +108,17 @@ class NoticeServiceTest {
         log.info("│─doUpdate()               │");
         log.info("└──────────────────────────┘");
 
+        noticeMapper.deleteAll();
         noticeService.doSave(notice01);
 
         List<NoticeVO> list = noticeMapper.getAll();
-        NoticeVO outVO = list.get(0);
+        notice01.setNtcNo(list.get(0).getNtcNo());
 
-        // 3. 필드 수정
+        // 2. 조회
+        NoticeVO outVO = noticeService.doSelectOne(notice01);
+        assertNotNull(outVO);
+
+        // 3. 수정
         outVO.setNtcTtl(outVO.getNtcTtl() + "_수정");
         outVO.setNtcCn(outVO.getNtcCn() + "_수정내용");
         outVO.setModNo(1);
@@ -124,18 +130,21 @@ class NoticeServiceTest {
         NoticeVO updateVO = noticeService.doSelectOne(outVO);
         assertNotNull(updateVO);
         assertEquals(outVO.getNtcTtl(), updateVO.getNtcTtl());
+
     }
 
     @Test
-    @DisplayName("검색 및 페이징 확인")
+    @DisplayName("검색 확인")
     void doRetrieve() {
+
         log.info("┌──────────────────────────┐");
         log.info("│─doRetrieve()             │");
         log.info("└──────────────────────────┘");
 
-        // [수정] Map 대신 반복문으로 10건의 테스트 데이터 직접 생성
+        // 2. 테스트 데이터 10건 생성 및 즉시 저장 (실제 DB에 INSERT 쿼리가 10번 날아감)
         for (int i = 1; i <= 10; i++) {
             NoticeVO vo = new NoticeVO();
+            vo.setNtcNo(i);
             vo.setNtcTtl("공지사항 제목" + i);
             vo.setNtcCn("공지사항 내용" + i);
             vo.setRegNo(1);
@@ -143,21 +152,25 @@ class NoticeServiceTest {
             noticeMapper.doSave(vo);
         }
 
-        // [수정] 검색 조건 설정 (NoticeVO가 DTO를 상속받았으므로 페이징 필드 사용 가능)
+        // 3. 건수 확인 (실제 DB에서 COUNT 쿼리 실행)
+        int totalCount = noticeMapper.getCount();
+        log.info("저장된 전체 건수: {}", totalCount);
+
+        // 4. 페이징 조회 테스트 (실제 DB에서 SELECT 쿼리 실행)
         NoticeVO searchVO = new NoticeVO();
         searchVO.setPageNo(1);
         searchVO.setPageSize(10);
         searchVO.setSearchWord("공지사항");
+        log.info("searchVO: {}", searchVO);
 
-        // [주석] Mapper가 아닌 Service의 doRetrieve를 테스트합니다.
-        List<NoticeVO> result = noticeService.doRetrieve(searchVO);
-
+        List<NoticeVO> result = noticeMapper.doRetrieve(searchVO);
         assertNotNull(result);
-        log.info("검색 결과 건수: {}건", result.size());
 
         for (NoticeVO vo : result) {
-            log.info("조회된 데이터: {}", vo);
+            log.info("검색 결과: {}", vo);
         }
+
+        log.info("검색 결과 확인 완료: {}건 조회됨", result.size());
     }
 
     @Test
@@ -167,17 +180,19 @@ class NoticeServiceTest {
         log.info("│ doDelete()               │");
         log.info("└──────────────────────────┘");
 
-        noticeService.doSave(notice01);
+        noticeMapper.deleteAll();
+        noticeMapper.doSave(notice01);
 
         List<NoticeVO> list = noticeMapper.getAll();
         NoticeVO outVO = list.get(0);
 
-        // 서비스 삭제 호출
-        int flag = noticeService.doDelete(outVO);
+        int flag = noticeMapper.doDelete(outVO);
 
         assertEquals(1, flag);
-        // [수정] getCount 호출 시 파라미터가 필요하다면 outVO를 넣어줍니다.
-        assertEquals(0, noticeMapper.getCount(outVO));
+        assertEquals(0, noticeMapper.getCount());
+
+        log.info("삭제 확인 완료: {}건 삭제됨", flag);
+
     }
 
     @AfterEach

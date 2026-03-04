@@ -62,36 +62,27 @@
                 <h3 class="text-lg font-bold flex items-center gap-2">
                     <span class="w-1.5 h-5 bg-orange-600 rounded-full"></span> 여행지 정보
                 </h3>
-                <div class="space-y-6">
+                <div id="detail-list" class="space-y-6">
                     <div class="flex items-start gap-4">
-                        <div class="p-2 bg-gray-50 rounded-lg"><i data-lucide="map-pin" class="text-gray-400"
-                                size="20"></i></div>
+                        <div class="p-2 bg-gray-50 rounded-lg">
+                            <i data-lucide="map-pin" class="text-gray-400" size="20"></i>
+                        </div>
                         <div>
                             <p class="text-sm font-bold text-gray-800">주소</p>
                             <p id="detail-addr" class="text-gray-500 text-sm mt-1"
-                                th:text="${vo != null ? vo.tripAddr : ''}"></p>
+                                th:text="${vo != null ? vo.tripAddr : '-'}"></p>
                         </div>
                     </div>
-                    <div class="flex items-start gap-4">
-                        <div class="p-2 bg-gray-50 rounded-lg">
-                            <i data-lucide="phone" class="text-gray-400" size="20"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-gray-800">문의처</p>
-                            <p id="detail-tel" class="text-gray-500 text-sm mt-1"
-                                th:text="${detailVo != null and detailVo.tripdtlTel != null ? detailVo.tripdtlTel : '-'}">
-                                -
-                            </p>
-                        </div>
-                    </div>
+
                 </div>
             </div>
+
             <div class="space-y-8">
                 <h3 class="text-lg font-bold flex items-center gap-2">
                     <span class="w-1.5 h-5 bg-orange-600 rounded-full"></span> 소개
                 </h3>
                 <div id="detail-info" class="text-gray-600 leading-relaxed text-sm whitespace-pre-wrap"
-                    th:text="${detailVo != null and detailVo.tripdtlInfo != null ? detailVo.tripdtlInfo : vo.tripNm + '에 대한 정보입니다.'}">
+                    th:text="${detailVo != null ? detailVo.tripdtlInfo : (vo != null ? vo.tripNm + '에 대한 정보입니다.' : '')}">
                 </div>
             </div>
         </div>

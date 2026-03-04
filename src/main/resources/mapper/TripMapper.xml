@@ -11,7 +11,7 @@
             WHEN TRIP_TAG = 'A01010400' THEN '산'
             WHEN TRIP_TAG = 'A01010800' THEN '폭포'
             WHEN TRIP_TAG = 'A01010900' THEN '계곡'
-            WHEN TRIP_TAG IN ('A01010900', 'A01011200', 'A01011400', 'A01011600') THEN '바다'
+            WHEN TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') THEN '바다'
             WHEN TRIP_TAG = 'A01011700' THEN '호수'
             WHEN TRIP_TAG = 'A01011800' THEN '강'
             WHEN TRIP_TAG = 'A01011900' THEN '동굴'
@@ -199,7 +199,7 @@
                 <when test='tripTag == "산"'> AND TRIP_TAG = 'A01010400' </when>
                 <when test='tripTag == "폭포"'> AND TRIP_TAG = 'A01010800' </when>
                 <when test='tripTag == "계곡"'> AND TRIP_TAG = 'A01010900' </when>
-                <when test='tripTag == "바다"'> AND TRIP_TAG IN ('A01010900','A01011200', 'A01011400', 'A01011600') </when>
+                <when test='tripTag == "바다"'> AND TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') </when>
                 <when test='tripTag == "호수"'> AND TRIP_TAG = 'A01011700' </when>
                 <when test='tripTag == "강"'> AND TRIP_TAG = 'A01011800' </when>
                 <when test='tripTag == "동굴"'> AND TRIP_TAG = 'A01011900' </when>

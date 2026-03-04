@@ -81,6 +81,13 @@ public String tripView(TripVO tripVO, Model model, HttpSession session) {
 
     return "trip/trip_view";
 }
+    /* 데이터를 전달하기 위한 용도 */
+@GetMapping("/getTripDetail.do")
+@ResponseBody // 중요: 페이지 이동이 아니라 '데이터'만 보낸다는 뜻!
+public TripDetailVO getTripDetailJson(TripDetailVO tripDetailVO) {
+    
+    return tripDetailService.doSelectOne(tripDetailVO);
+}
 
     /**
      * 3. 여행지 목록 API (JS fetch 연동용)

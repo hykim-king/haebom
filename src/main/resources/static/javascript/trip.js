@@ -14,9 +14,25 @@ const tripState = {
 let searchTimer;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Lucide 아이콘 초기화
+    // 1. Lucide 아이콘 초기화 (공통)
     if (window.lucide) lucide.createIcons();
-    initListPage();
+
+    // 2. 리스트 페이지 전용 초기화 (요소가 있을 때만 실행)
+    if (document.getElementById("search-input")) {
+        initListPage();
+    }
+    // 상세 페이지에만 있는 'detail-list' ID를 체크합니다.
+    const detailList = document.getElementById("detail-list");
+    if (detailList) {
+        // Thymeleaf가 렌더링한 hidden input이나 URL 파라미터에서 ID를 가져와야 합니다.
+        // 가장 쉬운 방법은 HTML 어딘가에 ID를 심어두는 것입니다.
+        const tripId = document.querySelector('input[name="tripContsId"]')?.value 
+                    || new URLSearchParams(window.location.search).get('tripContsId');
+        
+        if (tripId) {
+            fetchDetailData(tripId);
+        }
+    }
 });
 
 function initListPage() {
@@ -90,30 +106,61 @@ clearBtn?.addEventListener("click", () => {
     });
 }
 
-// 상세 페이지 전 전용 로드 함수
 function fetchDetailData(tripContsId) {
     if (!tripContsId) return;
 
     fetch(`/trip/getTripDetail.do?tripContsId=${tripContsId}`)
-        .then(res => {
-            if (!res.ok) throw new Error('상세 데이터 응답 오류');
-            return res.json();
-        })
+        .then(res => res.json())
         .then(detail => {
-            // 1. 문의처 채우기
-            const telElem = document.getElementById("detail-tel");
-            if (telElem) telElem.innerText = detail.tripdtlTel || '-';
+            console.log("서버 응답 데이터:", detail); // 여기서 데이터가 나오는지 꼭 확인!
 
-            // 2. 상세 소개 채우기
+            const listContainer = document.getElementById("detail-list");
+            if (!listContainer) return;
+
+            // 오른쪽 소개글 영역 업데이트
             const infoElem = document.getElementById("detail-info");
-            if (infoElem) infoElem.innerText = detail.tripdtlInfo || '정보가 없습니다.';
+            if (infoElem && detail.tripdtlInfo) {
+                infoElem.innerText = detail.tripdtlInfo;
+            }
 
-            // 3. 기타 필요한 정보들 (주차, 시간 등)
-            // document.getElementById("detail-parking").innerText = detail.tripdtlPrkPsblty || '불가';
+            // 출력할 필드와 라벨 매핑 (TripDetailVO 필드명과 정확히 일치)
+            const labelMap = {
+                tripdtlTel:      { label: '문의처', icon: 'phone' },
+                tripdtlOperHr:   { label: '이용시간', icon: 'clock' },
+                tripdtlDyoffYmd: { label: '휴무일', icon: 'calendar-x' },
+                tripdtlPrkPsblty:{ label: '주차여부', icon: 'car' },
+                tripdtlPet:      { label: '반려동물', icon: 'dog' },
+                tripdtlCrg:      { label: '이용요금', icon: 'credit-card' },
+                tripdtlHmpg:     { label: '홈페이지', icon: 'globe' },
+                tripdtlStroller: { label: '유모차 대여', icon: 'baby' }
+            };
+
+            // VO의 모든 필드를 돌면서 값이 있으면 HTML 생성
+            Object.keys(labelMap).forEach(key => {
+                const value = detail[key];
+
+                // 값이 null이 아니고, 'null' 문자열이 아니고, 빈 값이 아닐 때만!
+                if (value && String(value).trim() !== '' && String(value) !== 'null') {
+                    const item = labelMap[key];
+                    const html = `
+                        <div class="flex items-start gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            <div class="p-2 bg-gray-50 rounded-lg">
+                                <i data-lucide="${item.icon}" class="text-gray-400" size="20"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">${item.label}</p>
+                                <p class="text-gray-500 text-sm mt-1">${value}</p>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.insertAdjacentHTML('beforeend', html);
+                }
+            });
+
+            // 아이콘 새로고침
+            if (window.lucide) lucide.createIcons();
         })
-        .catch(err => {
-            console.error("상세 정보 로드 실패:", err);
-        });
+        .catch(err => console.error("AJAX 호출 에러:", err));
 }
 
 

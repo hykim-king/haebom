@@ -121,7 +121,7 @@ class NoticeServiceTest {
         // 3. 수정
         outVO.setNtcTtl(outVO.getNtcTtl() + "_수정");
         outVO.setNtcCn(outVO.getNtcCn() + "_수정내용");
-        outVO.setModNo(135);
+        outVO.setModNo(1);
 
         int flag = noticeService.doUpdate(outVO);
         assertEquals(1, flag);
@@ -147,8 +147,8 @@ class NoticeServiceTest {
             vo.setNtcNo(i);
             vo.setNtcTtl("공지사항 제목" + i);
             vo.setNtcCn("공지사항 내용" + i);
-            vo.setRegNo(135);
-            vo.setModNo(135);
+            vo.setRegNo(1);
+            vo.setModNo(1);
             noticeMapper.doSave(vo);
         }
 

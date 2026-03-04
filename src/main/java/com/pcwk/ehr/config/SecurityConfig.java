@@ -65,7 +65,8 @@ public class SecurityConfig {
 						"/user/signup",
 						"/user/signup/**",
 						"/user/login",
-						"/user/main"))
+						"/user/main"
+                        ))
 
 				.authorizeHttpRequests((auth) -> auth
 						// 방식1: 기본 차단 + 허용 목록 (보안상 안전)

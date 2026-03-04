@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="../css/footer.css"/>
     <link rel="stylesheet" th:href="@{../css/notice_detail.css(v=20260226)}"><!-- Header -->
 </head>
-<div id="header"></div>
+<div th:replace="~{main/header :: header}"></div>
 
 <!-- Notice Detail View -->
 <div class="notice-container">
@@ -49,17 +49,7 @@
 </div>
 
 <!-- Footer -->
-<div id="footer"></div>
-
-<script>
-    fetch("../html/header.html")
-        .then((res) => res.text())
-        .then((html) => (document.getElementById("header").innerHTML = html));
-
-    fetch("../html/footer.html")
-        .then((res) => res.text())
-        .then((html) => (document.getElementById("footer").innerHTML = html));
-</script>
+<div th:replace="~{main/footer :: footer}"></div>
 
 <!-- JS -->
 <script src="../javascript/header_Org.js"></script>

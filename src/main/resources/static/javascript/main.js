@@ -15,10 +15,6 @@ function initPopularSpots() {
         lucide.createIcons();
     }
 }
-  
-  if (typeof lucide !== "undefined") {
-    lucide.createIcons();
-}
 
 /* ============================
    2. 메인 배너 이미지
@@ -92,121 +88,72 @@ function initRegionSlider() {
 /* ============================
    4. 날씨 BEST 추천 시스템
 ============================ */
-// [함수 A] 날씨 점수 계산 (사용자 로직 반영)
-function calculateWeatherScore(data) {
-    let score = 0;
 
-    // 1. 강수 유무 (비 안오면 50점)
-    if (data.prep === "0") score += 50;
-
-    // 2. 하늘 상태
-    if (data.sky === "DB01") score += 30;      // 맑음
-    else if (data.sky === "DB02") score += 20; // 구름조금
-    else if (data.sky === "DB03") score += 10; // 구름많음
-
-    // 3. 강수 확률 (확률이 낮을수록 가점)
-    score += (100 - parseInt(data.st || 0)) * 0.1;
-
-    // 4. 기온 (활동하기 적당한 18~24도 사이 가점)
-    const temp = parseFloat(data.temp);
-    if (temp >= 18 && temp <= 24) score += 5;
-
-    return score;
-}
-
-// [함수 B] API 데이터 호출
+// [함수 A] API 데이터 호출
 async function initWeather() {
-    const weatherList = document.getElementById("weatherList");
-    if (!weatherList) return;
-
     try {
         const response = await fetch('/main/weather/api');
-        const rawData = await response.text();
+        const rawData = await response.text(); // JSON이 아닌 TEXT로 받음
 
-        // ★ 바로 요기! 데이터를 받자마자 콘솔에 찍어봅니다.
-        console.log("=== [기상청 API 원본 데이터] ===");
-        console.log(rawData);
-        console.log("===============================");
+        console.log("서버 응답 데이터:", rawData);
 
-        if (rawData.trim()) {
-            processWeatherLogic(rawData);
+        if (rawData && rawData.includes("#START77")) {
+            processWeatherLogic(rawData); // 이전에 만든 텍스트 파싱 함수
+        } else if (rawData.includes("403")) {
+            console.error("API 권한 에러(403) 발생. 활용 신청 상태를 확인하세요.");
         }
     } catch (error) {
-        console.error("날씨 로드 실패:", error);
+        console.error("날씨 호출 실패:", error);
     }
 }
 
-// [함수 C] 데이터 파싱
+// [함수 B] 데이터 파싱 (기상청 ASCII 형식 대응)
 function processWeatherLogic(rawData) {
     const lines = rawData.split("\n");
     const parsedData = [];
 
     lines.forEach((line) => {
         const row = line.trim();
-        if (!row || row.startsWith("#")) return;
+        if (!row || row.startsWith("#")) return; // 주석 라인 제외
 
-        const cols = row.split(/\s+/);
+        const cols = row.split(/\s+/); // 공백 기준으로 열 분리
 
-        // 지역명(cols[4])이 존재하고 도시 데이터('C')인 경우
-        if (cols.length >= 5 && cols[3] === 'C') {
+        // fct_afs_dl2.php (단기개황) 결과 컬럼 수에 맞춰 인덱스 조정
+        const f = line.split(","); // 공백 대신 쉼표로 분리 (CSV 형식)
+        if (f.length >= 18) {
             const item = {
-                region: cols[4],
-                // 데이터가 15개 이상일 때만 상세 수치 할당, 아니면 기본값 "0"
-                sky: cols[11] || "DB01",
-                prep: cols[12] || "0",
-                st: parseInt(cols[13]) || 0,
-                temp: cols[14] || "0",
-                wind: cols[16] || "0"
+                region: f[1],   // 지점명
+                temp: f[12],    // 기온
+                st: f[13],      // 강수확률
+                sky: f[14],     // 하늘상태
+                prep: f[15]     // 강수유무
             };
 
-            // 점수 계산 (이 함수가 main.js 안에 정의되어 있어야 함)
-            item.score = calculateWeatherScore(item);
-            parsedData.push(item);
+            // 유효한 기온 데이터가 있을 때만 추가
+            if (item.temp && item.temp !== "-99") {
+                // 점수 계산 (calculateWeatherScore 함수가 있다고 가정)
+                item.score = typeof calculateWeatherScore === 'function' ? calculateWeatherScore(item) : 0;
+                parsedData.push(item);
+            }
         }
     });
 
-    // 점수가 높은 순으로 정렬
-    parsedData.sort((a, b) => b.score - a.score);
-
-    // 데이터가 하나라도 있으면 렌더링
     if (parsedData.length > 0) {
         renderBestWeather(parsedData);
-    } else {
-        console.error("표시할 수 있는 날씨 데이터가 없습니다.");
     }
 }
 
-// // 날씨 점수제 로직
-// function calculateWeatherScore(data) {
-//     let score = 0;
-//
-//     // 기온이 0인 데이터는 예보가 아직 생성 안 된 것이므로 하위권으로 배치
-//     if (data.temp === "0" || data.temp === "") return -100;
-//
-//     // 1. 강수 유무 (비 안 오면 50점)
-//     if (data.prep === "0") score += 50;
-//
-//     // 2. 기온 가산점 (15~25도 사이 여행하기 좋은 날씨)
-//     const t = parseFloat(data.temp);
-//     if (t >= 15 && t <= 25) score += 30;
-//
-//     // 3. 강수확률 감점
-//     score += (100 - data.st) * 0.2;
-//
-//     return score;
-// }
-
+// [함수 C] 화면 렌더링
 function renderBestWeather(allRegions) {
     const weatherList = document.getElementById("weatherList");
     if (!weatherList) return;
 
-    // 전국에서 점수가 높은 순으로 정렬 후 TOP 3 추출
+    // 점수순 정렬 후 TOP 3 추출
     const best3 = allRegions
-        .sort((a, b) => b.score - a.score)
+        .sort((a, b) => (b.score || 0) - (a.score || 0))
         .slice(0, 3);
 
     weatherList.innerHTML = best3.map((data, index) => {
-        // 아이콘 결정
         let iconName = "sun";
         if (data.prep !== "0") iconName = "cloud-rain";
         else if (data.sky === "DB03" || data.sky === "DB04") iconName = "cloud";
@@ -243,7 +190,6 @@ function renderBestWeather(allRegions) {
         </div>`;
     }).join('');
 
-    // Lucide 아이콘 재생성
     if (typeof lucide !== "undefined") {
         lucide.createIcons();
     }

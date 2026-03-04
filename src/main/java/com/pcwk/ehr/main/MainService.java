@@ -10,4 +10,6 @@ public interface MainService extends WorkDiv<TripVO> {
     List<TripVO> popularTop3();
 
     List<TripVO> randomRegion();
+
+    String getBestWeatherRegions();
 }

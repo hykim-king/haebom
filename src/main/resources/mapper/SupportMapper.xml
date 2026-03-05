@@ -3,6 +3,10 @@
 <mapper namespace="com.pcwk.ehr.support.SupportMapper">
 
 <insert id="doSave" parameterType="SupportVO">
+        <!-- ✅ INSERT 전에 시퀀스 값을 supNo에 먼저 세팅 → 파일 저장 시 boardId에 올바른 값 사용 가능 -->
+    <selectKey keyProperty="supNo" resultType="int" order="BEFORE">
+            SELECT SEQ_SUP_NO.NEXTVAL FROM DUAL
+        </selectKey>
         INSERT INTO SUPPORT (SUP_NO,
                              SUP_CN,
                              SUP_ANS_CN,
@@ -10,7 +14,7 @@
                              SUP_REG_HM,
                              REG_NO,
                              SUP_YN)
-        VALUES (SEQ_SUP_NO.NEXTVAL,
+        VALUES (#{supNo},
                 #{supCn},
                 #{supAnsCn},
                 TO_CHAR(SYSDATE, 'YYYYMMDD'),
@@ -39,8 +43,8 @@
                 SELECT s.*, COUNT(*) OVER() AS total_cnt
                 FROM SUPPORT s
                 WHERE 1=1
-                <!-- ✅ 이 부분 추가 -->
-                <if test="filterRegNo != null">
+        <!-- ✅ 이 부분 추가 -->
+        <if test="filterRegNo != null">
                     AND REG_NO = #{filterRegNo}
                 </if>
                 ORDER BY SUP_NO DESC

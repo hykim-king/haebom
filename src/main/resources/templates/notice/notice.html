@@ -131,19 +131,31 @@
 
     <nav class="mt-5">
         <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-                <a class="page-link" href="#"
-                ><i data-lucide="chevron-left" size="20"></i
-                ></a>
+
+            <!-- 이전 버튼: 1페이지면 비활성화 -->
+            <li class="page-item" th:classappend="${currentPage <= 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/notice(pageNo=${currentPage - 1}, pageSize=10, searchDiv=${searchVO.searchDiv}, searchWord=${searchVO.searchWord})}"
+                ><i data-lucide="chevron-left" size="20"></i></a>
             </li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-                <a class="page-link" href="#"
-                ><i data-lucide="chevron-right" size="20"></i
-                ></a>
+
+            <!-- 페이지 번호 목록 -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(1, totalPages)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:text="${i}"
+                   th:href="@{/notice(pageNo=${i}, pageSize=10, searchDiv=${searchVO.searchDiv}, searchWord=${searchVO.searchWord})}">
+                </a>
             </li>
+
+            <!-- 다음 버튼: 마지막 페이지면 비활성화 -->
+            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/notice(pageNo=${currentPage + 1}, pageSize=10, searchDiv=${searchVO.searchDiv}, searchWord=${searchVO.searchWord})}"
+                ><i data-lucide="chevron-right" size="20"></i></a>
+            </li>
+
         </ul>
     </nav>
 </main>
@@ -154,7 +166,7 @@
 <script>
     lucide.createIcons();
 </script>
-<script src="../javascript/main.js"></script>
+<script src="../javascript/main_Org.js"></script>
 <script src="../javascript/header.js"></script>
 </body>
 </html>

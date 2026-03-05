@@ -2,48 +2,113 @@
 
 // --- Constants ---
 const ITEMS_PER_PAGE = 5;
+const REGIONS = ['전체', '서울', '경기', '인천', '강원', '제주', '부산', '대구', '광주', '대전', '울산', '세종', '충북', '충남', '전북', '전남', '경북', '경남'];
 
-// --- Mock Data Generator ---
-// Helper to generate dummy data
-const REGIONS = ['전체', '서울', '경기', '인천', '강원', '제주', '부산', '대구', '광주', '대전'];
-const NAMES_HOSPITAL = ['서울대학교병원', '세브란스병원', '아산병원', '삼성서울병원', '성모병원', '밝은안과', '튼튼정형외과', '서울내과', '우리소아과', '굿모닝병원'];
-const NAMES_PHARMACY = ['온누리약국', '종로약국', '행복약국', '건강약국', '세브란스약국', '대학약국', '메디칼약국', '옵티마약국', '백세약국', '푸른약국'];
+// --- 시간 포맷 (800 → 8:00, 1830 → 18:30) ---
+function formatTime(val) {
+    if (!val) return '';
+    const str = String(val).padStart(4, '0');
+    return str.slice(0, -2) + ':' + str.slice(-2);
+}
 
-// Tags Pool
-const TAGS_HOSPITAL = ['응급실운영', '야간진료', '건강검진', '연중무휴', '주차가능', '입원실', '물리치료', '소아진료'];
-const TAGS_PHARMACY = ['연중무휴', '심야약국', '처방조제', '상비약'];
+// --- 전화번호 포맷 (222607114 → 02-2260-7114) ---
+function formatPhone(val) {
+    if (!val) return '';
+    const str = String(val).replace(/\s/g, '').replace(/\)/g, '-').replace(/\(/g, '');
+    if (str.includes('-')) return str;
 
-const getRandomTags = (type) => {
-    const pool = type === 'hospital' ? TAGS_HOSPITAL : TAGS_PHARMACY;
-    // Shuffle and pick 1~3 tags
-    const shuffled = pool.sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, Math.floor(Math.random() * 3) + 1);
-};
+    // 02로 시작 (서울)
+    if (str.startsWith('02')) {
+        if (str.length === 10) return str.slice(0, 2) + '-' + str.slice(2, 6) + '-' + str.slice(6);
+        if (str.length === 9) return str.slice(0, 2) + '-' + str.slice(2, 5) + '-' + str.slice(5);
+    }
+    // 0으로 시작 (지역번호, 휴대폰)
+    if (str.startsWith('0')) {
+        if (str.length === 11) return str.slice(0, 3) + '-' + str.slice(3, 7) + '-' + str.slice(7);
+        if (str.length === 10) return str.slice(0, 3) + '-' + str.slice(3, 6) + '-' + str.slice(6);
+    }
+    // 1로 시작 (대표번호 1577, 1588 등)
+    if (str.startsWith('1') && str.length === 8) {
+        return str.slice(0, 4) + '-' + str.slice(4);
+    }
+    // 앞의 0이 빠진 경우 → 0 붙여서 재귀 처리
+    if (!str.startsWith('0') && !str.startsWith('1')) {
+        return formatPhone('0' + str);
+    }
+    return str;
+}
 
-const generateData = (type, count) => {
-    return Array.from({ length: count }, (_, i) => {
-        const region = REGIONS[Math.floor(Math.random() * (REGIONS.length - 1)) + 1];
-        const nameList = type === 'hospital' ? NAMES_HOSPITAL : NAMES_PHARMACY;
-        const name = `${region} ${nameList[i % nameList.length]} ${Math.floor(i/10) + 1}호점`;
-        
+// --- DB 데이터를 공통 형태로 변환 ---
+function convertHospitals(data) {
+    return data.map(h => {
+        const tags = [];
+        if (h.hpEmrmYn === '1') tags.push('응급실운영');
+        if (h.hpWkndOpenYn === 'Y') tags.push('주말진료');
+
         return {
-            id: `${type}-${i}`,
-            type: type, // 'hospital' or 'pharmacy'
-            name: name,
-            region: region,
-            address: `${region} 어딘가로 ${Math.floor(Math.random() * 900) + 100}번길 ${i + 1}`,
-            phone: `02-${Math.floor(Math.random() * 9000) + 1000}-${Math.floor(Math.random() * 9000) + 1000}`,
-            status: Math.random() > 0.3 ? 'OPEN' : 'CLOSED', // 70% chance open
-            openTime: '09:00 - 18:00',
-            tags: getRandomTags(type)
+            id: h.hpNo,
+            type: 'hospital',
+            name: h.hpNm,
+            address: (h.hpAddr || '').replace(/,\s*$/, ''),
+            phone: formatPhone(h.hpTelno1),
+            openTime: formatTime(h.hpOpTm) + ' - ' + formatTime(h.hpEndTm),
+            tags: tags
         };
     });
+}
+
+function convertDrugs(data) {
+    return data.map(d => {
+        const tags = [];
+        if (d.dsWkndOpenYn === 'Y') tags.push('주말운영');
+
+        return {
+            id: d.dsNo,
+            type: 'pharmacy',
+            name: d.dsNm,
+            address: (d.dsAddr || '').replace(/,\s*$/, ''),
+            phone: formatPhone(d.dsTelno),
+            openTime: formatTime(d.dsOpTm) + ' - ' + formatTime(d.dsEndTm),
+            tags: tags
+        };
+    });
+}
+
+// 병원 데이터는 인라인으로 즉시 로딩
+const HOSPITAL_DATA = convertHospitals(typeof hospitalData !== 'undefined' ? hospitalData : []);
+
+// 약국 데이터는 탭 클릭 시 fetch로 로딩 (캐싱)
+let DRUG_DATA = null;
+
+async function loadDrugData() {
+    if (DRUG_DATA !== null) return DRUG_DATA;
+    const res = await fetch('/medical/api/drugs');
+    const data = await res.json();
+    DRUG_DATA = convertDrugs(data);
+    return DRUG_DATA;
+}
+
+function getCurrentData() {
+    return currentTab === 'hospital' ? HOSPITAL_DATA : (DRUG_DATA || []);
+}
+
+// --- 지역 약칭 → 주소에 포함된 실제 명칭 매핑 ---
+const REGION_MAP = {
+    '서울': '서울', '경기': '경기', '인천': '인천', '강원': '강원',
+    '제주': '제주', '부산': '부산', '대구': '대구', '광주': '광주',
+    '대전': '대전', '울산': '울산', '세종': '세종',
+    '충북': '충청북도', '충남': '충청남도',
+    '전북': '전라북도', '전남': '전라남도',
+    '경북': '경상북도', '경남': '경상남도'
 };
 
-const MOCK_DATA = [
-    ...generateData('hospital', 50),
-    ...generateData('pharmacy', 50)
-];
+// --- 주소에서 지역 추출 ---
+function getRegion(address) {
+    for (const [shortName, fullName] of Object.entries(REGION_MAP)) {
+        if (address.includes(fullName)) return shortName;
+    }
+    return '';
+}
 
 // --- State ---
 let currentTab = 'hospital';
@@ -57,44 +122,54 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function init() {
-    renderRegions();
-    renderList(); // Initial render
-    initSearch(); // Bind search events
-    
-    // Tab initial state visual
+    updateRegionVisual();
+    renderList();
+    initSearch();
     updateTabVisual();
-    
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // --- Event Handlers ---
-function switchTab(tab) {
+async function switchTab(tab) {
     if (currentTab === tab) return;
-    
     currentTab = tab;
-    currentPage = 1; // Reset page
+    currentPage = 1;
     updateTabVisual();
+
+    if (tab === 'pharmacy') {
+        await loadDrugData();
+    }
     renderList();
 }
 
 function selectRegion(region) {
     currentRegion = region;
-    currentPage = 1; // Reset page
-    renderRegions(); // Update active state of buttons
+    currentPage = 1;
+    updateRegionVisual();
     renderList();
+}
+
+function updateRegionVisual() {
+    const buttons = document.querySelectorAll('.region-btn');
+    buttons.forEach(btn => {
+        if (btn.textContent.trim() === currentRegion) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
 }
 
 function initSearch() {
     const input = document.getElementById('search-input');
     if (!input) return;
 
-    // Debounce search input
     let timeout = null;
     input.addEventListener('input', (e) => {
         clearTimeout(timeout);
         timeout = setTimeout(() => {
             searchQuery = e.target.value.trim();
-            currentPage = 1; // Reset page
+            currentPage = 1;
             renderList();
         }, 300);
     });
@@ -104,32 +179,22 @@ function setPage(page) {
     if (page < 1) return;
     currentPage = page;
     renderList();
-    
-    // Scroll to top of list smoothly
+
     const listTop = document.getElementById('medical-list').offsetTop - 100;
     window.scrollTo({ top: listTop, behavior: 'smooth' });
 }
 
 // --- Rendering ---
 function updateTabVisual() {
-    const indicator = document.getElementById('tab-indicator');
     const tabHospital = document.getElementById('tab-hospital');
     const tabPharmacy = document.getElementById('tab-pharmacy');
-    
+
     if (currentTab === 'hospital') {
-        indicator.style.transform = 'translateX(0)';
-        tabHospital.classList.remove('text-slate-500');
-        tabHospital.classList.add('text-slate-700');
-        tabPharmacy.classList.remove('text-slate-700');
-        tabPharmacy.classList.add('text-slate-500');
+        tabHospital.classList.add('active');
+        tabPharmacy.classList.remove('active');
     } else {
-        indicator.style.left = '4px'; 
-        indicator.style.transform = 'translateX(100%)';
-        
-        tabPharmacy.classList.remove('text-slate-500');
-        tabPharmacy.classList.add('text-slate-700');
-        tabHospital.classList.remove('text-slate-700');
-        tabHospital.classList.add('text-slate-500');
+        tabPharmacy.classList.add('active');
+        tabHospital.classList.remove('active');
     }
 }
 
@@ -138,11 +203,11 @@ function renderRegions() {
     if (!list) return;
 
     list.innerHTML = REGIONS.map(region => `
-        <button 
-            onclick="selectRegion('${region}')" 
+        <button
+            onclick="selectRegion('${region}')"
             class="px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
-                region === currentRegion 
-                ? 'bg-slate-800 text-white shadow-md' 
+                region === currentRegion
+                ? 'bg-slate-800 text-white shadow-md'
                 : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
             }"
         >
@@ -154,16 +219,16 @@ function renderRegions() {
 function renderList() {
     const container = document.getElementById('medical-list');
     const paginationContainer = document.getElementById('pagination');
-    
+
     // 1. Filter Data
-    let filtered = MOCK_DATA.filter(item => item.type === currentTab);
-    
+    let filtered = getCurrentData();
+
     if (currentRegion !== '전체') {
-        filtered = filtered.filter(item => item.region === currentRegion);
+        filtered = filtered.filter(item => getRegion(item.address) === currentRegion);
     }
 
     if (searchQuery) {
-        filtered = filtered.filter(item => 
+        filtered = filtered.filter(item =>
             item.name.includes(searchQuery) || item.address.includes(searchQuery)
         );
     }
@@ -171,8 +236,7 @@ function renderList() {
     // 2. Pagination Logic
     const totalItems = filtered.length;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-    
-    // Adjust current page if out of bounds
+
     if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
     if (totalPages === 0) currentPage = 1;
 
@@ -183,109 +247,77 @@ function renderList() {
     // 3. Render Items
     if (totalItems === 0) {
         container.innerHTML = `
-            <div class="bg-white p-12 rounded-2xl text-center border border-slate-100">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-full mb-4">
-                    <i data-lucide="search-x" class="w-8 h-8 text-slate-300"></i>
+            <div class="text-center p-5 bg-white rounded-4 border">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light mb-3" style="width:64px;height:64px;">
+                    <i data-lucide="search-x" size="32" class="text-secondary"></i>
                 </div>
-                <p class="text-slate-500 font-medium">검색 결과가 없습니다.</p>
+                <p class="text-secondary fw-medium mb-0">검색 결과가 없습니다.</p>
             </div>
         `;
-        paginationContainer.innerHTML = ''; // Hide pagination
+        paginationContainer.innerHTML = '';
         lucide.createIcons();
         return;
     }
 
-    container.innerHTML = pageData.map(item => `
-        <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between hover:border-orange-200 transition-colors cursor-pointer group" onclick="location.href='medical-detail.html?id=${item.id}'">
-            <div class="flex-1 min-w-0 pr-4">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-md ${
-                        item.status === 'OPEN' 
-                        ? 'bg-green-100 text-green-600' 
-                        : 'bg-slate-100 text-slate-500'
-                    }">
-                        ${item.status === 'OPEN' ? '진료중' : '진료종료'}
-                    </span>
-                    <h3 class="font-bold text-lg text-slate-900 truncate group-hover:text-orange-600 transition-colors">${item.name}</h3>
-                </div>
-                
-                <p class="text-sm text-slate-500 truncate mb-2">${item.address}</p>
+    const detailUrl = currentTab === 'hospital' ? '/medical/hospital_detail' : '/medical/drug_detail';
 
-                <!-- Tags -->
-                <div class="flex flex-wrap gap-1 mb-3">
+    container.innerHTML = pageData.map(item => `
+        <a class="info-card d-flex align-items-center justify-content-between" href="${detailUrl}?id=${item.id}">
+            <div class="flex-grow-1 overflow-hidden me-3">
+                <h3 class="fw-bold fs-5 mb-1 text-truncate">${item.name}</h3>
+                <p class="small text-secondary text-truncate mb-2">${item.address}</p>
+
+                <div class="d-flex flex-wrap gap-1 mb-3">
                     ${item.tags.map(tag => {
-                        // Highlight specific tags
-                        const isHighlight = tag === '응급실운영' || tag === '야간진료' || tag === '심야약국';
-                        return `<span class="px-1.5 py-0.5 rounded text-[11px] font-medium border ${
-                            isHighlight 
-                            ? 'bg-orange-50 text-orange-600 border-orange-100' 
-                            : 'bg-slate-50 text-slate-500 border-slate-100'
-                        }">#${tag}</span>`;
+                        const isHighlight = tag === '응급실운영' || tag === '주말진료' || tag === '주말운영';
+                        return `<span class="tag ${isHighlight ? 'tag-orange' : ''}">#${tag}</span>`;
                     }).join('')}
                 </div>
-                
-                <div class="flex items-center gap-3 text-xs text-slate-400 border-t border-slate-50 pt-3 mt-1">
-                    <span class="flex items-center gap-1">
-                        <i data-lucide="clock" class="w-3 h-3"></i> ${item.openTime}
+
+                <div class="card-footer-info">
+                    <span class="info-item-pill">
+                        <i data-lucide="clock" size="14"></i> ${item.openTime}
                     </span>
-                    <span class="flex items-center gap-1">
-                        <i data-lucide="phone" class="w-3 h-3"></i> ${item.phone}
+                    <span class="info-item-pill">
+                        <i data-lucide="phone" size="14"></i> ${item.phone}
                     </span>
                 </div>
             </div>
-            
-            <div class="text-slate-300 group-hover:text-orange-500 group-hover:translate-x-1 transition-all pl-2">
-                <i data-lucide="chevron-right" class="w-6 h-6"></i>
+
+            <div class="text-secondary">
+                <i data-lucide="chevron-right" size="24"></i>
             </div>
-        </div>
+        </a>
     `).join('');
 
     // 4. Render Pagination Controls
     if (totalPages > 1) {
         let paginationHTML = '';
-        
-        // Prev Button
+
         paginationHTML += `
-            <button 
-                onclick="setPage(${currentPage - 1})" 
-                class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none"
-                ${currentPage === 1 ? 'disabled' : ''}
-            >
-                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            <button onclick="setPage(${currentPage - 1})" class="page-btn arrow-btn" ${currentPage === 1 ? 'disabled' : ''}>
+                <i data-lucide="chevron-left" size="18"></i>
             </button>
         `;
 
-        // Page Numbers logic
         let startPage = Math.max(1, currentPage - 2);
         let endPage = Math.min(totalPages, startPage + 4);
-        
+
         if (endPage - startPage < 4) {
             startPage = Math.max(1, endPage - 4);
         }
 
         for (let i = startPage; i <= endPage; i++) {
             paginationHTML += `
-                <button 
-                    onclick="setPage(${i})" 
-                    class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold transition-colors ${
-                        i === currentPage 
-                        ? 'bg-orange-600 text-white border border-orange-600' 
-                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                    }"
-                >
+                <button onclick="setPage(${i})" class="page-btn ${i === currentPage ? 'active' : ''}">
                     ${i}
                 </button>
             `;
         }
 
-        // Next Button
         paginationHTML += `
-            <button 
-                onclick="setPage(${currentPage + 1})" 
-                class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none"
-                ${currentPage === totalPages ? 'disabled' : ''}
-            >
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <button onclick="setPage(${currentPage + 1})" class="page-btn arrow-btn" ${currentPage === totalPages ? 'disabled' : ''}>
+                <i data-lucide="chevron-right" size="18"></i>
             </button>
         `;
 

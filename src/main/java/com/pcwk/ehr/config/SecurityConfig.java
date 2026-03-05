@@ -116,12 +116,14 @@ public class SecurityConfig {
 		http
 				// ✅ 개발 단계: 필요한 URL만 CSRF 제외
 				.csrf(csrf -> csrf.ignoringRequestMatchers(
+						"/user/login-api",
 						"/api/auth/**",
 						"/user/signup",
 						"/user/signup/**",
 						"/user/login",
 						"/user/main",
-						"/user/social-signup" // ✅ 소셜 추가정보 POST도 CSRF 예외(편하게 테스트)
+						"/user/social-signup" 
+
 				))
 
 				.authorizeHttpRequests(auth -> auth
@@ -142,18 +144,18 @@ public class SecurityConfig {
 						.anyRequest().permitAll())
 
 				.formLogin(form -> form
-						.loginPage("/login/login") // GET 로그인 화면
-						.loginProcessingUrl("/login/login") // POST 로그인 처리
+						.loginPage("/user/login") // GET 로그인 화면
+						.loginProcessingUrl("/user/login") // POST 로그인 처리
 						.defaultSuccessUrl("/", true) // 성공url
-						.failureUrl("/login/login?error") // 로그인실패
+						.failureUrl("/user/login?error") // 로그인실패
 						.usernameParameter("userId") // 아이디 변수
 						.passwordParameter("password") // 비밀번호 변수
 						.permitAll())
 				// 로그아웃
 
 				.logout(logout -> logout
-						.logoutUrl("/logout/logout") // 로그아웃 요청url
-						.logoutSuccessUrl("/login/login?logout") // 로그아웃 성공 이후 URL
+						.logoutUrl("/user/logout") // 로그아웃 요청url
+						.logoutSuccessUrl("/user/login?logout") // 로그아웃 성공 이후 URL
 						.invalidateHttpSession(true) // 세션 무효화
 						.clearAuthentication(true) // 인증 정보 제거
 						.deleteCookies("JSESSIONID") // 쿠기삭제)

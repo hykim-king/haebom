@@ -34,36 +34,45 @@
         <form th:action="@{/user/social-signup}" method="post" id="signupForm" class="space-y-8">
             
             <div class="space-y-2">
-                <label class="text-sm font-bold text-slate-700">닉네임 <span class="text-orange-500">*</span></label>
-                <input type="text" id="nickname" name="userNick" th:value="${kakaoNick}" class="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500 outline-none" required />
+                <label class="text-sm font-bold text-slate-700">닉네임</label>
+                <div class="flex gap-2">
+                    <input type="text" name="userNick" id="nickname" 
+                           th:value="${kakaoNick}"
+                           class="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500 transition-all outline-none" 
+                           placeholder="사용하실 닉네임을 입력하세요" required>
+                    <button type="button" id="btn-check-nick" 
+                            class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-all whitespace-nowrap">
+                        중복 확인
+                    </button>
+                </div>
+                <input type="hidden" id="nickCheckDone" value="N">
             </div>
 
             <div class="space-y-2">
                 <label class="text-sm font-bold text-slate-700">전화번호 <span class="text-orange-500">*</span></label>
-                <input type="tel" name="userTelno" class="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500 outline-none" placeholder="010-1234-5678" required />
+                <input type="tel" name="userTelno" id="userTelno" 
+                       class="w-full h-12 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500 outline-none" 
+                       placeholder="010-1234-5678" required />
             </div>
 
             <div class="space-y-3">
-              <label class="text-sm font-bold text-slate-700">주소 <span class="text-orange-500">*</span></label>
-              <div class="flex gap-2">
-                  <input type="text" id="zipcode" name="userZip" 
-                        class="w-32 h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 outline-none" 
-                        placeholder="우편번호" readonly required>
-                  
-                  <button type="button" id="btn-search-address" 
-                          class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700">
-                      주소 검색
-                  </button>
-              </div>
-              
-              <input type="text" id="addr-basic" name="userAddr" 
-                    class="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 outline-none" 
-                    placeholder="기본 주소" readonly required>
-              
-              <input type="text" id="addr-detail" name="userDaddr" 
-                    class="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none" 
-                    placeholder="상세 주소">
-          </div>
+                <label class="text-sm font-bold text-slate-700">주소 <span class="text-orange-500">*</span></label>
+                <div class="flex gap-2">
+                    <input type="text" id="zipcode" name="userZip" 
+                           class="w-32 h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 outline-none" 
+                           placeholder="우편번호" readonly required>
+                    <button type="button" id="btn-search-address" 
+                            class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700">
+                        주소 검색
+                    </button>
+                </div>
+                <input type="text" id="addr-basic" name="userAddr" 
+                       class="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 outline-none" 
+                       placeholder="기본 주소" readonly required>
+                <input type="text" id="addr-detail" name="userDaddr" 
+                       class="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none" 
+                       placeholder="상세 주소">
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
@@ -107,113 +116,6 @@
         </form>
     </div>
 
-    <script src="../javascript/signup.js"></script>
-      <script>
-          $(document).ready(function() {
-              // 1. 생년월일 처리
-              $('#birth_picker').on('change', function() {
-                  const val = this.value.replace(/-/g, '');
-                  $('#userBrdt').val(val); 
-              });
-
-              // 2. 가입 버튼 클릭 시 검증 (submit 이벤트 가로채기)
-              $('#signupForm').on('submit', function(e) {
-                  // [수정 핵심] name="theme"가 없으므로 container 내의 모든 체크된 input을 찾습니다.
-                  const checkedInputs = $('#theme-container input[type="checkbox"]:checked');
-                  const checkedCount = checkedInputs.length;
-
-                  if (checkedCount < 3) {
-                      e.preventDefault(); // 폼 전송 중단
-                      alert("여행 테마를 3개 이상 선택해주세요. (현재 " + checkedCount + "개 선택됨)");
-                      return false;
-                  }
-
-                  // 3. 서버 전송용 userTag 값 생성
-                  const tags = checkedInputs.map(function() {
-                      return $(this).val(); // '산', '폭포' 등의 label 값이 들어갑니다.
-                  }).get().join(',');
-
-                  $('#userTag').val(tags);
-                  
-                  return true;
-              });
-          });
-      </script>
-
-      <script>
-      $(document).ready(function() {
-          // 1. 생년월일 처리
-          $('#birth_picker').on('change', function() {
-              const val = this.value.replace(/-/g, '');
-              $('#userBrdt').val(val); 
-          });
-
-          // 2. 가입 버튼 클릭 시 검증 및 메시지 처리
-          $('#signupForm').on('submit', function(e) {
-              // 기본 폼 제출 막기 (검증 후 직접 제출하거나 성공 메시지 후 제출)
-              e.preventDefault();
-
-              // --- [항목별 검증 로직] ---
-              
-              // 닉네임 검증
-              if (!$('#nickname').val().trim()) {
-                  alert("닉네임을 입력해주세요.");
-                  $('#nickname').focus();
-                  return false;
-              }
-
-              // 전화번호 검증
-              if (!$('input[name="userTelno"]').val().trim()) {
-                  alert("전화번호를 입력해주세요.");
-                  $('input[name="userTelno"]').focus();
-                  return false;
-              }
-
-              // 주소 검증 (우편번호로 체크)
-              if (!$('#zipcode').val()) {
-                  alert("주소 검색을 통해 주소를 입력해주세요.");
-                  $('#btn-search-address').click(); // 자동으로 주소창 띄워주는 센스
-                  return false;
-              }
-
-              // 생년월일 검증
-              if (!$('#birth_picker').val()) {
-                  alert("생년월일을 선택해주세요.");
-                  $('#birth_picker').focus();
-                  return false;
-              }
-
-              // 성별 검증 (Radio 버튼 체크 확인)
-              if (!$('input[name="userGndr"]:checked').val()) {
-                  alert("성별을 선택해주세요.");
-                  return false;
-              }
-
-              // 테마 검증 (3개 이상)
-              const checkedInputs = $('#theme-container input[type="checkbox"]:checked');
-              const checkedCount = checkedInputs.length;
-
-              if (checkedCount < 3) {
-                  alert("여행 테마를 3개 이상 선택해주세요. (현재 " + checkedCount + "개 선택됨)");
-                  return false;
-              }
-
-              // --- [데이터 가공 및 최종 성공 메시지] ---
-
-              // 선택된 테마들을 userTag hidden 필드에 저장
-              const tags = checkedInputs.map(function() {
-                  return $(this).val();
-              }).get().join(',');
-              $('#userTag').val(tags);
-
-              // 가입 환영 메시지 출력
-              alert("가입을 환영합니다! 해봄트립을 자유롭게 이용해보세요.");
-
-              // 폼 실제 제출
-              this.submit();
-          });
-      });
-  </script>
-
+    <script src="../javascript/social_signup.js"></script>
 </body>
 </html>

@@ -1,8 +1,11 @@
 package com.pcwk.ehr.user.controller;
 
 import com.pcwk.ehr.domain.UserVO;
+import com.pcwk.ehr.user.UserEntity;
 import com.pcwk.ehr.user.UserService;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -11,69 +14,110 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
+
+    final Logger log = LogManager.getLogger(getClass());
+
     private final UserService userService;
 
-    // 메인 페이지 화면 이동 (가입/로그인 성공 후 리다이렉트 될 곳)
-    @PostMapping("/login")
-    @ResponseBody
-    public ResponseEntity<?> login(@RequestBody UserVO vo, HttpSession session) {
-        try {
-            UserVO loginUser = userService.loginDetail(vo.getUserEmlAddr(), vo.getUserEnpswd());
-            if (loginUser != null) {
-                session.setAttribute("user", loginUser);
-                System.out.println("로그인 성공: " + loginUser); // 디버깅 로그 추가
-                return ResponseEntity.ok().body("{\"success\": true}");
-            } else {
-                return ResponseEntity.status(401).body("{\"success\": false, \"message\": \"Invalid credentials\"}");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("{\"success\": false, \"message\": \"" + e.getMessage() + "\"}");
-        }
-    }
-
-    // // 메인 페이지 이동 (templates/main/main_Org.html 호출)
-    // @GetMapping("/main")
-    // public String mainPage() {
-    // return "main/main";
-    // }
-    @GetMapping("/findPw")
-    public String findPwForm(Model model) {
-        model.addAttribute("userVO", new UserVO());
-        return "user/find_pw"; // templates/user/findPw.html 호출
-    }
-
-    @GetMapping("/signup")
-    public String signUpForm(Model model) {
-        model.addAttribute("userVO", new UserVO());
-        return "user/signup"; // templates/user/signup.html 호출
-    }
-
-    // 2. 로그인 페이지 이동 (추가된 부분)
+    // 1. 화면 이동: 로그인 페이지
     @GetMapping("/login")
     public String loginForm(Model model) {
-        // 폼 객체 바인딩을 위해 빈 UserVO를 넘겨줍니다.
         model.addAttribute("userVO", new UserVO());
         return "user/login";
     }
 
-    @PostMapping("/signup")
-    @ResponseBody // AJAX 응답을 위해 추가
-    public ResponseEntity<?> signUp(@RequestBody UserVO vo) { // @ModelAttribute 대신 @RequestBody 사용
+    // 2. 화면 이동: 회원가입 페이지
+    @GetMapping("/signup")
+    public String signUpForm(Model model) {
+        model.addAttribute("userVO", new UserVO());
+        return "user/signup";
+    }
+
+    // 3. 화면 이동: 비밀번호 찾기
+    @GetMapping("/findPw")
+    public String findPwForm(Model model) {
+        model.addAttribute("userVO", new UserVO());
+        return "user/find_pw";
+    }
+
+    @PostMapping("/login-api")
+    @ResponseBody
+    public ResponseEntity<?> login(@RequestBody UserVO vo, HttpSession session) {
+        // 응답용 Map 생성 (자동으로 JSON 변환됨)
+        Map<String, Object> response = new HashMap<>();
+
         try {
+            UserEntity loginUser = userService.loginDetail(vo.getUserEmlAddr(), vo.getUserEnpswd());
+            if (loginUser != null) {
+                // 💡 1. 자바 객체에 이름이 있는지 확인
+                log.info("로그인 성공! 유저 이름: {}", loginUser.getUserNm());
+                log.info("로그인 성공! 유저 닉네임: {}", loginUser.getUserNick());
+                session.setAttribute("user", loginUser);
+                response.put("success", true);
+                return ResponseEntity.ok(response); // {"success": true}
+            } else {
+                response.put("success", false);
+                response.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
+                return ResponseEntity.status(401).body(response);
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "서버 오류: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    // 5. 로직: 이메일 중복 체크 (인증번호 전송 전 호출)
+    @GetMapping("/check-email")
+    @ResponseBody
+    public ResponseEntity<Boolean> checkEmail(@RequestParam("email") String email) {
+        // userService에서 해당 이메일이 사용 가능하면 true 반환
+        boolean isAvailable = userService.isEmailAvailable(email);
+        return ResponseEntity.ok(isAvailable);
+    }
+
+    // 6. 로직: 전화번호 중복 체크 (입력 시 blur 이벤트로 호출)
+    @GetMapping("/check-phone")
+    @ResponseBody
+    public ResponseEntity<Boolean> checkPhone(@RequestParam("telno") String telno) {
+        // 하이픈 제거 후 체크
+        String cleanTelno = telno.replaceAll("-", "");
+        boolean isAvailable = userService.isPhoneAvailable(cleanTelno);
+        return ResponseEntity.ok(isAvailable);
+    }
+
+    // 7. 로직: 회원가입 처리
+    @PostMapping("/signup")
+    @ResponseBody
+    public ResponseEntity<?> signUp(@RequestBody UserVO vo) {
+        try {
+            // 서버 측 최종 중복 검증 (보안 및 데이터 무결성)
+            if (!userService.isEmailAvailable(vo.getUserEmlAddr())) {
+                return ResponseEntity.status(400).body("{\"success\": false, \"message\": \"이미 사용 중인 이메일입니다.\"}");
+            }
+            if (!userService.isPhoneAvailable(vo.getUserTelno())) {
+                return ResponseEntity.status(400).body("{\"success\": false, \"message\": \"이미 사용 중인 전화번호입니다.\"}");
+            }
+
             userService.signUp(vo);
             return ResponseEntity.ok().body("{\"success\": true}");
         } catch (Exception e) {
+            // ORA-00001 등 DB 에러 발생 시 메시지 전달
             return ResponseEntity.status(500).body("{\"success\": false, \"message\": \"" + e.getMessage() + "\"}");
         }
     }
 
+    // 8. 로직: 로그아웃
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate(); // 세션 완전 삭제
+        session.invalidate();
         return "redirect:/main/main.do?logout=true";
     }
 }

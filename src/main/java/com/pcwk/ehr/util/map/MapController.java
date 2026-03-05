@@ -1,7 +1,5 @@
 package com.pcwk.ehr.util.map;
 
-import com.pcwk.ehr.cmn.AllLocationsResponseDTO;
-import com.pcwk.ehr.cmn.MapLocationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -31,7 +29,7 @@ public class MapController {
      */
     @GetMapping("/api/all")
     @ResponseBody
-    public ResponseEntity<AllLocationsResponseDTO> getAllLocations() {
+    public ResponseEntity<MapDTO> getAllLocations() {
         return ResponseEntity.ok(mapService.getAllLocations());
     }
 
@@ -41,7 +39,7 @@ public class MapController {
      */
     @GetMapping("/api/trips")
     @ResponseBody
-    public ResponseEntity<List<MapLocationDTO>> getTripLocations() {
+    public ResponseEntity<List<MapDTO>> getTripLocations() {
         return ResponseEntity.ok(mapService.getTripLocations());
     }
 
@@ -51,7 +49,7 @@ public class MapController {
      */
     @GetMapping("/api/hospitals")
     @ResponseBody
-    public ResponseEntity<List<MapLocationDTO>> getHospitalLocations() {
+    public ResponseEntity<List<MapDTO>> getHospitalLocations() {
         return ResponseEntity.ok(mapService.getHospitalLocations());
     }
 
@@ -61,7 +59,7 @@ public class MapController {
      */
     @GetMapping("/api/drugs")
     @ResponseBody
-    public ResponseEntity<List<MapLocationDTO>> getDrugLocations() {
+    public ResponseEntity<List<MapDTO>> getDrugLocations() {
         return ResponseEntity.ok(mapService.getDrugLocations());
     }
 }

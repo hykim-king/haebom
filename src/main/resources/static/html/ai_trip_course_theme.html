@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해봄트립 - AI콕콕 플래너 테마 선택</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/ai_trip_course_theme.css">
+</head>
+<body>
+
+<div th:replace="~{main/header :: header}"></div>
+
+<div class="scenery-bg">
+    <div class="clouds"></div>
+    <div class="clouds clouds-2"></div>
+    <div class="mountains-bg"></div>
+</div>
+
+<div class="card-wrapper container">
+    <div class="planner-card">
+        <div class="card-header-custom">
+            <div class="logo-text">AI콕콕 플래너</div>
+            <div class="step-indicator">
+                <span class="step-inactive">01</span>
+                <div class="step-line"></div>
+                <span class="step-inactive">02</span>
+                <div class="step-line"></div>
+                <span class="step-active">03</span>
+            </div>
+        </div>
+
+        <div class="sub-title">마지막으로 이번 여행의 테마를 정해볼까요?</div>
+        <h1 class="main-title">
+            원하는 여행 테마를 2개 이상<br>
+            선택해 주세요. (최대 4개)
+        </h1>
+
+        <div class="theme-grid" id="themeGrid">
+            <div class="theme-item" data-theme="산">
+                <div class="theme-circle"><div class="icon-box"><i class="fa-solid fa-mountain-sun"></i></div></div>
+                <div class="theme-text">산</div>
+            </div>
+            <div class="theme-item" data-theme="실내 여행지">
+                <div class="theme-circle"><div class="icon-box"><i class="fa-solid fa-building-columns"></i></div></div>
+                <div class="theme-text">실내 여행지</div>
+            </div>
+            <div class="theme-item" data-theme="액티비티">
+                <div class="theme-circle"><div class="icon-box"><i class="fa-solid fa-person-hiking"></i></div></div>
+                <div class="theme-text">액티비티</div>
+            </div>
+            <div class="theme-item" data-theme="문화·역사">
+                <div class="theme-circle"><div class="icon-box"><i class="fa-solid fa-landmark"></i></div></div>
+                <div class="theme-text">문화·역사</div>
+            </div>
+            <div class="theme-item" data-theme="테마파크">
+                <div class="theme-circle"><div class="icon-box"><i class="fa-solid fa-ticket"></i></div></div>
+                <div class="theme-text">테마파크</div>
+            </div>
+            <div class="theme-item" data-theme="카페">
+                <div class="theme-circle"><div class="icon-box"><i class="fa-solid fa-mug-hot"></i></div></div>
+                <div class="theme-text">카페</div>
+            </div>
+            <div class="theme-item" data-theme="전통시장">
+                <div class="theme-circle"><div class="icon-box"><i class="fa-solid fa-store"></i></div></div>
+                <div class="theme-text">전통시장</div>
+            </div>
+            <div class="theme-item" data-theme="축제">
+                <div class="theme-circle"><div class="icon-box"><i class="fa-solid fa-holly-berry"></i></div></div>
+                <div class="theme-text">축제</div>
+            </div>
+        </div>
+
+        <div class="btn-group-custom">
+            <button class="btn-prev" onclick="history.back()">이전</button>
+            <button class="btn-finish" id="finishBtn" disabled>완료</button>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{main/footer :: footer}"></div>
+
+<script>
+    // ... [기존 스크립트 코드 유지] ...
+    const themeItems = document.querySelectorAll('.theme-item');
+    const finishBtn = document.getElementById('finishBtn');
+    let selectedThemes = new Set();
+
+    themeItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const theme = item.getAttribute('data-theme');
+            if (selectedThemes.has(theme)) {
+                selectedThemes.delete(theme);
+                item.classList.remove('selected');
+            } else {
+                if (selectedThemes.size >= 4) {
+                    alert("최대 4개까지만 선택 가능합니다.");
+                    return;
+                }
+                selectedThemes.add(theme);
+                item.classList.add('selected');
+            }
+            finishBtn.disabled = selectedThemes.size < 2;
+        });
+    });
+
+    finishBtn.addEventListener('click', () => {
+        const selectedArray = Array.from(selectedThemes);
+        alert(`플래너 생성이 완료되었습니다!\n선택한 테마: ${selectedArray.join(', ')}`);
+        // 추후 결과 페이지가 있다면 location.href = 'ai_trip_course_result.html'; 등을 추가하세요.
+    });
+</script>
+</body>
+</html>

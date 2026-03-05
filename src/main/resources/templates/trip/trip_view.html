@@ -51,7 +51,7 @@
                     <span id="detail-views" th:text="${vo != null ? vo.tripInqCnt : 0}">0</span>
                 </span>
         </div>
-        <a class="flex items-center gap-1.5 font-bold text-orange-600 hover:underline" th:href="@{/trip/trip}">
+        <a th:href="@{/trip/trip}" class="flex items-center gap-1.5 font-bold text-orange-600 hover:underline">
             <i data-lucide="list" size="18"></i> 목록보기
         </a>
     </div>

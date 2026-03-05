@@ -1,6 +1,5 @@
 package com.pcwk.ehr.util.map;
 
-import com.pcwk.ehr.cmn.MapLocationDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +12,8 @@ public class MapRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    // ✅ 여행지 위도/경도 조회 (trip 테이블)
-    public List<MapLocationDTO> findTripLocations() {
+    // 여행지 위도/경도 조회 (trip 테이블)
+    public List<MapDTO> findTripLocations() {
         String sql = """
             SELECT TRIP_CONTS_ID  AS id,
                    TRIP_NM        AS name,
@@ -29,7 +28,7 @@ public class MapRepository {
               AND TRIP_LOT != 0
         """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> MapLocationDTO.builder()
+        return jdbcTemplate.query(sql, (rs, rowNum) -> MapDTO.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
                 .lat(rs.getDouble("lat"))
@@ -40,8 +39,8 @@ public class MapRepository {
         );
     }
 
-    // ✅ 병원 위도/경도 조회 (hospital 테이블)
-    public List<MapLocationDTO> findHospitalLocations() {
+    // 병원 위도/경도 조회 (hospital 테이블)
+    public List<MapDTO> findHospitalLocations() {
         String sql = """
             SELECT HP_NO        AS id,
                    HP_NM        AS name,
@@ -57,7 +56,7 @@ public class MapRepository {
               AND HP_LOT != 0
         """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> MapLocationDTO.builder()
+        return jdbcTemplate.query(sql, (rs, rowNum) -> MapDTO.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
                 .lat(rs.getDouble("lat"))
@@ -69,8 +68,8 @@ public class MapRepository {
         );
     }
 
-    // ✅ 약국 위도/경도 조회 (drug 테이블)
-    public List<MapLocationDTO> findDrugLocations() {
+    // 약국 위도/경도 조회 (drug 테이블)
+    public List<MapDTO> findDrugLocations() {
         String sql = """
             SELECT DS_NO    AS id,
                    DS_NM    AS name,
@@ -86,7 +85,7 @@ public class MapRepository {
               AND DS_LOT != 0
         """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> MapLocationDTO.builder()
+        return jdbcTemplate.query(sql, (rs, rowNum) -> MapDTO.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
                 .lat(rs.getDouble("lat"))

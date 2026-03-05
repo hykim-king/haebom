@@ -1,7 +1,5 @@
 package com.pcwk.ehr.util.map;
 
-import com.pcwk.ehr.cmn.AllLocationsResponseDTO;
-import com.pcwk.ehr.cmn.MapLocationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,27 +12,27 @@ public class MapService {
     private final MapRepository mapRepository;
 
     // 여행지 목록
-    public List<MapLocationDTO> getTripLocations() {
+    public List<MapDTO> getTripLocations() {
         return mapRepository.findTripLocations();
     }
 
     // 병원 목록
-    public List<MapLocationDTO> getHospitalLocations() {
+    public List<MapDTO> getHospitalLocations() {
         return mapRepository.findHospitalLocations();
     }
 
     // 약국 목록
-    public List<MapLocationDTO> getDrugLocations() {
+    public List<MapDTO> getDrugLocations() {
         return mapRepository.findDrugLocations();
     }
 
-    // 전체 한 번에 → Map 없이 DTO로 묶어서 반환
-    public AllLocationsResponseDTO getAllLocations() {
-        List<MapLocationDTO> trips     = mapRepository.findTripLocations();
-        List<MapLocationDTO> hospitals = mapRepository.findHospitalLocations();
-        List<MapLocationDTO> drugs     = mapRepository.findDrugLocations();
+    // 전체 한 번에 → DTO로 묶어서 반환
+    public MapDTO getAllLocations() {
+        List<MapDTO> trips     = mapRepository.findTripLocations();
+        List<MapDTO> hospitals = mapRepository.findHospitalLocations();
+        List<MapDTO> drugs     = mapRepository.findDrugLocations();
 
-        return AllLocationsResponseDTO.builder()
+        return MapDTO.builder()
                 .trips(trips)
                 .hospitals(hospitals)
                 .drugs(drugs)

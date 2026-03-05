@@ -10,9 +10,9 @@
     />
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <link rel="stylesheet" href="../css/notice.css" />
-    <link rel="stylesheet" href="../css/header.css" />
-    <link rel="stylesheet" href="../css/footer.css" />
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/footer.css}"/>
+    <link rel="stylesheet" th:href="@{/css/notice_write.css}">
 </head>
 <body>
 
@@ -26,12 +26,6 @@
         </p>
     </section>
 
-    <!--
-        [핵심] form 태그에 method="get", th:action 사용
-        - method="get" : 검색어가 URL에 ?searchWord=...&searchDiv=... 형태로 붙어서 전송됨
-        - th:action     : Thymeleaf가 컨텍스트 경로를 자동으로 포함한 올바른 URL을 만들어줌
-                          (JS에서 URL을 직접 만들면 컨텍스트 경로 불일치 오류가 발생할 수 있음)
-    -->
     <form method="get" th:action="@{/notice}" id="searchForm">
         <!-- pageNo, pageSize는 숨겨서 함께 전송 -->
         <input type="hidden" name="pageNo"   value="1"  />

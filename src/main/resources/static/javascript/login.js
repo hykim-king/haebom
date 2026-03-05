@@ -33,12 +33,12 @@ $(document).ready(function () {
         const submitBtn = $(this).find('button[type="submit"]');
         const originalText = submitBtn.text();
 
-        // [유효성 검사]
-        if (password.length < 8) {
-            alert("비밀번호는 8자 이상 입력해야 합니다.");
-            $('#userEnpswd').focus();
-            return false;
-        }
+        // // [유효성 검사] 부분의 if문을 아래와 같이 변경하세요.
+        // if (password.length < 8 || password.length >= 16) {
+        //     alert("비밀번호는 8자 이상 16자 미만으로 입력해야 합니다.");
+        //     $('#userEnpswd').focus();
+        //     return false;
+        // }
 
         // 버튼 로딩 상태 시작
         toggleButtonLoading(submitBtn, true);

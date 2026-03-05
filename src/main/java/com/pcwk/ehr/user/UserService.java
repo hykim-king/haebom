@@ -77,27 +77,29 @@ public class UserService {
 
     // ✅ [추가] 비밀번호 찾기: 이메일+이름 확인 → 임시 비번 발급/저장/메일 발송
     public void resetPasswordAndSendTemp(String email, String name) {
-        UserEntity user = userRepository.findByUserEmlAddr(email)
-                .orElseThrow(() -> new RuntimeException("일치하는 사용자가 없습니다."));
+    UserEntity user = userRepository.findByUserEmlAddr(email)
+            .orElseThrow(() -> new RuntimeException("일치하는 사용자가 없습니다."));
 
-        // 이름 일치 확인 (공백 제거 비교)
-        String inputName = (name == null) ? "" : name.trim();
-        String dbName = (user.getUserNm() == null) ? "" : user.getUserNm().trim();
+    // 이름 일치 확인 (공백 제거 비교)
+    String inputName = (name == null) ? "" : name.trim();
+    String dbName = (user.getUserNm() == null) ? "" : user.getUserNm().trim();
 
-        if (!dbName.equals(inputName)) {
-            throw new RuntimeException("일치하는 사용자가 없습니다.");
-        }
-
-        // 임시 비밀번호 생성
-        String tempPw = mailService.generateTempPassword(10);
-
-        // ✅ 현재 로그인 로직이 equals 비교이므로, 일단 평문 저장(기존 코드 유지)
-        user.setUserEnpswd(tempPw);
-        userRepository.save(user);
-
-        // 이메일 발송
-        mailService.sendTempPassword(email, tempPw);
+    if (!dbName.equals(inputName)) {
+        throw new RuntimeException("일치하는 사용자가 없습니다.");
     }
+
+    // 1. 임시 비밀번호 생성 (평문)
+    String tempPw = mailService.generateTempPassword(10);
+
+    // 2. 중요: 임시 비밀번호를 암호화하여 DB용 변수에 저장
+    String encodedTempPw = passwordEncoder.encode(tempPw);
+    user.setUserEnpswd(encodedTempPw); // 암호화된 비밀번호를 세팅
+    
+    userRepository.save(user);
+
+    // 3. 사용자에게는 암호화되지 않은 '평문' 임시 비밀번호를 메일로 발송
+    mailService.sendTempPassword(email, tempPw);
+}
 
     // UserService.java 내부에 추가
 

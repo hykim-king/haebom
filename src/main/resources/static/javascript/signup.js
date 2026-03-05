@@ -61,23 +61,28 @@ function startTimer(duration, display) {
     }, 1000);
 }
 
+// signup.js의 renderThemes 함수를 아래 내용으로 교체하세요.
 function renderThemes() {
     const $container = $('#theme-container');
     if ($container.length === 0) return;
+    
+    // 소셜 가입 페이지와 동일한 3열 디자인용 클래스 적용
     const html = THEMES.map(theme => `
         <label class="cursor-pointer group block w-full select-none">
             <input type="checkbox" name="themes" value="${theme.id}" class="theme-checkbox hidden peer">
-            <div class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center gap-2 hover:border-orange-300 hover:bg-orange-50/50 transition-all h-24 relative w-full bg-white">
+            <div class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center gap-2 hover:border-orange-300 hover:bg-orange-50/50 transition-all h-24 relative w-full bg-white peer-checked:border-orange-500 peer-checked:bg-orange-50">
                 <span class="text-2xl mb-1">${theme.icon}</span>
-                <span class="text-sm font-bold text-slate-600 group-hover:text-slate-900">${theme.label}</span>
-                <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all text-orange-500">
-                    <i data-lucide="check-circle" class="w-4 h-4 fill-orange-100"></i>
+                <span class="text-xs font-bold text-slate-600 group-hover:text-slate-900">${theme.label}</span>
+                <div class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 text-orange-500 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
                 </div>
             </div>
         </label>
     `).join('');
+    
     $container.html(html);
-    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function isValidEmail(email) {
@@ -148,7 +153,7 @@ $(document).ready(function () {
                 if (res.success) {
                     clearInterval(timerInterval);
                     $('#email-timer').addClass('hidden');
-                    $('#email-verify-message').removeClass('hidden text-red-500').addClass('text-green-600 font-bold').text("✓ 이메일 인증이 완료되었습니다.");
+                    $('#email-verify-message').removeClass('hidden text-red-500').addClass('text-green-600').text("이메일 인증이 완료되었습니다.");
                     formState.isEmailVerified = true;
                     $('#verify-code, #btn-send-code, #btn-verify-code').prop('disabled', true);
                     $('#btn-send-code').text('인증 완료');
@@ -172,10 +177,49 @@ $(document).ready(function () {
         }
     });
 
-    // 4. 닉네임 로직
+    // --- [4. 닉네임 로직 통합 수정본] ---
+
+    // 1. 입력 시 상태 초기화 (사용자가 내용을 바꾸면 다시 중복 확인을 유도)
+    $('#nickname').on('input', function () {
+        $('#nickCheckDone').val('N');
+        // 확인 완료 상태였다면 다시 기본 스타일로 복구
+        $('#btn-check-nickname')
+            .text('중복 확인')
+            .removeClass('bg-green-100 text-green-700')
+            .addClass('bg-slate-100');
+    });
+
+    // 2. 중복 확인 버튼 클릭 시 (형식 검증 후 통과 시에만 AJAX 실행)
     $('#btn-check-nickname').on('click', function () {
         const nickname = $('#nickname').val().trim();
-        if (!nickname) { alert("닉네임을 입력해주세요."); $('#nickname').focus(); return; }
+        
+        // [검증 1] 빈 값 체크
+        if (!nickname) { 
+            alert("닉네임을 입력해주세요."); 
+            $('#nickname').focus(); 
+            return; 
+        }
+
+        // [검증 2] 한글 초성/모음 포함 여부 검증
+        const hasIncompleteKorean = /[ㄱ-ㅎㅏ-ㅣ]/.test(nickname);
+        if (hasIncompleteKorean) {
+            alert("닉네임 형식이 올바르지 않습니다.\n'ㄱㄴㄷ'이나 'ㅏㅑㅓ' 같은 초성/모음은 사용할 수 없습니다.");
+            
+            // 잘못된 입력 시 상태 초기화 및 포커스
+            $('#nickCheckDone').val('N');
+            $('#nickname').val('').focus(); // 입력창을 비우고 포커스
+            return; // 🛑 여기서 중단되므로 아래 AJAX가 실행되지 않음
+        }
+
+        // [검증 3] 글자 수 체크 (2~10자)
+        if (nickname.length < 2 || nickname.length > 10) {
+            alert("닉네임은 2자 이상 10자 이하로 입력해주세요.");
+            $('#nickname').focus();
+            return;
+        }
+
+        // [검증 통과 시 AJAX 실행]
+        const $btn = $(this);
         $.ajax({
             url: signupConfig.endpoints.checkNickname,
             type: 'GET',
@@ -184,20 +228,20 @@ $(document).ready(function () {
                 if (isAvailable === true || isAvailable === "true") {
                     alert("사용 가능한 닉네임입니다.");
                     $('#nickCheckDone').val('Y');
-                    $('#btn-check-nickname').text('확인 완료').removeClass('bg-slate-100').addClass('bg-green-100 text-green-700');
+                    $btn.text('확인 완료')
+                        .removeClass('bg-slate-100')
+                        .addClass('bg-green-100 text-green-700');
                 } else {
                     alert("이미 사용 중인 닉네임입니다.");
                     $('#nickCheckDone').val('N');
+                    $('#nickname').focus();
                 }
+            },
+            error: function() {
+                alert("중복 확인 중 오류가 발생했습니다.");
             }
         });
     });
-
-    $('#nickname').on('input', function () {
-        $('#nickCheckDone').val('N');
-        $('#btn-check-nickname').text('중복 확인').removeClass('bg-green-100 text-green-700').addClass('bg-slate-100');
-    });
-
     // 5. 전화번호 로직 (복구됨!)
     $('#phone').on('input', function () {
         let num = $(this).val().replace(/[^0-9]/g, "");

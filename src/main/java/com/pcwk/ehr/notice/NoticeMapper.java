@@ -21,4 +21,8 @@ public interface NoticeMapper extends WorkDiv<NoticeVO> {
     int getUserIdByEmail(String email);
 
     UserVO getLoginUserInfo(String email);
+
+    int getLastNtcNo();
+
+    int doRetrieveCount(NoticeVO inVO);
 }

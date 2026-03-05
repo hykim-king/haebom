@@ -32,7 +32,7 @@
                 <div class="col-md-6">
                     <p class="m-0 text-muted">
                         총
-                        <span id="total-count" class="text-primary fw-bold" th:text="${list.size()}">0</span>건의
+                        <span id="total-count" class="text-primary fw-bold" th:text="${totalCount}">0</span>건의
                         안내가 있습니다.
                     </p>
                 </div>
@@ -100,21 +100,35 @@
         </div>
     </div>
 
-    <nav class="mt-5">
+    <nav class="mt-5" th:if="${totalPages > 1}">
         <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-                <a class="page-link" href="#"
-                ><i data-lucide="chevron-left" size="20"></i
-                ></a>
+
+            <!-- 이전 버튼 -->
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/notice/notice(pageNo=${currentPage - 1}, pageSize=${searchVO.pageSize}, searchWord=${searchVO.searchWord}, searchDiv=${searchVO.searchDiv})}">
+                    <i data-lucide="chevron-left" size="20"></i>
+                </a>
             </li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-                <a class="page-link" href="#"
-                ><i data-lucide="chevron-right" size="20"></i
-                ></a>
+
+            <!-- 페이지 번호 -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(1, totalPages)}"
+                th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:text="${i}"
+                   th:href="@{/notice/notice(pageNo=${i}, pageSize=${searchVO.pageSize}, searchWord=${searchVO.searchWord}, searchDiv=${searchVO.searchDiv})}">
+                </a>
             </li>
+
+            <!-- 다음 버튼 -->
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/notice/notice(pageNo=${currentPage + 1}, pageSize=${searchVO.pageSize}, searchWord=${searchVO.searchWord}, searchDiv=${searchVO.searchDiv})}">
+                    <i data-lucide="chevron-right" size="20"></i>
+                </a>
+            </li>
+
         </ul>
     </nav>
 </main>

@@ -41,6 +41,16 @@ public class SupportController {
         searchVO.setPageNo(pageNo);
         searchVO.setPageSize(pageSize);
 
+        if (loginUser != null && "N".equals(userMngrYn)) {
+
+            if (loginUser.getUserNo() == null) {
+                int recoveredNo = supportService.getUserIdByEmail(loginUser.getUserEmlAddr());
+                if (recoveredNo > 0) loginUser.setUserNo(recoveredNo);
+            }
+
+            searchVO.setFilterRegNo(loginUser.getUserNo());
+        }
+
         List<SupportVO> list = supportService.doRetrieve(searchVO);
 
         int totalCount = (list != null && !list.isEmpty()) ? list.get(0).getTotalCnt() : 0;

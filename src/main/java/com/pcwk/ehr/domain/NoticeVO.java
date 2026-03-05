@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,6 +15,8 @@ import lombok.NoArgsConstructor;
 public class NoticeVO extends DTO {
 
     private UserVO userVO;
+
+    private List<AttachFileVO> fileList;  // @Data가 getFileList(), setFileList() 자동 생성
     
     private int ntcNo; // NTC_NO (NUMBER) : 공지사항 고유번호
     private String ntcTtl; // NTC_TTL (NVARCHAR2) : 제목
@@ -23,4 +27,6 @@ public class NoticeVO extends DTO {
     private String ntcModHm; // NTC_MOD_HM (CHAR) : 수정시간 (HH24MI)
     private int regNo; // REG_NO (NUMBER) : 등록자 번호
     private int modNo; // MOD_NO (NUMBER) : 수정자 번호
+
+
 }

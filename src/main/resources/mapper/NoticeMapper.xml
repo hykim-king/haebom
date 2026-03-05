@@ -3,11 +3,10 @@
 <mapper namespace="com.pcwk.ehr.notice.NoticeMapper">
 
 <select id="getLoginUserInfo" parameterType="string" resultType="UserVO">
-        SELECT
-            USER_NO       as userNo,
-            USER_NM       as userNm,
-            USER_EML_ADDR as userEmlAddr,
-            USER_MNGR_YN  as userMngrYn
+        SELECT USER_NO       as userNo,
+               USER_NM       as userNm,
+               USER_EML_ADDR as userEmlAddr,
+               USER_MNGR_YN  as userMngrYn
         FROM ss_user
         WHERE USER_EML_ADDR = #{email}
     </select>
@@ -33,9 +32,9 @@
                     NTC_NO,
                     NTC_TTL,
                     NTC_CN,
-                    NTC_REG,
+                    TO_CHAR(TO_DATE(NTC_REG, 'YYYYMMDD'), 'YYYY.MM.DD') as ntcReg,
                     NTC_REG_HM,
-                    NTC_MOD,
+                    TO_CHAR(TO_DATE(NTC_MOD, 'YYYYMMDD'), 'YYYY.MM.DD') as ntcMod,
                     NTC_MOD_HM,
                     REG_NO,
                     MOD_NO,
@@ -65,6 +64,23 @@
         <![CDATA[ WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1 ]]>
     </select>
 
+    <select id="doRetrieveCount" parameterType="NoticeVO" resultType="int">
+        SELECT COUNT(*)
+        FROM NOTICE
+        LEFT JOIN SS_USER ON NOTICE.REG_NO = SS_USER.USER_NO
+        WHERE 1 = 1
+        <if test="searchWord != null and searchWord != ''">
+            <choose>
+                <when test="searchDiv == '10'">
+                    AND NTC_TTL LIKE '%' || #{searchWord} || '%'
+                </when>
+                <when test="searchDiv == '20'">
+                    AND NTC_CN LIKE '%' || #{searchWord} || '%'
+                </when>
+            </choose>
+        </if>
+    </select>
+
     <insert id="doSave" parameterType="NoticeVO">
         INSERT INTO notice (NTC_NO,
                             NTC_TTL,
@@ -90,9 +106,9 @@
         SELECT NTC_NO,
                NTC_TTL,
                NTC_CN,
-               NTC_REG,
+               TO_CHAR(TO_DATE(NTC_REG, 'YYYYMMDD'), 'YYYY.MM.DD') as ntcReg,
                NTC_REG_HM,
-               NTC_MOD,
+               TO_CHAR(TO_DATE(NTC_MOD, 'YYYYMMDD'), 'YYYY.MM.DD') as ntcMod,
                NTC_MOD_HM,
                REG_NO,
                MOD_NO,
@@ -133,6 +149,11 @@
     <select id="getAll" resultType="NoticeVO">
         SELECT *
         FROM NOTICE
+    </select>
+
+    <select id="getLastNtcNo" resultType="int">
+        SELECT SEQ_NTC_NO.CURRVAL
+        FROM DUAL
     </select>
 
 </mapper>

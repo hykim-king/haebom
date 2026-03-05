@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>여행지 지도</title>
+
+    <!-- 카카오맵 SDK: YOUR_APP_KEY 자리에 발급받은 키 넣기 -->
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&autoload=false">
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            background: #0f1117;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── 상단 헤더 ── */
+        header {
+            padding: 14px 24px;
+            background: #1a1d27;
+            border-bottom: 1px solid #2a2d3a;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #e8eaf0;
+            flex-shrink: 0;
+        }
+
+        /* ── 필터 버튼 ── */
+        .filter-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: 1.5px solid transparent;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            background: #2a2d3a;
+            color: #9aa0b4;
+        }
+
+        .filter-btn.active { color: #fff; }
+
+        .filter-btn[data-type="trip"]     { border-color: #4e9bff; }
+        .filter-btn[data-type="hospital"] { border-color: #ff6b6b; }
+        .filter-btn[data-type="drug"]     { border-color: #51cf66; }
+
+        .filter-btn[data-type="trip"].active     { background: #4e9bff; color: #fff; }
+        .filter-btn[data-type="hospital"].active { background: #ff6b6b; color: #fff; }
+        .filter-btn[data-type="drug"].active     { background: #51cf66; color: #0f1117; }
+
+        /* 카운트 뱃지 */
+        .filter-btn span {
+            background: rgba(255,255,255,0.18);
+            border-radius: 10px;
+            padding: 1px 7px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+
+        /* ── 지도 영역 ── */
+        #map {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* ── 정보창 (커스텀 오버레이) ── */
+        .info-overlay {
+            background: #1a1d27;
+            border: 1px solid #2e3346;
+            border-radius: 12px;
+            padding: 12px 16px;
+            min-width: 200px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            position: relative;
+            transform: translateY(-100%) translateY(-16px);
+        }
+
+        .info-overlay::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: #2e3346;
+            border-bottom: 0;
+        }
+
+        .info-overlay .badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+        .badge.trip     { background: #4e9bff22; color: #4e9bff; }
+        .badge.hospital { background: #ff6b6b22; color: #ff6b6b; }
+        .badge.drug     { background: #51cf6622; color: #51cf66; }
+
+        .info-overlay .place-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #e8eaf0;
+            margin-bottom: 4px;
+        }
+        .info-overlay .place-addr {
+            font-size: 12px;
+            color: #6b7290;
+            line-height: 1.5;
+        }
+        .info-overlay .place-tel {
+            font-size: 12px;
+            color: #4e9bff;
+            margin-top: 4px;
+        }
+        .info-overlay .close-btn {
+            position: absolute;
+            top: 8px; right: 10px;
+            background: none;
+            border: none;
+            color: #6b7290;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        /* ── 로딩 오버레이 ── */
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: #0f1117;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            gap: 16px;
+        }
+
+        #loading .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid #2a2d3a;
+            border-top-color: #4e9bff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #loading p { color: #6b7290; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<!-- 로딩 -->
+<div id="loading">
+    <div class="spinner"></div>
+    <p>지도를 불러오는 중...</p>
+</div>
+
+<!-- 헤더 -->
+<header>
+    <h1>🗺️ 여행 지도</h1>
+    <div class="filter-group">
+        <button class="filter-btn active" data-type="trip">
+            🔵 여행지 <span id="count-trip">0</span>
+        </button>
+        <button class="filter-btn active" data-type="hospital">
+            🔴 병원 <span id="count-hospital">0</span>
+        </button>
+        <button class="filter-btn active" data-type="drug">
+            🟢 약국 <span id="count-drug">0</span>
+        </button>
+    </div>
+</header>
+
+<!-- 지도 -->
+<div id="map"></div>
+
+<script>
+    // ═══════════════════════════════════════════
+    //  설정값 (상수)
+    // ═══════════════════════════════════════════
+    const API_BASE = '/map/api';
+
+    const TRIP_COLOR     = '#4e9bff';
+    const HOSPITAL_COLOR = '#ff6b6b';
+    const DRUG_COLOR     = '#51cf66';
+
+    // ═══════════════════════════════════════════
+    //  전역 상태 - 객체/Map 없이 변수 분리
+    // ═══════════════════════════════════════════
+    let kakaoMap;
+    let tripMarkers     = [];   // 여행지 마커 배열
+    let hospitalMarkers = [];   // 병원 마커 배열
+    let drugMarkers     = [];   // 약국 마커 배열
+    let activeOverlay   = null;
+    let showTrip     = true;
+    let showHospital = true;
+    let showDrug     = true;
+
+    // ═══════════════════════════════════════════
+    //  카카오맵 초기화
+    // ═══════════════════════════════════════════
+    kakao.maps.load(() => {
+        const container = document.getElementById('map');
+        kakaoMap = new kakao.maps.Map(container, {
+            center: new kakao.maps.LatLng(36.5, 127.8),
+            level: 13,
+        });
+        loadAllMarkers();
+    });
+
+    // ═══════════════════════════════════════════
+    //  API 호출 - 엔티티 컬럼명 그대로 사용
+    //  trip     → tripNm,  tripLat, tripLot, tripAddr
+    //  hospital → hpNm,    hpLat,   hpLot,   hpAddr, hpTelno1
+    //  drug     → dsNm,    dsLat,   dsLot,   dsAddr,  dsTelno
+    // ═══════════════════════════════════════════
+    async function loadAllMarkers() {
+        try {
+            const [trips, hospitals, drugs] = await Promise.all([
+                fetch(`${API_BASE}/trips`).then(r => r.json()),
+                fetch(`${API_BASE}/hospitals`).then(r => r.json()),
+                fetch(`${API_BASE}/drugs`).then(r => r.json()),
+            ]);
+
+            trips.forEach(item     => addTripMarker(item));
+            hospitals.forEach(item => addHospitalMarker(item));
+            drugs.forEach(item     => addDrugMarker(item));
+
+            document.getElementById('count-trip').textContent     = tripMarkers.length;
+            document.getElementById('count-hospital').textContent = hospitalMarkers.length;
+            document.getElementById('count-drug').textContent     = drugMarkers.length;
+
+            document.getElementById('loading').style.display = 'none';
+
+        } catch (err) {
+            console.error('데이터 로딩 실패:', err);
+            document.getElementById('loading').innerHTML =
+                '<p style="color:#ff6b6b">데이터를 불러오지 못했습니다.<br>백엔드 서버를 확인해주세요.</p>';
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    //  타입별 마커 생성 - 엔티티 컬럼명 그대로 접근
+    // ═══════════════════════════════════════════
+    function addTripMarker(trip) {
+        const position = new kakao.maps.LatLng(trip.tripLat, trip.tripLot);
+        const marker   = createMarker(position, TRIP_COLOR, trip.tripNm);
+
+        kakao.maps.event.addListener(marker, 'click', () => {
+            openInfoOverlay(trip.tripNm, trip.tripAddr, null, position, '🔵', '여행지', 'trip');
+        });
+        tripMarkers.push(marker);
+    }
+
+    function addHospitalMarker(hospital) {
+        const position = new kakao.maps.LatLng(hospital.hpLat, hospital.hpLot);
+        const marker   = createMarker(position, HOSPITAL_COLOR, hospital.hpNm);
+
+        kakao.maps.event.addListener(marker, 'click', () => {
+            openInfoOverlay(hospital.hpNm, hospital.hpAddr, hospital.hpTelno1, position, '🔴', '병원', 'hospital');
+        });
+        hospitalMarkers.push(marker);
+    }
+
+    function addDrugMarker(drug) {
+        const position = new kakao.maps.LatLng(drug.dsLat, drug.dsLot);
+        const marker   = createMarker(position, DRUG_COLOR, drug.dsNm);
+
+        kakao.maps.event.addListener(marker, 'click', () => {
+            openInfoOverlay(drug.dsNm, drug.dsAddr, drug.dsTelno, position, '🟢', '약국', 'drug');
+        });
+        drugMarkers.push(marker);
+    }
+
+    // 마커 공통 생성 헬퍼
+    function createMarker(position, color, title) {
+        const markerImage = new kakao.maps.MarkerImage(
+            makeMarkerSvg(color),
+            new kakao.maps.Size(28, 28),
+            { offset: new kakao.maps.Point(14, 14) }
+        );
+        return new kakao.maps.Marker({ position, map: kakaoMap, image: markerImage, title });
+    }
+
+    // ═══════════════════════════════════════════
+    //  정보창 열기 / 닫기
+    // ═══════════════════════════════════════════
+    function openInfoOverlay(name, address, tel, position, emoji, label, cssClass) {
+        if (activeOverlay) activeOverlay.setMap(null);
+
+        const content = `
+    <div class="info-overlay">
+      <button class="close-btn" onclick="closeOverlay()">✕</button>
+      <div class="badge ${cssClass}">${emoji} ${label}</div>
+      <div class="place-name">${name}</div>
+      ${address ? `<div class="place-addr">📍 ${address}</div>` : ''}
+      ${tel     ? `<div class="place-tel">📞 ${tel}</div>`     : ''}
+    </div>
+  `;
+
+        activeOverlay = new kakao.maps.CustomOverlay({ position, content, map: kakaoMap, yAnchor: 1 });
+    }
+
+    function closeOverlay() {
+        if (activeOverlay) { activeOverlay.setMap(null); activeOverlay = null; }
+    }
+
+    // ═══════════════════════════════════════════
+    //  필터 버튼 - if/else로 타입 분기 (객체 키 접근 없음)
+    // ═══════════════════════════════════════════
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.dataset.type;
+
+            if (type === 'trip') {
+                showTrip = !showTrip;
+                btn.classList.toggle('active', showTrip);
+                tripMarkers.forEach(m => m.setMap(showTrip ? kakaoMap : null));
+
+            } else if (type === 'hospital') {
+                showHospital = !showHospital;
+                btn.classList.toggle('active', showHospital);
+                hospitalMarkers.forEach(m => m.setMap(showHospital ? kakaoMap : null));
+
+            } else if (type === 'drug') {
+                showDrug = !showDrug;
+                btn.classList.toggle('active', showDrug);
+                drugMarkers.forEach(m => m.setMap(showDrug ? kakaoMap : null));
+            }
+        });
+    });
+
+    // ═══════════════════════════════════════════
+    //  SVG 마커 이미지 헬퍼
+    // ═══════════════════════════════════════════
+    function makeMarkerSvg(color) {
+        const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+      <circle cx="14" cy="14" r="10" fill="${color}" opacity="0.25"/>
+      <circle cx="14" cy="14" r="6"  fill="${color}"/>
+      <circle cx="14" cy="14" r="3"  fill="white"/>
+    </svg>
+  `;
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+</script>
+</body>
+</html>

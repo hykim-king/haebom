@@ -41,7 +41,7 @@ class NoticeServiceTest {
 
         // 1. User 정보 가져오기
         adminUser = new UserVO();
-        adminUser.setUserNo(135);
+        adminUser.setUserNo(1);
         adminUser.setUserMngrYn("Y");
 
         log.info(adminUser.getUserNo());
@@ -142,7 +142,7 @@ class NoticeServiceTest {
         log.info("└──────────────────────────┘");
 
         // 2. 테스트 데이터 10건 생성 및 즉시 저장 (실제 DB에 INSERT 쿼리가 10번 날아감)
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 30; i++) {
             NoticeVO vo = new NoticeVO();
             vo.setNtcNo(i);
             vo.setNtcTtl("공지사항 제목" + i);

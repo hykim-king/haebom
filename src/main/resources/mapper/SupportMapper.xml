@@ -3,65 +3,57 @@
 <mapper namespace="com.pcwk.ehr.support.SupportMapper">
 
 <insert id="doSave" parameterType="SupportVO">
-        INSERT INTO SUPPORT (
-            SUP_NO,
-            SUP_CN,
-            SUP_ANS_CN,
-            SUP_REG,
-            SUP_REG_HM,
-            REG_NO,
-            SUP_YN
-        ) VALUES (
-             SEQ_SUP_NO.NEXTVAL,
-             #{supCn},
-             #{supAnsCn},
-             TO_CHAR(SYSDATE, 'YYYYMMDD'),
-             TO_CHAR(SYSDATE, 'HH24MI'),
-             #{regNo},
-             'N'
-                 )
+        INSERT INTO SUPPORT (SUP_NO,
+                             SUP_CN,
+                             SUP_ANS_CN,
+                             SUP_REG,
+                             SUP_REG_HM,
+                             REG_NO,
+                             SUP_YN)
+        VALUES (SEQ_SUP_NO.NEXTVAL,
+                #{supCn},
+                #{supAnsCn},
+                TO_CHAR(SYSDATE, 'YYYYMMDD'),
+                TO_CHAR(SYSDATE, 'HH24MI'),
+                #{regNo},
+                'N')
     </insert>
 
     <select id="doSelectOne" parameterType="SupportVO">
-        SELECT SUP_NO, SUP_CN, SUP_ANS_CN,
-               SUP_REG, SUP_REG_HM,
-               SUP_ANS_REG, SUP_ANS_REG_HM,
-               REG_NO, SUP_YN
+        SELECT SUP_NO,
+               SUP_CN,
+               SUP_ANS_CN,
+               SUP_REG,
+               SUP_REG_HM,
+               SUP_ANS_REG,
+               SUP_ANS_REG_HM,
+               REG_NO,
+               SUP_YN
         FROM SUPPORT
         WHERE sup_no = #{supNo}
     </select>
 
-<select id="doRetrieve" parameterType="DTO" resultType="SupportVO">
-        SELECT *
-        FROM (
-            SELECT ROWNUM AS rnum, T1.*
-            FROM (
-                SELECT
-                    t1.SUP_NO,
-                    t1.SUP_CN,
-                    t1.SUP_ANS_CN,
-                    t1.SUP_REG,
-                    t1.SUP_REG_HM,
-                    t1.SUP_ANS_REG,
-                    t1.SUP_ANS_REG_HM,
-                    t1.REG_NO,
-                    t1.SUP_YN,
-                    COUNT(*) OVER() as totalCnt
-            FROM support t1
-            LEFT JOIN SS_USER t2 ON t1.REG_NO = t2.USER_NO
-            WHERE 1 = 1
-            ) T1
-            <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
-        ) TT1
-        <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+    <select id="doRetrieve" parameterType="SupportVO" resultType="SupportVO">
+        SELECT * FROM (
+            SELECT ROWNUM AS rn, a.* FROM (
+                SELECT s.*, COUNT(*) OVER() AS total_cnt
+                FROM SUPPORT s
+                WHERE 1=1
+                <!-- ✅ 이 부분 추가 -->
+                <if test="filterRegNo != null">
+                    AND REG_NO = #{filterRegNo}
+                </if>
+                ORDER BY SUP_NO DESC
+            ) a WHERE ROWNUM &lt;= #{pageNo} * #{pageSize}
+        ) WHERE rn > (#{pageNo} - 1) * #{pageSize}
     </select>
 
     <update id="doUpdate" parameterType="SupportVO">
         UPDATE SUPPORT
-        SET SUP_ANS_CN      = #{supAnsCn},
-            SUP_ANS_REG = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+        SET SUP_ANS_CN     = #{supAnsCn},
+            SUP_ANS_REG    = TO_CHAR(SYSDATE, 'YYYYMMDD'),
             SUP_ANS_REG_HM = TO_CHAR(SYSDATE, 'HH24MI'),
-            SUP_YN      = #{supYn}
+            SUP_YN         = #{supYn}
         WHERE SUP_NO = #{supNo}
     </update>
 
@@ -69,7 +61,7 @@
         SELECT SUP_NO,
                SUP_CN,
                SUP_ANS_CN,
-               TO_CHAR(TO_DATE(SUP_REG, 'YYYYMMDD'), 'YYYY.MM.DD') AS SUP_REG,
+               TO_CHAR(TO_DATE(SUP_REG, 'YYYYMMDD'), 'YYYY.MM.DD')     AS SUP_REG,
                SUP_REG_HM,
                TO_CHAR(TO_DATE(SUP_ANS_REG, 'YYYYMMDD'), 'YYYY.MM.DD') AS SUP_ANS_REG,
                SUP_ANS_REG,
@@ -80,15 +72,19 @@
     </select>
 
     <select id="getCount">
-        SELECT COUNT(*) FROM SUPPORT
+        SELECT COUNT(*)
+        FROM SUPPORT
     </select>
 
     <delete id="deleteAll">
-        DELETE FROM SUPPORT
+        DELETE
+        FROM SUPPORT
     </delete>
 
     <delete id="doDelete" parameterType="SupportVO">
-        DELETE FROM SUPPORT WHERE SUP_NO = #{supNo}
+        DELETE
+        FROM SUPPORT
+        WHERE SUP_NO = #{supNo}
     </delete>
 
     <select id="getUserIdByEmail" parameterType="string" resultType="int">

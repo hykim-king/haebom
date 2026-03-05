@@ -24,4 +24,6 @@ public interface NoticeService extends WorkDiv<NoticeVO> {
     int getUserIdByEmail(String email);
 
     UserVO getLoginUserInfo(String email);
+
+    int doRetrieveCount(NoticeVO inVO);
 }

@@ -10,16 +10,14 @@ import java.util.List;
 @Service
 public class RelationServiceImpl implements RelationService {
 
-
-
-     @Override
+    @Override
     public List<RelationVO> doRetrieve(DTO param) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public RelationVO doSelectOne(RelationVO param) {
-        throw new UnsupportedOperationException(); 
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -35,11 +33,15 @@ public class RelationServiceImpl implements RelationService {
     @Override
     public int doDelete(RelationVO param) {
         throw new UnsupportedOperationException();
-    }   
-
+    }
 
     @Autowired
     private RelationMapper relationMapper;
+
+    @Override
+    public int existsFavorite(RelationVO vo) {
+        return relationMapper.existsFavorite(vo);
+    }
 
     @Override
     public int FavoriteStatus(RelationVO vo) {
@@ -75,4 +77,18 @@ public class RelationServiceImpl implements RelationService {
     public List<RelationVO> getAll() {
         return relationMapper.getAll();
     }
+
+    @Override
+    public int toggleFavorite(RelationVO vo) {
+        int exists = relationMapper.existsFavorite(vo);
+
+        if (exists > 0) {
+            // 이미 찜 -> 취소
+            return relationMapper.deleteFavorite(vo);
+        } else {
+            // 찜 안됨 -> 추가
+            return relationMapper.FavoriteStatus(vo);
+        }
+    }
+
 }

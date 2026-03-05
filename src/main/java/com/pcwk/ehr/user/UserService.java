@@ -70,6 +70,7 @@ public class UserService {
         UserVO vo = new UserVO();
         vo.setUserNick(user.getUserNick());
         vo.setUserEmlAddr(user.getUserEmlAddr());
+        vo.setUserNo(user.getUserNo());
         vo.setUserNm(user.getUserNm());
         return vo;
     }

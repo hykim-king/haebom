@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <title>해봄트립 - 여행지 상세</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -35,12 +37,14 @@
                 th:text="${vo != null and vo.tripTagNm != null and vo.tripTagNm != '' ? vo.tripTagNm : '관련 테마 없음'}">
             </div>
         </div>
+        <input type="hidden" name="tripContsId" id="tripContsId" th:value="${vo != null ? vo.tripContsId : ''}" />
 
         <div class="flex justify-between items-center mb-6">
             <div class="flex gap-4 text-gray-500 text-sm font-medium">
-                <button onclick="handleLike()" class="flex items-center gap-1.5 hover:text-red-500 transition-colors">
+                <button type="button" onclick="handleLike()"
+                    class="flex items-center gap-1.5 hover:text-red-500 transition-colors">
                     <i data-lucide="heart" id="like-icon" size="18"></i>
-                    <span id="detail-likes" class="text-red-500 font-bold">0</span>
+                    <span id="detail-likes" class="font-bold" th:text="${favoriteCount}">0</span>
                 </button>
                 <span class="flex items-center gap-1.5">
                     <i data-lucide="eye" size="18"></i>
@@ -57,7 +61,7 @@
                 class="w-full h-[450px] object-cover rounded-[32px] mb-12 shadow-lg bg-gray-100">
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 mb-16 border-b pb-16">
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-16 mb-16 border-b pb-16">
             <div class="space-y-8">
                 <h3 class="text-lg font-bold flex items-center gap-2">
                     <span class="w-1.5 h-5 bg-orange-600 rounded-full"></span> 여행지 정보

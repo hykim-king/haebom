@@ -10,6 +10,8 @@ public interface RelationService extends WorkDiv<RelationVO>  {
     int FavoriteStatus(RelationVO vo);
     int getCount(int tripContsId);
     int deleteFavorite(RelationVO vo);
+     int toggleFavorite(RelationVO vo);
+     int existsFavorite(RelationVO vo);
 
     // 마이페이지 관련
     int VisitedStatus(RelationVO vo);

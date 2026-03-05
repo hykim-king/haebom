@@ -4,21 +4,35 @@
 
  <mapper namespace="com.pcwk.ehr.relation.RelationMapper">
    
+
+  <select id="existsFavorite" parameterType="RelationVO" resultType="int">
+  SELECT COUNT(*)
+  FROM relation
+  WHERE user_no = #{userNo}
+    AND trip_conts_id = #{tripContsId}
+    AND rel_clsf = 10
+  </select>
+
+
     <!-- 여행지 페이지 내의 찜하기 -->
-    <update id="FavoriteStatus" parameterType="RelationVO">
-    
-    UPDATE RELATION
-       SET REL_CLSF = 10
-     WHERE USER_NO = #{userNo}         
-       AND TRIP_CONTS_ID = #{tripContsId} 
-    
-     </update>
+  <insert id="FavoriteStatus" parameterType="RelationVO">
+    INSERT INTO relation (
+        rel_no, 
+        rel_clsf, 
+        user_no, 
+        trip_conts_id
+    ) VALUES (
+        (SELECT NVL(MAX(rel_no), 0) + 1 FROM relation), 10,
+        #{userNo}, 
+        #{tripContsId}
+    )
+  </insert>
 
     <!--해당 여행지 페이지에서 보는 찜수 카운트-->
      <select id="getCount" parameterType="int" resultType="int">
         SELECT COUNT(*)
         FROM relation
-        WHERE relClsf = 10 
+        WHERE rel_clsf = 10 
           AND trip_conts_id = #{tripContsId}
     </select>
 
@@ -27,7 +41,7 @@
     DELETE FROM relation
     WHERE user_no = #{userNo}
       AND trip_conts_id = #{tripContsId}
-      AND relClsf = 10
+      AND rel_clsf = 10
     </delete>
   
     <!--아래는 마이페이지에서 사용하는 찜관련 기능-->
@@ -46,23 +60,23 @@
     SELECT COUNT(*)
     FROM relation
     WHERE user_no = #{userNo}
-      AND relClsf = 10
+      AND rel_clsf = 10
     </select>
 
     <delete id="deleteAllByUser" parameterType="RelationVO">
     DELETE FROM relation
     WHERE user_no = #{userNo}
-      AND relClsf = 10
+      AND rel_clsf = 10
     </delete>
 
     <select id="getAll" resultType="RelationVO">
     SELECT 
         user_no,
         trip_conts_id,
-        relClsf,
+        rel_clsf,
         reg_dt
     FROM relation
-    WHERE relClsf = 10
+    WHERE rel_clsf = 10
     ORDER BY reg_dt DESC
    </select>
 

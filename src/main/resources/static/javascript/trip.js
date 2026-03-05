@@ -5,10 +5,10 @@ const tripState = {
     pageNo: 1,
     pageSize: 10,
     searchWord: "",
-    tripTag: "",    
-    tripCtpv: 0,    
-    tripGungu: 0,   
-    orderType: "new" 
+    tripTag: "",
+    tripCtpv: 0,
+    tripGungu: 0,
+    orderType: "new"
 };
 
 let searchTimer;
@@ -26,11 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (detailList) {
         // Thymeleaf가 렌더링한 hidden input이나 URL 파라미터에서 ID를 가져와야 합니다.
         // 가장 쉬운 방법은 HTML 어딘가에 ID를 심어두는 것입니다.
-        const tripId = document.querySelector('input[name="tripContsId"]')?.value 
-                    || new URLSearchParams(window.location.search).get('tripContsId');
-        
+        const tripId = document.querySelector('input[name="tripContsId"]')?.value
+            || new URLSearchParams(window.location.search).get('tripContsId');
+
         if (tripId) {
             fetchDetailData(tripId);
+            initFavorite(tripId);
         }
     }
 });
@@ -40,65 +41,65 @@ function initListPage() {
     renderThemeTags();   // 2. 테마 목록 로드
     fetchList();         // 3. 첫 화면 리스트 로드
 
-// 검색어 실시간 입력 (기존 로직)
-const searchInput = document.getElementById("search-input");
-let searchTimer; // 상단에 선언되어 있다고 가정
-
-searchInput?.addEventListener("input", (e) => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-        tripState.searchWord = e.target.value.trim();
-        tripState.pageNo = 1;
-        fetchList(); 
-    }, 300);
-});
-// 리셋 버튼 클릭 이벤트 (모든 필터 초기화)
-const clearBtn = document.getElementById("clear-btn");
-
-clearBtn?.addEventListener("click", () => {
-    // 1. 입력창 텍스트 비우기
+    // 검색어 실시간 입력 (기존 로직)
     const searchInput = document.getElementById("search-input");
-    if(searchInput) searchInput.value = "";
+    let searchTimer; // 상단에 선언되어 있다고 가정
 
-    // 2. 상태(State) 모두 초기값으로 되돌리기
-    tripState.searchWord = "";
-    tripState.tripTag    = ""; // 테마 초기화
-    tripState.tripCtpv   = 0;  // 시도 초기화
-    tripState.tripGungu  = 0;  // 군구 초기화
-    tripState.pageNo     = 1;  // 1페이지로
-
-    // 3. UI 텍스트 복구
-    document.getElementById("view-title").innerText = "전체";
-    document.getElementById("sub-region-tags").classList.add("hidden"); // 군구 목록 숨기기
-
-    // 4. 모든 버튼의 활성화(주황색/굵게) 스타일 제거
-    // 지역 버튼, 테마 버튼, 군구 버튼 모두 찾아서 회색으로 변경
-    document.querySelectorAll(".area-tag, .theme-btn, .gngu-btn").forEach(btn => {
-        btn.classList.remove("text-orange-500", "text-orange-600", "font-bold", "border-b-2", "border-orange-500", "text-gray-900");
-        btn.classList.add("text-gray-400");
+    searchInput?.addEventListener("input", (e) => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            tripState.searchWord = e.target.value.trim();
+            tripState.pageNo = 1;
+            fetchList();
+        }, 300);
     });
+    // 리셋 버튼 클릭 이벤트 (모든 필터 초기화)
+    const clearBtn = document.getElementById("clear-btn");
 
-    // 5. '전체' 지역 버튼만 다시 활성화 상태로 만들기
-    const allBtn = document.querySelector(".area-tag"); // 보통 첫 번째 버튼이 '전체'
-    if (allBtn) {
-        allBtn.classList.replace("text-gray-400", "text-orange-500");
-        allBtn.classList.add("font-bold", "border-b-2", "border-orange-500");
-    }
+    clearBtn?.addEventListener("click", () => {
+        // 1. 입력창 텍스트 비우기
+        const searchInput = document.getElementById("search-input");
+        if (searchInput) searchInput.value = "";
 
-    // 6. 즉시 목록 갱신 (서버에는 빈 파라미터들이 전달되어 전체 리스트가 옵니다)
-    fetchList();
+        // 2. 상태(State) 모두 초기값으로 되돌리기
+        tripState.searchWord = "";
+        tripState.tripTag = ""; // 테마 초기화
+        tripState.tripCtpv = 0;  // 시도 초기화
+        tripState.tripGungu = 0;  // 군구 초기화
+        tripState.pageNo = 1;  // 1페이지로
 
-    // 7. 입력창에 다시 포커스
-    searchInput?.focus();
-});
+        // 3. UI 텍스트 복구
+        document.getElementById("view-title").innerText = "전체";
+        document.getElementById("sub-region-tags").classList.add("hidden"); // 군구 목록 숨기기
+
+        // 4. 모든 버튼의 활성화(주황색/굵게) 스타일 제거
+        // 지역 버튼, 테마 버튼, 군구 버튼 모두 찾아서 회색으로 변경
+        document.querySelectorAll(".area-tag, .theme-btn, .gngu-btn").forEach(btn => {
+            btn.classList.remove("text-orange-500", "text-orange-600", "font-bold", "border-b-2", "border-orange-500", "text-gray-900");
+            btn.classList.add("text-gray-400");
+        });
+
+        // 5. '전체' 지역 버튼만 다시 활성화 상태로 만들기
+        const allBtn = document.querySelector(".area-tag"); // 보통 첫 번째 버튼이 '전체'
+        if (allBtn) {
+            allBtn.classList.replace("text-gray-400", "text-orange-500");
+            allBtn.classList.add("font-bold", "border-b-2", "border-orange-500");
+        }
+
+        // 6. 즉시 목록 갱신 (서버에는 빈 파라미터들이 전달되어 전체 리스트가 옵니다)
+        fetchList();
+
+        // 7. 입력창에 다시 포커스
+        searchInput?.focus();
+    });
 
     // 정렬 버튼 클릭 이벤트
     document.querySelectorAll(".sort-btn").forEach(btn => {
-        btn.addEventListener("click", function() {
-            document.querySelectorAll(".sort-btn").forEach(b => 
+        btn.addEventListener("click", function () {
+            document.querySelectorAll(".sort-btn").forEach(b =>
                 b.classList.remove("text-gray-900", "font-bold", "underline"));
             this.classList.add("text-gray-900", "font-bold", "underline");
-            
+
             tripState.orderType = this.dataset.sort;
             tripState.pageNo = 1;
             fetchList();
@@ -125,13 +126,13 @@ function fetchDetailData(tripContsId) {
 
             // 출력할 필드와 라벨 매핑 (TripDetailVO 필드명과 정확히 일치)
             const labelMap = {
-                tripdtlTel:      { label: '문의처', icon: 'phone' },
-                tripdtlOperHr:   { label: '이용시간', icon: 'clock' },
+                tripdtlTel: { label: '문의처', icon: 'phone' },
+                tripdtlOperHr: { label: '이용시간', icon: 'clock' },
                 tripdtlDyoffYmd: { label: '휴무일', icon: 'calendar-x' },
-                tripdtlPrkPsblty:{ label: '주차여부', icon: 'car' },
-                tripdtlPet:      { label: '반려동물', icon: 'dog' },
-                tripdtlCrg:      { label: '이용요금', icon: 'credit-card' },
-                tripdtlHmpg:     { label: '홈페이지', icon: 'globe' },
+                tripdtlPrkPsblty: { label: '주차여부', icon: 'car' },
+                tripdtlPet: { label: '반려동물', icon: 'dog' },
+                tripdtlCrg: { label: '이용요금', icon: 'credit-card' },
+                tripdtlHmpg: { label: '홈페이지', icon: 'globe' },
                 tripdtlStroller: { label: '유모차 대여', icon: 'baby' }
             };
 
@@ -192,14 +193,14 @@ function handleCityClick(ctpvCode, ctpvNm, btnElem) {
     btnElem.classList.add("font-bold", "border-b-2", "border-orange-500");
 
     tripState.tripCtpv = parseInt(ctpvCode);
-    tripState.tripGungu = 0; 
+    tripState.tripGungu = 0;
     tripState.pageNo = 1;
     document.getElementById("view-title").innerText = ctpvNm;
 
     const subContainer = document.getElementById("sub-region-tags");
     if (tripState.tripCtpv === 0) {
         subContainer.classList.add("hidden");
-        fetchList(); 
+        fetchList();
         return;
     }
 
@@ -207,7 +208,7 @@ function handleCityClick(ctpvCode, ctpvNm, btnElem) {
     fetch(`/trip/getGnguList.do?tripCtpv=${tripState.tripCtpv}`)
         .then(res => res.json())
         .then(gngus => {
-            if(gngus && gngus.length > 0) {
+            if (gngus && gngus.length > 0) {
                 subContainer.classList.remove("hidden");
                 let html = `<button onclick="handleGnguClick(0, this)" class="gngu-btn font-bold text-gray-900 cursor-pointer">전체</button>`;
                 html += gngus.map(g => `
@@ -219,7 +220,7 @@ function handleCityClick(ctpvCode, ctpvNm, btnElem) {
             } else {
                 subContainer.classList.add("hidden");
             }
-            fetchList(); 
+            fetchList();
         });
 }
 
@@ -236,7 +237,7 @@ function handleGnguClick(gnguCode, btnElem) {
 function filterTheme(tag, btnElem) {
     // 1. 이미 선택된 태그를 다시 눌렀는지 확인 (해제 로직)
     const isSame = (tripState.tripTag === tag);
-    
+
     // 2. 모든 테마 버튼의 디자인 초기화
     document.querySelectorAll(".theme-btn").forEach(b => {
         b.classList.remove("text-orange-600", "font-bold");
@@ -245,7 +246,7 @@ function filterTheme(tag, btnElem) {
 
     if (isSame) {
         // 이미 선택된 걸 다시 누르면 -> 선택 해제 (전체 보기)
-        tripState.tripTag = ""; 
+        tripState.tripTag = "";
     } else {
         // 새로운 태그 선택
         tripState.tripTag = tag;
@@ -253,7 +254,7 @@ function filterTheme(tag, btnElem) {
         btnElem.classList.remove("text-gray-400");
         btnElem.classList.add("text-orange-600", "font-bold");
     }
-    
+
     // 3. 페이지 1로 초기화 후 리스트 새로고침
     tripState.pageNo = 1;
     fetchList();
@@ -302,7 +303,7 @@ function renderDestList(list) {
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">${item.tripNm}</h3>
                     <span class="text-gray-400 text-sm font-medium">
-                        ${item.tripAddr ? item.tripAddr.split(' ').slice(0,2).join(' ') : ''}
+                        ${item.tripAddr ? item.tripAddr.split(' ').slice(0, 2).join(' ') : ''}
                     </span>
                 </div>
                 <div class="mb-4">
@@ -316,7 +317,7 @@ function renderDestList(list) {
             </div>
         </div>
     `).join("");
-    
+
     if (window.lucide) lucide.createIcons();
 }
 
@@ -324,7 +325,7 @@ function renderDestList(list) {
 function renderPagination(totalCnt) {
     const totalPage = Math.ceil(totalCnt / tripState.pageSize);
     const container = document.getElementById("pagination");
-    if (!container || totalPage <= 1) { if(container) container.innerHTML = ""; return; }
+    if (!container || totalPage <= 1) { if (container) container.innerHTML = ""; return; }
 
     const curr = tripState.pageNo;
     const startPage = Math.max(1, curr - 2);
@@ -348,6 +349,100 @@ function movePage(num) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// ✅ (1) 페이지 로딩 시: 내가 찜했는지 확인해서 하트 스타일 반영
+function initFavorite(tripContsId) {
+    const icon = document.getElementById("like-icon");
+    if (!icon) return;
+
+    fetch(`/trip/favoriteStatus.do?tripContsId=${encodeURIComponent(tripContsId)}`)
+        .then(res => res.text())
+        .then(txt => {
+            const exists = parseInt(txt, 10);
+
+            // 찜한 상태면 빨간색(또는 fill 느낌)
+            if (exists > 0) {
+                icon.classList.add("text-red-500");
+            } else {
+                icon.classList.remove("text-red-500");
+            }
+            // lucide 아이콘 다시 렌더(필요시)
+            if (window.lucide) lucide.createIcons();
+        })
+        .catch(() => {
+            // 실패해도 페이지는 계속 사용 가능하게 조용히 무시
+        });
+}
+
+function handleLike() {
+    // 1. ID 가져오기
+    const tripContsId =
+        document.getElementById("tripContsId")?.value ||
+        new URLSearchParams(window.location.search).get("tripContsId");
+
+    if (!tripContsId) return;
+
+    // [추가] 현재 하트 상태 확인 (이미 빨간색이면 '취소', 아니면 '추가')
+    const icon = document.getElementById("like-icon");
+    const isAdding = icon ? !icon.classList.contains("text-red-500") : true;
+    
+    // [추가] 사용자 확인 문구
+    const confirmMsg = isAdding 
+        ? "해당 여행지를 찜 목록에 추가하시겠습니까?" 
+        : "찜을 취소하시겠습니까?";
+
+    if (!confirm(confirmMsg)) return;
+
+    // 2. GET 방식으로 호출
+    fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`, {
+        method: "GET",
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("서버 응답 오류"); 
+        return res.json(); 
+    })
+    .then(data => {
+        const status = data[0]; // 1: 성공, -1: 로그인 필요
+        const totalCountByUser = data[1]; // [중요] 사용자의 '총' 찜 개수 (서버에서 넘겨줘야 함)
+
+        if (status === -1) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        if (status === 1) {
+            // [추가] 10개 제한 체크 로직
+            // 서버에서 "추가" 처리가 되었는데 총 개수가 10개를 넘었다면 알림 후 원상복구
+            if (isAdding && totalCountByUser > 10) {
+                alert("찜 목록이 가득 찼습니다! (최대 10개)\n기존의 찜 목록을 정리해 주세요.");
+                
+                // 11개째 저장된 것을 다시 삭제하기 위해 서버를 한 번 더 호출하거나,
+                // 애초에 서버에서 10개 넘으면 저장을 안 하고 다른 상태값을 주는 것이 좋습니다.
+                // 일단은 사용자에게 알리고 다시 toggle을 호출해 취소시킵니다.
+                handleLike(); 
+                return;
+            }
+
+            // 하트 옆 숫자 업데이트 (해당 여행지의 총 찜수)
+            // ※ 주의: data[2] 등에 해당 여행지 전체 찜수를 따로 받아온다면 그걸 쓰세요.
+            // 현재 컨트롤러가 어떻게 주느냐에 따라 수정이 필요할 수 있습니다.
+
+            // 하트 색깔 토글
+            if (icon) {
+                icon.classList.toggle("text-red-500");
+                alert(isAdding ? "찜 목록에 추가되었습니다." : "찜이 취소되었습니다.");
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+    })
+    .catch((err) => {
+        console.error("찜 처리 에러:", err);
+        alert("처리에 실패했습니다.");
+    });
+}
+
+
 function renderThemeTags() {
     fetch('/trip/getTripTags.do')
         .then(res => res.json())
@@ -362,4 +457,8 @@ function renderThemeTags() {
                 </button>
             `).join("");
         })
+
+
+
+
 }

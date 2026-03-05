@@ -3,6 +3,7 @@ package com.pcwk.ehr.relation;
 import com.pcwk.ehr.cmn.WorkDiv;
 import com.pcwk.ehr.domain.RelationVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public interface RelationMapper extends WorkDiv<RelationVO> {
 
     int VisitedStatus(RelationVO vo);
 
-    int getCount(int tripContsId);
+    int getCount(@Param("tripContsId") int tripContsId);
 
     int deleteAll();
 
@@ -28,4 +29,6 @@ public interface RelationMapper extends WorkDiv<RelationVO> {
 
     // [추가] 마이페이지 내 찜 목록 전체 삭제
     int deleteAllByUser(RelationVO vo);
+
+    int existsFavorite(RelationVO vo);
 }

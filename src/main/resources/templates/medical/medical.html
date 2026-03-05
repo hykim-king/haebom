@@ -21,12 +21,13 @@
     </div>
 
     <div class="main-card">
-        <div class="tab-group">
-            <button id="tab-hospital" class="tab-btn active" onclick="switchTab('hospital', this)">
+        <div class="tab-group" style="position: relative;">
+            <div id="tab-indicator"></div>
+            <button id="tab-hospital" class="tab-btn" onclick="switchTab('hospital', this)">
                 <i data-lucide="stethoscope" size="18"></i>
                 <span>병원</span>
             </button>
-            <button id="tab-pharmacy" class="tab-btn" onclick="switchTab('pharmacy', this)">
+            <button id="tab-pharmacy" class="tab-btn active" onclick="switchTab('pharmacy', this)">
                 <i data-lucide="pill" size="18"></i>
                 <span>약국</span>
             </button>
@@ -50,9 +51,9 @@
             <input type="text" class="search-input" placeholder="병원명, 약국명 또는 도로명 주소 검색">
         </div>
 
-        <div id="result-list"></div>
+        <div id="medical-list"></div>
 
-        <div class="pagination-container">
+        <div id="pagination" class="pagination-container">
             <button class="page-btn arrow-btn"><i data-lucide="chevron-left" size="18"></i></button>
             <button class="page-btn active">1</button>
             <button class="page-btn">2</button>

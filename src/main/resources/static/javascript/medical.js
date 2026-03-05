@@ -112,24 +112,15 @@ function setPage(page) {
 
 // --- Rendering ---
 function updateTabVisual() {
-    const indicator = document.getElementById('tab-indicator');
     const tabHospital = document.getElementById('tab-hospital');
     const tabPharmacy = document.getElementById('tab-pharmacy');
     
     if (currentTab === 'hospital') {
-        indicator.style.transform = 'translateX(0)';
-        tabHospital.classList.remove('text-slate-500');
-        tabHospital.classList.add('text-slate-700');
-        tabPharmacy.classList.remove('text-slate-700');
-        tabPharmacy.classList.add('text-slate-500');
+        tabHospital.classList.add('active');
+        tabPharmacy.classList.remove('active');
     } else {
-        indicator.style.left = '4px'; 
-        indicator.style.transform = 'translateX(100%)';
-        
-        tabPharmacy.classList.remove('text-slate-500');
-        tabPharmacy.classList.add('text-slate-700');
-        tabHospital.classList.remove('text-slate-700');
-        tabHospital.classList.add('text-slate-500');
+        tabPharmacy.classList.add('active');
+        tabHospital.classList.remove('active');
     }
 }
 

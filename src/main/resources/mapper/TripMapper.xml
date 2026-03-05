@@ -3,6 +3,14 @@
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.trip.TripMapper">
 
+
+   <update id="updateReadCnt" parameterType="TripVO">
+    UPDATE TRIP
+       SET TRIP_INQ_CNT = NVL(TRIP_INQ_CNT,0)+1
+     WHERE TRIP_CONTS_ID = #{tripContsId}
+   </update>
+
+
     <insert id="doSave" parameterType="TripVO">
         INSERT INTO TRIP (
             TRIP_CONTS_ID, 
@@ -71,14 +79,14 @@
                     <if test="searchWord != null and searchWord != ''">
                         AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
                     </if>
-                    <if test="tripClsf != 0">
-                        AND TRIP_CLSF = #{tripClsf}
+                    <if test="tripTag != 0">
+                        AND TRIP_TAG = #{tripTag}
                     </if>
                     ORDER BY TRIP_CONTS_ID DESC
                 ) T1  
-                <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
+                WHERE ROWNUM &lt;= #{pageSize} * (#{pageNo} - 1) + #{pageSize}
             ) TT1
-            <![CDATA[WHERE RNUM >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+            WHERE RNUM &gt;= #{pageSize} * (#{pageNo} - 1) + 1
         ) A CROSS JOIN (
             SELECT COUNT(*) TOTAL_CNT
             FROM TRIP
@@ -86,13 +94,13 @@
             <if test="searchWord != null and searchWord != ''">
                 AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
             </if>
-            <if test="tripClsf != 0">
-                AND TRIP_CLSF = #{tripClsf}
+            <if test="tripTag != 0">
+                AND TRIP_TAG = #{tripTag}
             </if>
         ) B    
     </select>
 
-        <!--인기관광지 -->
+     <!--인기관광지 -->
     <select id="selectTop3Popular" resultType="TripVO">
         SELECT *
         FROM (

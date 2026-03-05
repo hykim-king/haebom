@@ -26,37 +26,65 @@
         </p>
     </section>
 
-    <div class="card search-card mb-4">
-        <div class="card-body p-4">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-6">
-                    <p class="m-0 text-muted">
-                        총
-                        <span id="total-count" class="text-primary fw-bold" th:text="${totalCount}">0</span>건의
-                        안내가 있습니다.
-                    </p>
-                </div>
-                <div class="col-md-6">
-                    <div class="d-flex gap-2">
-                        <div class="flex-grow-1 search-input-group">
-                            <input
-                                    id="search-input"
-                                    class="form-control"
-                                    type="text"
-                                    placeholder="검색어를 입력하세요."
-                            />
+    <!--
+        [핵심] form 태그에 method="get", th:action 사용
+        - method="get" : 검색어가 URL에 ?searchWord=...&searchDiv=... 형태로 붙어서 전송됨
+        - th:action     : Thymeleaf가 컨텍스트 경로를 자동으로 포함한 올바른 URL을 만들어줌
+                          (JS에서 URL을 직접 만들면 컨텍스트 경로 불일치 오류가 발생할 수 있음)
+    -->
+    <form method="get" th:action="@{/notice}" id="searchForm">
+        <!-- pageNo, pageSize는 숨겨서 함께 전송 -->
+        <input type="hidden" name="pageNo"   value="1"  />
+        <input type="hidden" name="pageSize" value="10" />
+
+        <div class="card search-card mb-4">
+            <div class="card-body p-4">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-6">
+                        <p class="m-0 text-muted">
+                            총
+                            <span id="total-count" class="text-primary fw-bold" th:text="${list.size()}">0</span>건의
+                            안내가 있습니다.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex gap-2">
+                            <!-- 검색 구분 선택 (제목 / 내용) -->
+                            <select name="searchDiv" class="form-select" style="width: 110px; flex-shrink: 0;">
+                                <option value="10"
+                                        th:selected="${searchVO.searchDiv == null or searchVO.searchDiv == '10'}">
+                                    제목
+                                </option>
+                                <option value="20"
+                                        th:selected="${searchVO.searchDiv == '20'}">
+                                    내용
+                                </option>
+                            </select>
+                            <div class="flex-grow-1 search-input-group">
+                                <!-- 검색 후 입력창에 검색어 유지 -->
+                                <input
+                                        name="searchWord"
+                                        class="form-control"
+                                        type="text"
+                                        placeholder="검색어를 입력하세요."
+                                        th:value="${searchVO.searchWord}"
+                                />
+                            </div>
+                            <!-- type="submit" 으로 form을 바로 전송 -->
+                            <button
+                                    type="submit"
+                                    id="search-button"
+                                    class="btn px-4 fw-bold rounded-3"
+                                    style="background-color: #F97316; border-color: #F97316; color: #ffffff;"
+                            >
+                                검색
+                            </button>
                         </div>
-                        <button
-                                class="btn btn-primary px-4 fw-bold rounded-3"
-                                id="search-button"
-                        >
-                            검색
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
     <div class="d-flex justify-content-end mb-3" th:if="${userMngrYn == 'Y'}">
         <a th:href="@{/notice/noticeWrite(ntcNo=0)}"
@@ -81,7 +109,6 @@
                     <tbody id="notice-tbody">
                     <tr th:each="vo : ${list}">
                         <td th:text="${vo.ntcNo}">1</td>
-
                         <td class="text-start">
                             <a th:href="@{/notice/noticeDetail(ntcNo=${vo.ntcNo})}"
                                th:text="${vo.ntcTtl}"
@@ -89,10 +116,12 @@
                                 공지사항 제목
                             </a>
                         </td>
-
                         <td th:text="${vo.userVO != null ? vo.userVO.userNm : '관리자'}">작성자</td>
-
                         <td th:text="${vo.ntcReg}">작성일</td>
+                    </tr>
+                    <!-- 검색 결과 없을 때 -->
+                    <tr th:if="${list.isEmpty()}">
+                        <td colspan="4" class="text-muted py-4">검색 결과가 없습니다.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -100,35 +129,21 @@
         </div>
     </div>
 
-    <nav class="mt-5" th:if="${totalPages > 1}">
+    <nav class="mt-5">
         <ul class="pagination justify-content-center">
-
-            <!-- 이전 버튼 -->
-            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/notice/notice(pageNo=${currentPage - 1}, pageSize=${searchVO.pageSize}, searchWord=${searchVO.searchWord}, searchDiv=${searchVO.searchDiv})}">
-                    <i data-lucide="chevron-left" size="20"></i>
-                </a>
+            <li class="page-item disabled">
+                <a class="page-link" href="#"
+                ><i data-lucide="chevron-left" size="20"></i
+                ></a>
             </li>
-
-            <!-- 페이지 번호 -->
-            <li class="page-item"
-                th:each="i : ${#numbers.sequence(1, totalPages)}"
-                th:classappend="${i == currentPage} ? 'active'">
-                <a class="page-link"
-                   th:text="${i}"
-                   th:href="@{/notice/notice(pageNo=${i}, pageSize=${searchVO.pageSize}, searchWord=${searchVO.searchWord}, searchDiv=${searchVO.searchDiv})}">
-                </a>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#"
+                ><i data-lucide="chevron-right" size="20"></i
+                ></a>
             </li>
-
-            <!-- 다음 버튼 -->
-            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/notice/notice(pageNo=${currentPage + 1}, pageSize=${searchVO.pageSize}, searchWord=${searchVO.searchWord}, searchDiv=${searchVO.searchDiv})}">
-                    <i data-lucide="chevron-right" size="20"></i>
-                </a>
-            </li>
-
         </ul>
     </nav>
 </main>
@@ -136,12 +151,10 @@
 <div th:replace="~{main/footer :: footer}"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
     lucide.createIcons();
 </script>
-
-<script src="../javascript/main_Org.js"></script>
+<script src="../javascript/main.js"></script>
 <script src="../javascript/header.js"></script>
 </body>
 </html>

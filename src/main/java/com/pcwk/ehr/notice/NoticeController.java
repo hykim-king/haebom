@@ -61,7 +61,7 @@ public class NoticeController {
     }
 
     // ── 목록 ──
-    @GetMapping("/notice")
+    @GetMapping("")
     public String notice(NoticeVO inVO, Model model, HttpSession session) {
         if (inVO.getPageNo() == 0)   inVO.setPageNo(1);
         if (inVO.getPageSize() == 0) inVO.setPageSize(10);

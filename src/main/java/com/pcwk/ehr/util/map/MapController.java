@@ -29,7 +29,7 @@ public class MapController {
      */
     @GetMapping("/api/all")
     @ResponseBody
-    public ResponseEntity<MapDTO> getAllLocations() {
+    public ResponseEntity<?> getAllLocations() {
         return ResponseEntity.ok(mapService.getAllLocations());
     }
 
@@ -39,7 +39,7 @@ public class MapController {
      */
     @GetMapping("/api/trips")
     @ResponseBody
-    public ResponseEntity<List<MapDTO>> getTripLocations() {
+    public ResponseEntity<List<?>> getTripLocations() {
         return ResponseEntity.ok(mapService.getTripLocations());
     }
 
@@ -49,7 +49,7 @@ public class MapController {
      */
     @GetMapping("/api/hospitals")
     @ResponseBody
-    public ResponseEntity<List<MapDTO>> getHospitalLocations() {
+    public ResponseEntity<List<?>> getHospitalLocations() {
         return ResponseEntity.ok(mapService.getHospitalLocations());
     }
 
@@ -59,7 +59,7 @@ public class MapController {
      */
     @GetMapping("/api/drugs")
     @ResponseBody
-    public ResponseEntity<List<MapDTO>> getDrugLocations() {
+    public ResponseEntity<List<?>> getDrugLocations() {
         return ResponseEntity.ok(mapService.getDrugLocations());
     }
 }

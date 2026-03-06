@@ -1,5 +1,8 @@
 package com.pcwk.ehr.util.map;
 
+import com.pcwk.ehr.domain.DrugVO;
+import com.pcwk.ehr.domain.HospitalVO;
+import com.pcwk.ehr.domain.TripVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,30 +15,18 @@ public class MapService {
     private final MapMapper mapMapper;
 
     // 여행지 목록
-    public List<MapDTO> getTripLocations() {
+    public List<TripVO> getTripLocations() {
         return mapMapper.findTripLocations();
     }
 
     // 병원 목록
-    public List<MapDTO> getHospitalLocations() {
+    public List<HospitalVO> getHospitalLocations() {
         return mapMapper.findHospitalLocations();
     }
 
     // 약국 목록
-    public List<MapDTO> getDrugLocations() {
+    public List<DrugVO> getDrugLocations() {
         return mapMapper.findDrugLocations();
     }
 
-    // 전체 한 번에 → DTO로 묶어서 반환
-    public MapDTO getAllLocations() {
-        List<MapDTO> trips     = mapMapper.findTripLocations();
-        List<MapDTO> hospitals = mapMapper.findHospitalLocations();
-        List<MapDTO> drugs     = mapMapper.findDrugLocations();
-
-        return MapDTO.builder()
-                .trips(trips)
-                .hospitals(hospitals)
-                .drugs(drugs)
-                .build();
-    }
 }

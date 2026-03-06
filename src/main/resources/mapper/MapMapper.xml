@@ -5,7 +5,7 @@
 <mapper namespace="com.pcwk.ehr.util.map.MapMapper">
 
     <!-- 여행지 위도/경도 조회 -->
-    <select id="findTripLocations" resultType="com.pcwk.ehr.util.map.MapDTO">
+    <select id="findTripLocations" resultType="TripVO">
         SELECT TRIP_CONTS_ID AS id,
                TRIP_NM       AS name,
                TRIP_LAT      AS lat,
@@ -20,7 +20,7 @@
     </select>
 
     <!-- 병원 위도/경도 조회 -->
-    <select id="findHospitalLocations" resultType="com.pcwk.ehr.util.map.MapDTO">
+    <select id="findHospitalLocations" resultType="HospitalVO">
         SELECT HP_NO      AS id,
                HP_NM      AS name,
                HP_LAT     AS lat,
@@ -36,7 +36,7 @@
     </select>
 
     <!-- 약국 위도/경도 조회 -->
-    <select id="findDrugLocations" resultType="com.pcwk.ehr.util.map.MapDTO">
+    <select id="findDrugLocations" resultType="DrugVO">
         SELECT DS_NO    AS id,
                DS_NM    AS name,
                DS_LAT   AS lat,

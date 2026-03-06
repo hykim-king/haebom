@@ -24,16 +24,6 @@ public class MapController {
     }
 
     /**
-     * 전체 위치 한 번에 조회
-     * GET /map/api/all
-     */
-    @GetMapping("/api/all")
-    @ResponseBody
-    public ResponseEntity<?> getAllLocations() {
-        return ResponseEntity.ok(mapService.getAllLocations());
-    }
-
-    /**
      * 여행지만 조회
      * GET /map/api/trips
      */

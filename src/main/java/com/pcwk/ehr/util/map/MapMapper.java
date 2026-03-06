@@ -10,12 +10,9 @@ import java.util.List;
 @Mapper
 public interface MapMapper {
 
-    // 여행지 위도/경도 조회
     List<TripVO> findTripLocations();
 
-    // 병원 위도/경도 조회
     List<HospitalVO> findHospitalLocations();
 
-    // 약국 위도/경도 조회
     List<DrugVO> findDrugLocations();
 }

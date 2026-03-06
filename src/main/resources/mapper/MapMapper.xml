@@ -6,12 +6,11 @@
 
     <!-- 여행지 위도/경도 조회 -->
     <select id="findTripLocations" resultType="TripVO">
-        SELECT TRIP_CONTS_ID AS id,
-               TRIP_NM       AS name,
-               TRIP_LAT      AS lat,
-               TRIP_LOT      AS lot,
-               TRIP_ADDR     AS address,
-               'trip'        AS type
+        SELECT TRIP_CONTS_ID AS tripContsId,
+               TRIP_NM       AS tripNm,
+               TRIP_LAT      AS tripLat,
+               TRIP_LOT      AS tripLot,
+               TRIP_ADDR     AS tripAddr
         FROM trip
         WHERE TRIP_LAT IS NOT NULL
           AND TRIP_LOT IS NOT NULL
@@ -21,13 +20,12 @@
 
     <!-- 병원 위도/경도 조회 -->
     <select id="findHospitalLocations" resultType="HospitalVO">
-        SELECT HP_NO      AS id,
-               HP_NM      AS name,
-               HP_LAT     AS lat,
-               HP_LOT     AS lot,
-               HP_ADDR    AS address,
-               HP_TELNO1  AS tel,
-               'hospital' AS type
+        SELECT HP_NO      AS hpNo,
+               HP_NM      AS hpNm,
+               HP_LAT     AS hpLat,
+               HP_LOT     AS hpLot,
+               HP_ADDR    AS hpAddr,
+               HP_TELNO1  AS hpTelno1
         FROM hospital
         WHERE HP_LAT IS NOT NULL
           AND HP_LOT IS NOT NULL
@@ -37,13 +35,12 @@
 
     <!-- 약국 위도/경도 조회 -->
     <select id="findDrugLocations" resultType="DrugVO">
-        SELECT DS_NO    AS id,
-               DS_NM    AS name,
-               DS_LAT   AS lat,
-               DS_LOT   AS lot,
-               DS_ADDR  AS address,
-               DS_TELNO AS tel,
-               'drug'   AS type
+        SELECT DS_NO    AS dsNo,
+               DS_NM    AS dsNm,
+               DS_LAT   AS dsLat,
+               DS_LOT   AS dsLot,
+               DS_ADDR  AS dsAddr,
+               DS_TELNO AS dsTelno
         FROM drug
         WHERE DS_LAT IS NOT NULL
           AND DS_LOT IS NOT NULL

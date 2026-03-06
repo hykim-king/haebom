@@ -1,12 +1,11 @@
-// Medical Guide Logic
+// Medical Guide Logic (서버 페이징)
 
 // --- Constants ---
 const ITEMS_PER_PAGE = 5;
-const REGIONS = ['전체', '서울', '경기', '인천', '강원', '제주', '부산', '대구', '광주', '대전', '울산', '세종', '충북', '충남', '전북', '전남', '경북', '경남'];
 
 // --- 시간 포맷 (800 → 8:00, 1830 → 18:30) ---
 function formatTime(val) {
-    if (!val) return '';
+    if (!val || val === 'null') return '';
     const str = String(val).padStart(4, '0');
     return str.slice(0, -2) + ':' + str.slice(-2);
 }
@@ -17,21 +16,17 @@ function formatPhone(val) {
     const str = String(val).replace(/\s/g, '').replace(/\)/g, '-').replace(/\(/g, '');
     if (str.includes('-')) return str;
 
-    // 02로 시작 (서울)
     if (str.startsWith('02')) {
         if (str.length === 10) return str.slice(0, 2) + '-' + str.slice(2, 6) + '-' + str.slice(6);
         if (str.length === 9) return str.slice(0, 2) + '-' + str.slice(2, 5) + '-' + str.slice(5);
     }
-    // 0으로 시작 (지역번호, 휴대폰)
     if (str.startsWith('0')) {
         if (str.length === 11) return str.slice(0, 3) + '-' + str.slice(3, 7) + '-' + str.slice(7);
         if (str.length === 10) return str.slice(0, 3) + '-' + str.slice(3, 6) + '-' + str.slice(6);
     }
-    // 1로 시작 (대표번호 1577, 1588 등)
     if (str.startsWith('1') && str.length === 8) {
         return str.slice(0, 4) + '-' + str.slice(4);
     }
-    // 앞의 0이 빠진 경우 → 0 붙여서 재귀 처리
     if (!str.startsWith('0') && !str.startsWith('1')) {
         return formatPhone('0' + str);
     }
@@ -39,75 +34,29 @@ function formatPhone(val) {
 }
 
 // --- DB 데이터를 공통 형태로 변환 ---
-function convertHospitals(data) {
-    return data.map(h => {
-        const tags = [];
-        if (h.hpEmrmYn === '1') tags.push('응급실운영');
-        if (h.hpWkndOpenYn === 'Y') tags.push('주말진료');
-
-        return {
-            id: h.hpNo,
-            type: 'hospital',
-            name: h.hpNm,
-            address: (h.hpAddr || '').replace(/,\s*$/, ''),
-            phone: formatPhone(h.hpTelno1),
-            openTime: formatTime(h.hpOpTm) + ' - ' + formatTime(h.hpEndTm),
-            tags: tags
-        };
-    });
+function convertHospital(h) {
+    const tags = [];
+    if (h.hpEmrmYn === '1') tags.push('응급실운영');
+    if (h.hpWkndOpenYn === 'Y') tags.push('주말진료');
+    return {
+        id: h.hpNo, type: 'hospital', name: h.hpNm,
+        address: (h.hpAddr || '').replace(/,\s*$/, ''),
+        phone: formatPhone(h.hpTelno1),
+        openTime: (h.hpOpTm && h.hpOpTm !== 'null' && h.hpEndTm && h.hpEndTm !== 'null') ? formatTime(h.hpOpTm) + ' - ' + formatTime(h.hpEndTm) : '',
+        tags: tags
+    };
 }
 
-function convertDrugs(data) {
-    return data.map(d => {
-        const tags = [];
-        if (d.dsWkndOpenYn === 'Y') tags.push('주말운영');
-
-        return {
-            id: d.dsNo,
-            type: 'pharmacy',
-            name: d.dsNm,
-            address: (d.dsAddr || '').replace(/,\s*$/, ''),
-            phone: formatPhone(d.dsTelno),
-            openTime: formatTime(d.dsOpTm) + ' - ' + formatTime(d.dsEndTm),
-            tags: tags
-        };
-    });
-}
-
-// 병원 데이터는 인라인으로 즉시 로딩
-const HOSPITAL_DATA = convertHospitals(typeof hospitalData !== 'undefined' ? hospitalData : []);
-
-// 약국 데이터는 탭 클릭 시 fetch로 로딩 (캐싱)
-let DRUG_DATA = null;
-
-async function loadDrugData() {
-    if (DRUG_DATA !== null) return DRUG_DATA;
-    const res = await fetch('/medical/api/drugs');
-    const data = await res.json();
-    DRUG_DATA = convertDrugs(data);
-    return DRUG_DATA;
-}
-
-function getCurrentData() {
-    return currentTab === 'hospital' ? HOSPITAL_DATA : (DRUG_DATA || []);
-}
-
-// --- 지역 약칭 → 주소에 포함된 실제 명칭 매핑 ---
-const REGION_MAP = {
-    '서울': '서울', '경기': '경기', '인천': '인천', '강원': '강원',
-    '제주': '제주', '부산': '부산', '대구': '대구', '광주': '광주',
-    '대전': '대전', '울산': '울산', '세종': '세종',
-    '충북': '충청북도', '충남': '충청남도',
-    '전북': '전라북도', '전남': '전라남도',
-    '경북': '경상북도', '경남': '경상남도'
-};
-
-// --- 주소에서 지역 추출 ---
-function getRegion(address) {
-    for (const [shortName, fullName] of Object.entries(REGION_MAP)) {
-        if (address.includes(fullName)) return shortName;
-    }
-    return '';
+function convertDrug(d) {
+    const tags = [];
+    if (d.dsWkndOpenYn === 'Y') tags.push('주말운영');
+    return {
+        id: d.dsNo, type: 'pharmacy', name: d.dsNm,
+        address: (d.dsAddr || '').replace(/,\s*$/, ''),
+        phone: formatPhone(d.dsTelno),
+        openTime: (d.dsOpTm && d.dsOpTm !== 'null' && d.dsEndTm && d.dsEndTm !== 'null') ? formatTime(d.dsOpTm) + ' - ' + formatTime(d.dsEndTm) : '',
+        tags: tags
+    };
 }
 
 // --- State ---
@@ -115,6 +64,31 @@ let currentTab = 'hospital';
 let currentRegion = '전체';
 let searchQuery = '';
 let currentPage = 1;
+let totalCnt = 0;
+
+// --- 서버에서 데이터 fetch ---
+async function fetchData() {
+    const apiUrl = currentTab === 'hospital' ? '/medical/api/hospitals' : '/medical/api/drugs';
+    const params = new URLSearchParams({
+        pageNo: currentPage,
+        pageSize: ITEMS_PER_PAGE
+    });
+
+    if (currentRegion && currentRegion !== '전체') {
+        params.append('region', currentRegion);
+    }
+    if (searchQuery) {
+        params.append('searchWord', searchQuery);
+    }
+
+    const res = await fetch(`${apiUrl}?${params.toString()}`);
+    const data = await res.json();
+
+    totalCnt = (data.length > 0) ? data[0].totalCnt : 0;
+
+    const converter = currentTab === 'hospital' ? convertHospital : convertDrug;
+    return data.map(converter);
+}
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -123,10 +97,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function init() {
     updateRegionVisual();
-    renderList();
+    loadAndRender();
     initSearch();
     updateTabVisual();
     if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function loadAndRender() {
+    const container = document.getElementById('medical-list');
+    container.innerHTML = '<div class="text-center p-4"><span class="text-secondary">로딩 중...</span></div>';
+
+    const items = await fetchData();
+    renderItems(items);
 }
 
 // --- Event Handlers ---
@@ -135,18 +117,14 @@ async function switchTab(tab) {
     currentTab = tab;
     currentPage = 1;
     updateTabVisual();
-
-    if (tab === 'pharmacy') {
-        await loadDrugData();
-    }
-    renderList();
+    await loadAndRender();
 }
 
 function selectRegion(region) {
     currentRegion = region;
     currentPage = 1;
     updateRegionVisual();
-    renderList();
+    loadAndRender();
 }
 
 function updateRegionVisual() {
@@ -170,7 +148,7 @@ function initSearch() {
         timeout = setTimeout(() => {
             searchQuery = e.target.value.trim();
             currentPage = 1;
-            renderList();
+            loadAndRender();
         }, 300);
     });
 }
@@ -178,7 +156,7 @@ function initSearch() {
 function setPage(page) {
     if (page < 1) return;
     currentPage = page;
-    renderList();
+    loadAndRender();
 
     const listTop = document.getElementById('medical-list').offsetTop - 100;
     window.scrollTo({ top: listTop, behavior: 'smooth' });
@@ -198,54 +176,13 @@ function updateTabVisual() {
     }
 }
 
-function renderRegions() {
-    const list = document.getElementById('region-list');
-    if (!list) return;
-
-    list.innerHTML = REGIONS.map(region => `
-        <button
-            onclick="selectRegion('${region}')"
-            class="px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
-                region === currentRegion
-                ? 'bg-slate-800 text-white shadow-md'
-                : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
-            }"
-        >
-            ${region}
-        </button>
-    `).join('');
-}
-
-function renderList() {
+function renderItems(pageData) {
     const container = document.getElementById('medical-list');
     const paginationContainer = document.getElementById('pagination');
 
-    // 1. Filter Data
-    let filtered = getCurrentData();
+    const totalPages = Math.ceil(totalCnt / ITEMS_PER_PAGE);
 
-    if (currentRegion !== '전체') {
-        filtered = filtered.filter(item => getRegion(item.address) === currentRegion);
-    }
-
-    if (searchQuery) {
-        filtered = filtered.filter(item =>
-            item.name.includes(searchQuery) || item.address.includes(searchQuery)
-        );
-    }
-
-    // 2. Pagination Logic
-    const totalItems = filtered.length;
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
-    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
-    if (totalPages === 0) currentPage = 1;
-
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    const pageData = filtered.slice(start, end);
-
-    // 3. Render Items
-    if (totalItems === 0) {
+    if (totalCnt === 0) {
         container.innerHTML = `
             <div class="text-center p-5 bg-white rounded-4 border">
                 <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light mb-3" style="width:64px;height:64px;">
@@ -275,12 +212,12 @@ function renderList() {
                 </div>
 
                 <div class="card-footer-info">
-                    <span class="info-item-pill">
+                    ${item.openTime ? `<span class="info-item-pill">
                         <i data-lucide="clock" size="14"></i> ${item.openTime}
-                    </span>
-                    <span class="info-item-pill">
+                    </span>` : ''}
+                    ${item.phone ? `<span class="info-item-pill">
                         <i data-lucide="phone" size="14"></i> ${item.phone}
-                    </span>
+                    </span>` : ''}
                 </div>
             </div>
 
@@ -290,7 +227,7 @@ function renderList() {
         </a>
     `).join('');
 
-    // 4. Render Pagination Controls
+    // Pagination
     if (totalPages > 1) {
         let paginationHTML = '';
 
@@ -302,7 +239,6 @@ function renderList() {
 
         let startPage = Math.max(1, currentPage - 2);
         let endPage = Math.min(totalPages, startPage + 4);
-
         if (endPage - startPage < 4) {
             startPage = Math.max(1, endPage - 4);
         }

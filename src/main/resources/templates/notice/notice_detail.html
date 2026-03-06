@@ -65,7 +65,7 @@
 
         <div class="notice-footer">
             <input type="hidden" id="ntcNo" th:value="${outVO.ntcNo}">
-            <a th:href="@{/notice/notice}" class="btn-list">목록으로</a>
+            <a th:href="@{/notice}" class="btn-list">목록으로</a>
 
             <!-- 관리자만 수정/삭제 표시 -->
             <div class="action-group" th:if="${userMngrYn == 'Y'}">

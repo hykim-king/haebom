@@ -4,12 +4,12 @@ package com.pcwk.ehr.util.weather;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +18,8 @@ public class WeatherServiceImpl implements WeatherService {
     private final Logger log = LogManager.getLogger(getClass());
     private final RestTemplate restTemplate;
 
-    private static final String AUTH_KEY = "r9rKC29-R_uaygtvfnf7AQ";
+    @Value("${weather.api.auth-key}")
+    private String authKey;
     private static final String BASE_URL = "https://apihub.kma.go.kr/api/typ01/url/";
 
     @Override
@@ -33,7 +34,7 @@ public class WeatherServiceImpl implements WeatherService {
         // 서울(11B10101)을 기준으로 가져오거나 구역을 조정할 수 있습니다.
         String apiFile = "fct_afs_dl.php";
         String params = String.format("?reg=108&tmfc1=%s&tmfc2=%s&disp=1&authKey=%s",
-                sixHoursAgo, now, AUTH_KEY);
+                sixHoursAgo, now, authKey);
 
         String apiUrl = BASE_URL + apiFile + params;
 

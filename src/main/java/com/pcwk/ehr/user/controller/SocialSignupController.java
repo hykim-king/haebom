@@ -95,6 +95,6 @@ public class SocialSignupController {
         userRepository.save(user);
         session.setAttribute("user", user);
 
-        return "redirect:/main/main.do";
+        return "redirect:/main";
     }
 }

@@ -4,6 +4,7 @@ import com.pcwk.ehr.attachfile.AttachFileMapper;
 import com.pcwk.ehr.domain.AttachFileVO;
 import com.pcwk.ehr.domain.SupportVO;
 import com.pcwk.ehr.domain.UserVO;
+import com.pcwk.ehr.user.UserEntity;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -36,12 +37,16 @@ public class SupportController {
     @GetMapping("")
     public String support(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
                           Model model, HttpSession session) {
-        UserVO loginUser = (UserVO) session.getAttribute("user");
+        UserEntity sessionUser = (UserEntity) session.getAttribute("user");
         String userMngrYn = "N";
+        String userEmail = null;
+        Integer userNo = null;
 
-        if (loginUser != null) {
-            userMngrYn = (loginUser.getUserMngrYn() != null) ? loginUser.getUserMngrYn().trim().toUpperCase() : "N";
-            if ("N".equals(userMngrYn) && "ss@s".equals(loginUser.getUserEmlAddr())) {
+        if (sessionUser != null) {
+            userEmail = sessionUser.getUserEmlAddr();
+            userNo = sessionUser.getUserNo();
+            userMngrYn = (sessionUser.getUserMngrYn() != null) ? sessionUser.getUserMngrYn().trim().toUpperCase() : "N";
+            if ("N".equals(userMngrYn) && "ss@s".equals(userEmail)) {
                 userMngrYn = "Y";
             }
         }
@@ -51,14 +56,14 @@ public class SupportController {
         searchVO.setPageNo(pageNo);
         searchVO.setPageSize(pageSize);
 
-        if (loginUser == null) {
+        if (sessionUser == null) {
             searchVO.setFilterRegNo(-1);
         } else if ("N".equals(userMngrYn)) {
-            if (loginUser.getUserNo() == null) {
-                int recoveredNo = supportService.getUserIdByEmail(loginUser.getUserEmlAddr());
-                if (recoveredNo > 0) loginUser.setUserNo(recoveredNo);
+            if (userNo == null) {
+                int recoveredNo = supportService.getUserIdByEmail(userEmail);
+                if (recoveredNo > 0) userNo = recoveredNo;
             }
-            searchVO.setFilterRegNo(loginUser.getUserNo());
+            searchVO.setFilterRegNo(userNo);
         }
 
         List<SupportVO> list = supportService.doRetrieve(searchVO);
@@ -84,7 +89,7 @@ public class SupportController {
 
         model.addAttribute("list", list);
         model.addAttribute("fileMap", fileMap);
-        model.addAttribute("loginUser", loginUser);
+        model.addAttribute("loginUser", sessionUser);
         model.addAttribute("userMngrYn", userMngrYn);
         model.addAttribute("currentPage", pageNo);
         model.addAttribute("startPage", startPage);
@@ -92,7 +97,7 @@ public class SupportController {
         model.addAttribute("totalPages", totalPages);
 
         log.info("지원 페이지 접속 - 유저: {}, 권한: {}, 리스트: {}건",
-                (loginUser != null ? loginUser.getUserEmlAddr() : "비로그인"), userMngrYn, totalCount);
+                (sessionUser != null ? userEmail : "비로그인"), userMngrYn, totalCount);
 
         return "support/support";
     }
@@ -125,22 +130,23 @@ public class SupportController {
                          @RequestParam(value = "files", required = false) List<MultipartFile> files,
                          HttpSession session) {
 
-        UserVO loginUser = (UserVO) session.getAttribute("user");
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
         if (loginUser == null) return "로그인 정보가 없습니다.";
 
         if ("Y".equals(loginUser.getUserMngrYn()) || "ss@s".equals(loginUser.getUserEmlAddr())) {
             return "관리자 계정으로는 문의글 작성이 불가능합니다.";
         }
 
-        if (loginUser.getUserNo() == null) {
+        Integer userNo = loginUser.getUserNo();
+        if (userNo == null) {
             int recoveredNo = supportService.getUserIdByEmail(loginUser.getUserEmlAddr());
-            if (recoveredNo > 0) loginUser.setUserNo(recoveredNo);
+            if (recoveredNo > 0) userNo = recoveredNo;
             else return "유저 정보를 찾을 수 없습니다.";
         }
 
         SupportVO inVO = new SupportVO();
         inVO.setSupCn(supCn);
-        inVO.setRegNo(loginUser.getUserNo());
+        inVO.setRegNo(userNo);
 
         // ✅ 파일 처리를 ServiceImpl에 위임
         int result = ((SupportServiceImpl) supportService).doSave(inVO, files);
@@ -150,7 +156,7 @@ public class SupportController {
     @PostMapping("/doUpdate.do")
     @ResponseBody
     public String doUpdate(@RequestBody SupportVO inVO, HttpSession session) {
-        UserVO loginUser = (UserVO) session.getAttribute("user");
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
         if (loginUser == null || (!"Y".equals(loginUser.getUserMngrYn()) && !"ss@s".equals(loginUser.getUserEmlAddr()))) {
             return "관리자만 답변 등록이 가능합니다.";
         }

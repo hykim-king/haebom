@@ -56,7 +56,7 @@ public class OAuth2Controller {
         // ✅ 3) 기존회원이면 바로 로그인(세션 저장)
         if (userOptional.isPresent()) {
             session.setAttribute("user", userOptional.get());
-            return "redirect:/main/main.do";
+            return "redirect:/main";
         }
 
         // ✅ 4) 신규회원이면 추가정보 입력 페이지로 (세션에 kakao 정보 저장)

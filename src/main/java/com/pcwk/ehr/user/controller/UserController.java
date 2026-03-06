@@ -118,6 +118,6 @@ public class UserController {
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/main/main.do?logout=true";
+        return "redirect:/main?logout=true";
     }
 }

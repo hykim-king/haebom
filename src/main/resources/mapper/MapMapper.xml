@@ -4,19 +4,8 @@
 
 <mapper namespace="com.pcwk.ehr.util.map.MapMapper">
 
-    <!-- 공통 ResultMap -->
-    <resultMap id="MapDTOResultMap" type="com.pcwk.ehr.util.map.MapDTO">
-        <result property="id"      column="id"/>
-        <result property="name"    column="name"/>
-        <result property="lat"     column="lat"/>
-        <result property="lot"     column="lot"/>
-        <result property="address" column="address"/>
-        <result property="tel"     column="tel"/>
-        <result property="type"    column="type"/>
-    </resultMap>
-
     <!-- 여행지 위도/경도 조회 -->
-    <select id="findTripLocations" resultMap="MapDTOResultMap">
+    <select id="findTripLocations" resultType="com.pcwk.ehr.util.map.MapDTO">
         SELECT TRIP_CONTS_ID AS id,
                TRIP_NM       AS name,
                TRIP_LAT      AS lat,
@@ -31,7 +20,7 @@
     </select>
 
     <!-- 병원 위도/경도 조회 -->
-    <select id="findHospitalLocations" resultMap="MapDTOResultMap">
+    <select id="findHospitalLocations" resultType="com.pcwk.ehr.util.map.MapDTO">
         SELECT HP_NO      AS id,
                HP_NM      AS name,
                HP_LAT     AS lat,
@@ -47,7 +36,7 @@
     </select>
 
     <!-- 약국 위도/경도 조회 -->
-    <select id="findDrugLocations" resultMap="MapDTOResultMap">
+    <select id="findDrugLocations" resultType="com.pcwk.ehr.util.map.MapDTO">
         SELECT DS_NO    AS id,
                DS_NM    AS name,
                DS_LAT   AS lat,

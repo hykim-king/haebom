@@ -1,5 +1,8 @@
 package com.pcwk.ehr.util.map;
 
+import com.pcwk.ehr.domain.DrugVO;
+import com.pcwk.ehr.domain.HospitalVO;
+import com.pcwk.ehr.domain.TripVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,52 +17,26 @@ public class MapController {
 
     private final MapService mapService;
 
-    /**
-     * 지도 HTML 페이지 열기
-     * GET /map/mark
-     */
     @GetMapping("/mark")
     public String mapPage() {
-        return "map/map"; // templates/map/map.html
+        return "map/map";
     }
 
-    /**
-     * 전체 위치 한 번에 조회
-     * GET /map/api/all
-     */
-    @GetMapping("/api/all")
-    @ResponseBody
-    public ResponseEntity<MapDTO> getAllLocations() {
-        return ResponseEntity.ok(mapService.getAllLocations());
-    }
-
-    /**
-     * 여행지만 조회
-     * GET /map/api/trips
-     */
     @GetMapping("/api/trips")
     @ResponseBody
-    public ResponseEntity<List<MapDTO>> getTripLocations() {
+    public ResponseEntity<List<TripVO>> getTripLocations() {
         return ResponseEntity.ok(mapService.getTripLocations());
     }
 
-    /**
-     * 병원만 조회
-     * GET /map/api/hospitals
-     */
     @GetMapping("/api/hospitals")
     @ResponseBody
-    public ResponseEntity<List<MapDTO>> getHospitalLocations() {
+    public ResponseEntity<List<HospitalVO>> getHospitalLocations() {
         return ResponseEntity.ok(mapService.getHospitalLocations());
     }
 
-    /**
-     * 약국만 조회
-     * GET /map/api/drugs
-     */
     @GetMapping("/api/drugs")
     @ResponseBody
-    public ResponseEntity<List<MapDTO>> getDrugLocations() {
+    public ResponseEntity<List<DrugVO>> getDrugLocations() {
         return ResponseEntity.ok(mapService.getDrugLocations());
     }
 }

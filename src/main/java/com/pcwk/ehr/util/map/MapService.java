@@ -9,28 +9,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MapService {
 
-    private final MapRepository mapRepository;
+    private final MapMapper mapMapper;
 
     // 여행지 목록
     public List<MapDTO> getTripLocations() {
-        return mapRepository.findTripLocations();
+        return mapMapper.findTripLocations();
     }
 
     // 병원 목록
     public List<MapDTO> getHospitalLocations() {
-        return mapRepository.findHospitalLocations();
+        return mapMapper.findHospitalLocations();
     }
 
     // 약국 목록
     public List<MapDTO> getDrugLocations() {
-        return mapRepository.findDrugLocations();
+        return mapMapper.findDrugLocations();
     }
 
     // 전체 한 번에 → DTO로 묶어서 반환
     public MapDTO getAllLocations() {
-        List<MapDTO> trips     = mapRepository.findTripLocations();
-        List<MapDTO> hospitals = mapRepository.findHospitalLocations();
-        List<MapDTO> drugs     = mapRepository.findDrugLocations();
+        List<MapDTO> trips     = mapMapper.findTripLocations();
+        List<MapDTO> hospitals = mapMapper.findHospitalLocations();
+        List<MapDTO> drugs     = mapMapper.findDrugLocations();
 
         return MapDTO.builder()
                 .trips(trips)

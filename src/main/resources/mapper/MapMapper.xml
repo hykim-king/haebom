@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pcwk.ehr.util.map.MapMapper">
+
+    <!-- 여행지 위도/경도 조회 -->
+    <select id="findTripLocations" resultType="TripVO">
+        SELECT TRIP_CONTS_ID AS tripContsId,
+               TRIP_NM       AS tripNm,
+               TRIP_LAT      AS tripLat,
+               TRIP_LOT      AS tripLot,
+               TRIP_ADDR     AS tripAddr
+        FROM trip
+        WHERE TRIP_LAT IS NOT NULL
+          AND TRIP_LOT IS NOT NULL
+          AND TRIP_LAT != 0
+          AND TRIP_LOT != 0
+    </select>
+
+    <!-- 병원 위도/경도 조회 -->
+    <select id="findHospitalLocations" resultType="HospitalVO">
+        SELECT HP_NO      AS hpNo,
+               HP_NM      AS hpNm,
+               HP_LAT     AS hpLat,
+               HP_LOT     AS hpLot,
+               HP_ADDR    AS hpAddr,
+               HP_TELNO1  AS hpTelno1
+        FROM hospital
+        WHERE HP_LAT IS NOT NULL
+          AND HP_LOT IS NOT NULL
+          AND HP_LAT != 0
+          AND HP_LOT != 0
+    </select>
+
+    <!-- 약국 위도/경도 조회 -->
+    <select id="findDrugLocations" resultType="DrugVO">
+        SELECT DS_NO    AS dsNo,
+               DS_NM    AS dsNm,
+               DS_LAT   AS dsLat,
+               DS_LOT   AS dsLot,
+               DS_ADDR  AS dsAddr,
+               DS_TELNO AS dsTelno
+        FROM drug
+        WHERE DS_LAT IS NOT NULL
+          AND DS_LOT IS NOT NULL
+          AND DS_LAT != 0
+          AND DS_LOT != 0
+    </select>
+
+</mapper>

@@ -19,11 +19,11 @@
             AREA_NO,
             TRIP_CTPV,
             TRIP_CTPV_NM,
-            TRIP_GNGU,
-            TRIP_GNGU_NM
+            TRIP_GUNGU,
+            TRIP_GUNGU_NM
         FROM AREA
         WHERE TRIP_CTPV = #{tripCtpv}
-        ORDER BY TRIP_GNGU
+        ORDER BY TRIP_GUNGU
     </select>
 
     <!-- 전체 조회 -->

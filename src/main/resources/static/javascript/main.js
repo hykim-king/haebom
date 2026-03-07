@@ -408,12 +408,21 @@ function renderBestWeather(allRegions) {
 
     best3.forEach((data, index) => {
         const clone = template.content.cloneNode(true);
+        const card = clone.querySelector('.weather-link-card');
 
         // 데이터 채우기
         clone.querySelector(".medal-slot").textContent = medals[index];
         clone.querySelector(".region-name").textContent = data.region;
         clone.querySelector(".temp-val").textContent = `${data.TA}°C`;
         clone.querySelector(".rain-val").textContent = `${data.ST}%`;
+
+        // 클릭 시, 여행지 목록 페이지로 이동
+        card.onclick = function() {
+            // Thymeleaf 프로젝트의 기본 경로인 /trip/trip 으로 이동하며
+            // 검색어 파라미터(searchWord)에 해당 지역명을 담아 보냅니다.
+            const regionName = data.region;
+            window.location.href = `/trip/trip?searchWord=${encodeURIComponent(regionName)}`;
+        };
 
         const windDir = windDirMap[data.WIND_DIR.trim()] || data.WIND_DIR;
         clone.querySelector(".wind-val").textContent = `${windDir} ${data.WIND}m/s`;

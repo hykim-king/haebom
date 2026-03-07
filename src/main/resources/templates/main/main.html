@@ -44,7 +44,7 @@
     </h2>
     <div id="popularList" class="list-group border-0">
       <a th:each="trip, iterStat : ${popularList}"
-         th:href="@{/trip/doSelectOne.do(tripContsId=${trip.tripContsId})}"
+         th:href="@{/trip/trip_view(tripContsId=${trip.tripContsId})}"
          class="list-group-item popular-item d-flex align-items-center shadow-sm rounded-4 mb-3 border-0">
 
         <div class="me-4 text-center" style="width: 50px;">
@@ -105,13 +105,22 @@
     <div class="slider-container position-relative">
       <div class="swiper regionSwiper">
         <div class="swiper-wrapper">
-          <div th:each="region : ${randomRegionList}" class="swiper-slide">
+          <div th:each="trip : ${randomRegionList}" class="swiper-slide">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-lift">
-              <img th:src="${region.tripPathNm}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="추천 이미지" loading="lazy">
+
+              <a th:href="@{/trip/trip_view(tripContsId=${trip.tripContsId})}">
+                <img th:src="${trip.tripPathNm}" class="card-img-top"
+                     style="height: 250px; object-fit: cover;"
+                     th:alt="${trip.tripNm}" loading="lazy">
+              </a>
+
               <div class="card-body">
-                <h5 class="fw-bold mb-2 text-truncate" th:text="${region.tripNm}">관광지명</h5>
-                <p class="card-text text-muted small mb-3 text-truncate" th:text="${region.tripAddr}">주소</p>
-                <a th:href="@{/trip/doSelectOne.do(tripContsId=${region.tripContsId})}" ></a>
+                <h5 class="fw-bold mb-2 text-truncate">
+                  <a th:href="@{/trip/trip_view(tripContsId=${trip.tripContsId})}"
+                     class="text-decoration-none text-dark"
+                     th:text="${trip.tripNm}">관광지명</a>
+                </h5>
+                <p class="card-text text-muted small mb-3 text-truncate" th:text="${trip.tripAddr}">주소</p>
               </div>
             </div>
           </div>
@@ -119,7 +128,6 @@
       </div>
 
       <div class="swiper-pagination custom-pagination"></div>
-
       <div class="swiper-button-prev"></div>
       <div class="swiper-button-next"></div>
     </div>
@@ -138,7 +146,7 @@
 
   <template id="weather-card-template">
     <div class="col-md-3 weather-card-wrapper">
-      <div class="card shadow-lg border-0 rounded-4">
+      <div class="card shadow-lg border-0 rounded-4 weather-link-card" style="cursor: pointer;">
         <div class="card-body text-center p-1">
           <div class="medal-slot mb-2"></div>
           <h3 class="region-name fw-bold mb-3"></h3>

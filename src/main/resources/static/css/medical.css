@@ -70,24 +70,25 @@ body {
 
 /* 지역 필터 버튼 */
 .region-filter-container {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 10px;
     padding-bottom: 8px;
-    scrollbar-width: none;
 }
-.region-filter-container::-webkit-scrollbar { display: none; }
 
 .region-btn {
-    height: 38px;
+    height: 42px;
     border-radius: 50px;
-    padding: 4px 38px;
+    padding: 6px 0;
     border: 1px solid #e2e8f0;
     background: white;
     color: var(--secondary-text);
+    font-size: 15px;
+    font-weight: 600;
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s;
+    text-align: center;
 }
 
 .region-btn.active {

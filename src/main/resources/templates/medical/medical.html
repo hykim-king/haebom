@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>해봄트립 - 의료가이드</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/header.css">
-    <link rel="stylesheet" href="../css/footer.css">
-    <link rel="stylesheet" href="../css/medical.css">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/medical.css}">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -21,7 +21,8 @@
     </div>
 
     <div class="main-card">
-        <div class="tab-group">
+        <div class="tab-group" style="position: relative;">
+            <div id="tab-indicator"></div>
             <button id="tab-hospital" class="tab-btn active" onclick="switchTab('hospital', this)">
                 <i data-lucide="stethoscope" size="18"></i>
                 <span>병원</span>
@@ -33,26 +34,34 @@
         </div>
 
         <div class="region-filter-container mb-3">
-            <button class="region-btn" onclick="selectRegion('전체', this)">전체</button>
-            <button class="region-btn active" onclick="selectRegion('서울', this)">서울</button>
-            <button class="region-btn" onclick="selectRegion('경기', this)">경기</button>
-            <button class="region-btn" onclick="selectRegion('인천', this)">인천</button>
-            <button class="region-btn" onclick="selectRegion('강원', this)">강원</button>
-            <button class="region-btn" onclick="selectRegion('제주', this)">제주</button>
-            <button class="region-btn" onclick="selectRegion('부산', this)">부산</button>
-            <button class="region-btn" onclick="selectRegion('대구', this)">대구</button>
-            <button class="region-btn" onclick="selectRegion('광주', this)">광주</button>
-            <button class="region-btn" onclick="selectRegion('대전', this)">대전</button>
+            <button class="region-btn active" onclick="selectRegion('전체')">전체</button>
+            <button class="region-btn" onclick="selectRegion('서울')">서울</button>
+            <button class="region-btn" onclick="selectRegion('경기')">경기</button>
+            <button class="region-btn" onclick="selectRegion('인천')">인천</button>
+            <button class="region-btn" onclick="selectRegion('강원')">강원</button>
+            <button class="region-btn" onclick="selectRegion('제주')">제주</button>
+            <button class="region-btn" onclick="selectRegion('부산')">부산</button>
+            <button class="region-btn" onclick="selectRegion('대구')">대구</button>
+            <button class="region-btn" onclick="selectRegion('광주')">광주</button>
+            <button class="region-btn" onclick="selectRegion('대전')">대전</button>
+            <button class="region-btn" onclick="selectRegion('울산')">울산</button>
+            <button class="region-btn" onclick="selectRegion('세종')">세종</button>
+            <button class="region-btn" onclick="selectRegion('충북')">충북</button>
+            <button class="region-btn" onclick="selectRegion('충남')">충남</button>
+            <button class="region-btn" onclick="selectRegion('전북')">전북</button>
+            <button class="region-btn" onclick="selectRegion('전남')">전남</button>
+            <button class="region-btn" onclick="selectRegion('경북')">경북</button>
+            <button class="region-btn" onclick="selectRegion('경남')">경남</button>
         </div>
 
         <div class="search-container">
             <i data-lucide="search" size="20"></i>
-            <input type="text" class="search-input" placeholder="병원명, 약국명 또는 도로명 주소 검색">
+            <input type="text" id="search-input" class="search-input" placeholder="병원명, 약국명 또는 도로명 주소 검색">
         </div>
 
-        <div id="result-list"></div>
+        <div id="medical-list"></div>
 
-        <div class="pagination-container">
+        <div id="pagination" class="pagination-container">
             <button class="page-btn arrow-btn"><i data-lucide="chevron-left" size="18"></i></button>
             <button class="page-btn active">1</button>
             <button class="page-btn">2</button>
@@ -63,15 +72,7 @@
 
 <div th:replace="~{main/footer :: footer}"></div>
 
-<script src="../javascript/medical.js"></script>
-<script>
-    // 페이지 로드 시 초기화 (데이터 렌더링 및 레이아웃 호출)
-    window.onload = () => {
-        if (typeof renderList === 'function') renderList();
-        lucide.createIcons();
-    };
-
-</script>
+<script th:src="@{/javascript/medical.js}"></script>
 
 </body>
 </html>

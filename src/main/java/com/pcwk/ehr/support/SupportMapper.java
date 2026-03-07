@@ -18,4 +18,6 @@ public interface SupportMapper extends WorkDiv<SupportVO> {
 
     List<SupportVO> getAll();
 
+    int getUserIdByEmail(String email);
+
 }

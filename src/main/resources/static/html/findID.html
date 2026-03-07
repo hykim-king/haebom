@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이디 찾기 - 해봄트립</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="css/login.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-screen w-full bg-orange-50/30 overflow-hidden flex items-center justify-center">
+
+<!-- Container -->
+<div class="w-full h-full md:h-auto md:w-[1000px] md:rounded-3xl bg-white shadow-2xl overflow-hidden flex relative">
+
+    <!-- Left Side: Image & Branding -->
+    <div class="hidden md:flex md:w-1/2 relative bg-orange-100 items-center justify-center overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1642840580793-6920cbc8f9b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXJtJTIwY296eSUyMHRyYXZlbCUyMGtvcmVhJTIwc2NlbmVyeSUyMHN1bnNldHxlbnwxfHx8fDE3NzA4MDIxNzR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" alt="Travel Mood" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-orange-900/40 backdrop-blur-[2px]"></div>
+
+        <div class="relative z-10 text-center p-10 text-white">
+            <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-6 border border-white/30 shadow-lg">
+                <span class="text-4xl">🐯</span>
+            </div>
+            <h2 class="text-3xl font-bold mb-4">반가워요!</h2>
+            <p class="text-orange-100 text-lg leading-relaxed">
+                아이디를 찾아서 다시 여행을 시작해보세요.
+            </p>
+        </div>
+    </div>
+
+    <!-- Right Side: ID 찾기 Form -->
+    <div class="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-white relative">
+
+        <!-- Home Link -->
+        <a href="../html/main.html" class="absolute top-8 right-8 text-slate-400 hover:text-orange-600 transition-colors flex items-center gap-1 text-sm font-medium">
+            <i data-lucide="home" class="w-4 h-4"></i> 홈으로
+        </a>
+
+        <!-- Logo (Mobile only) -->
+        <div class="md:hidden mb-8 text-center">
+            <span class="text-3xl font-black text-orange-600 tracking-tighter">해봄트립</span>
+        </div>
+
+        <div class="mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">아이디 찾기</h1>
+            <p class="text-slate-500">회원가입을 아직 안하셨나요? <a href="../html/signup.html" class="text-orange-600 font-bold hover:underline">회원가입</a></p>
+        </div>
+
+        <form id="find-id-form" class="space-y-5">
+            <!-- Name Input -->
+            <div class="space-y-1.5">
+                <label for="name" class="text-sm font-bold text-slate-700">이름</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="user" class="text-slate-400 h-5 w-5"></i>
+                    </div>
+                    <input
+                            type="text"
+                            id="name"
+                            class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all bg-slate-50 focus:bg-white"
+                            placeholder="이름 입력"
+                            required
+                    >
+                </div>
+            </div>
+
+            <!-- Email Input -->
+            <div class="space-y-1.5">
+                <label for="email" class="text-sm font-bold text-slate-700">이메일</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="mail" class="text-slate-400 h-5 w-5"></i>
+                    </div>
+                    <input
+                            type="email"
+                            id="email"
+                            class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all bg-slate-50 focus:bg-white"
+                            placeholder="가입한 이메일 입력"
+                            required
+                    >
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-base font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all shadow-orange-200">
+                아이디 찾기
+            </button>
+        </form>
+
+        <!-- Back to Login -->
+        <p class="text-slate-500 text-center mt-5">
+            이미 계정이 있으신가요?
+            <a href="../html/login.html" class="text-orange-600 font-bold hover:underline">로그인</a>
+        </p>
+
+    </div>
+</div>
+
+<!-- Script -->
+<script src="../javascript/find-id.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

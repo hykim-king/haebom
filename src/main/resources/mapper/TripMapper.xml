@@ -2,6 +2,40 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.trip.TripMapper">
+    
+    
+    
+    <select id="getDistinctTags" resultType="String">
+    SELECT DISTINCT 
+        CASE 
+            WHEN TRIP_TAG = 'A01010400' THEN '산'
+            WHEN TRIP_TAG = 'A01010800' THEN '폭포'
+            WHEN TRIP_TAG = 'A01010900' THEN '계곡'
+            WHEN TRIP_TAG IN ('A01010900', 'A01011200', 'A01011400', 'A01011600') THEN '바다'
+            WHEN TRIP_TAG = 'A01011700' THEN '호수'
+            WHEN TRIP_TAG = 'A01011800' THEN '강'
+            WHEN TRIP_TAG = 'A01011900' THEN '동굴'
+            WHEN TRIP_TAG IN ('A02010100', 'A02010200', 'A02010300', 'A02010600', 'A02010700') THEN '역사 관광지'
+            WHEN TRIP_TAG = 'A02010800' THEN '사찰'
+            WHEN TRIP_TAG = 'A02020300' THEN '온천/욕장/스파'
+            WHEN TRIP_TAG = 'A02020600' THEN '테마공원'
+            WHEN TRIP_TAG IN ('A02030100', 'A02030200', 'A02030300') THEN '체험'
+            WHEN TRIP_TAG = 'A02050200' THEN '기념/전망'
+            WHEN TRIP_TAG IN ('A02060100', 'A02060200', 'A02060300', 'A02060500', 'A02061200') THEN '문화시설'
+            WHEN TRIP_TAG LIKE 'A03%' THEN '레포츠'
+            ELSE '기타'
+        END AS tripTagNm
+    FROM TRIP 
+    WHERE TRIP_TAG IS NOT NULL
+    ORDER BY tripTagNm ASC
+    </select>
+
+   <update id="updateReadCnt" parameterType="TripVO">
+    UPDATE TRIP
+       SET TRIP_INQ_CNT = NVL(TRIP_INQ_CNT,0)+1
+     WHERE TRIP_CONTS_ID = #{tripContsId}
+   </update>
+
 
     <insert id="doSave" parameterType="TripVO">
         INSERT INTO TRIP (
@@ -40,7 +74,7 @@
         SELECT
             TRIP_CONTS_ID, 
             TRIP_NM, 
-            TRIP_PATH_NM, 
+            NVL(T.TRIP_PATH_NM, AF.FILE_PATH_NM) AS TRIP_PATH_NM, 
             TRIP_ADDR,
             TRIP_LAT, 
             TRIP_LOT, 
@@ -48,9 +82,31 @@
             TRIP_CLSF,
             TRIP_CTPV, 
             TRIP_GUNGU, 
-            TRIP_INQ_CNT
-        FROM TRIP
+            TRIP_INQ_CNT,
+            CASE 
+            WHEN TRIP_TAG = 'A01010400' THEN '산'
+            WHEN TRIP_TAG = 'A01010800' THEN '폭포'
+            WHEN TRIP_TAG = 'A01010900' THEN '계곡'
+            WHEN TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') THEN '바다'
+            WHEN TRIP_TAG = 'A01011700' THEN '호수'
+            WHEN TRIP_TAG = 'A01011800' THEN '강'
+            WHEN TRIP_TAG = 'A01011900' THEN '동굴'
+            WHEN TRIP_TAG IN ('A02010100', 'A02010200', 'A02010300', 'A02010600', 'A02010700') THEN '역사 관광지'
+            WHEN TRIP_TAG = 'A02010800' THEN '사찰'
+            WHEN TRIP_TAG = 'A02020300' THEN '온천/욕장/스파'
+            WHEN TRIP_TAG = 'A02020600' THEN '테마공원'
+            WHEN TRIP_TAG IN ('A02030100', 'A02030200', 'A02030300') THEN '체험'
+            WHEN TRIP_TAG = 'A02050200' THEN '기념/전망'
+            WHEN TRIP_TAG IN ('A02060100', 'A02060200', 'A02060300', 'A02060500', 'A02061200') THEN '문화시설'
+            WHEN TRIP_TAG LIKE 'A03%' THEN '레포츠'
+            ELSE '기타'
+          END AS tripTagNm
+        FROM TRIP T
+        LEFT OUTER JOIN ATTACH_FILE AF
+        ON T.TRIP_CONTS_ID = AF.BOARD_ID
+        AND AF.BOARD_CLSF = 'trip'
         WHERE TRIP_CONTS_ID = #{tripContsId}
+          AND ROWNUM = 1
     </select>
 
     <select id="getCount" resultType="int">
@@ -58,39 +114,115 @@
     </select>
 
 
-    <select id="doRetrieve" parameterType="TripVO" resultType="TripVO">
-        SELECT A.*, B.TOTAL_CNT AS totalCnt
+<select id="doRetrieve" parameterType="TripVO" resultType="TripVO">
+    SELECT A.*, B.TOTAL_CNT AS totalCnt
+    FROM (
+        SELECT TT1.*
         FROM (
-            SELECT TT1.*
+            SELECT ROWNUM AS RNUM, T1.*
             FROM (
-                SELECT ROWNUM AS RNUM, T1.*
-                FROM (
-                    SELECT *
-                    FROM TRIP
-                    WHERE 1=1
-                    <if test="searchWord != null and searchWord != ''">
-                        AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
-                    </if>
-                    <if test="tripClsf != 0">
-                        AND TRIP_CLSF = #{tripClsf}
-                    </if>
-                    ORDER BY TRIP_CONTS_ID DESC
-                ) T1  
-                <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
-            ) TT1
-            <![CDATA[WHERE RNUM >= #{pageSize} * (#{pageNo} - 1) + 1]]>
-        ) A CROSS JOIN (
-            SELECT COUNT(*) TOTAL_CNT
-            FROM TRIP
-            WHERE 1=1
-            <if test="searchWord != null and searchWord != ''">
-                AND (TRIP_NM LIKE '%' || #{searchWord} || '%' OR TRIP_ADDR LIKE '%' || #{searchWord} || '%')
-            </if>
-            <if test="tripClsf != 0">
-                AND TRIP_CLSF = #{tripClsf}
-            </if>
-        ) B    
-    </select>
+                SELECT 
+                    T.*,
+                    /* [출력 매핑] DB의 코드를 화면에 표시할 한글명(tripTagNm)으로 변환 */
+                    CASE 
+                        WHEN TRIP_TAG = 'A01010400' THEN '산'
+                        WHEN TRIP_TAG = 'A01010800' THEN '폭포'
+                        WHEN TRIP_TAG = 'A01010900' THEN '계곡'
+                        WHEN TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') THEN '바다'
+                        WHEN TRIP_TAG = 'A01011700' THEN '호수'
+                        WHEN TRIP_TAG = 'A01011800' THEN '강'
+                        WHEN TRIP_TAG = 'A01011900' THEN '동굴'
+                        WHEN TRIP_TAG IN ('A02010100', 'A02010200', 'A02010300', 'A02010600', 'A02010700') THEN '역사 관광지'
+                        WHEN TRIP_TAG = 'A02010800' THEN '사찰'
+                        WHEN TRIP_TAG = 'A02020300' THEN '온천/욕장/스파'
+                        WHEN TRIP_TAG = 'A02020600' THEN '테마공원'
+                        WHEN TRIP_TAG IN ('A02030100', 'A02030200', 'A02030300') THEN '체험'
+                        WHEN TRIP_TAG = 'A02050200' THEN '기념/전망'
+                        WHEN TRIP_TAG IN ('A02060100', 'A02060200', 'A02060300', 'A02060500', 'A02061200') THEN '문화시설'
+                        WHEN TRIP_TAG LIKE 'A03%' THEN '레포츠'
+                        ELSE '기타' 
+                    END AS tripTagNm
+                FROM TRIP T
+                WHERE 1=1
+                <if test="searchWord != null and searchWord != ''">
+                    AND (TRIP_NM LIKE '%' || #{searchWord} || '%')
+                </if>
+                
+                <if test="tripTag != null and tripTag != ''">
+                    <choose>
+                        <when test='tripTag == "산"'> AND TRIP_TAG = 'A01010400' </when>
+                        <when test='tripTag == "폭포"'> AND TRIP_TAG = 'A01010800' </when>
+                        <when test='tripTag == "계곡"'> AND TRIP_TAG = 'A01010900' </when>
+                        <when test='tripTag == "바다"'> AND TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') </when>
+                        <when test='tripTag == "호수"'> AND TRIP_TAG = 'A01011700' </when>
+                        <when test='tripTag == "강"'> AND TRIP_TAG = 'A01011800' </when>
+                        <when test='tripTag == "동굴"'> AND TRIP_TAG = 'A01011900' </when>
+                        <when test='tripTag == "역사 관광지" or tripTag == "역사관광지"'> 
+                            AND TRIP_TAG IN ('A02010100', 'A02010200', 'A02010300', 'A02010600', 'A02010700') 
+                        </when>
+                        <when test='tripTag == "사찰"'> AND TRIP_TAG = 'A02010800' </when>
+                        <when test='tripTag == "온천/욕장/스파"'> AND TRIP_TAG = 'A02020300' </when>
+                        <when test='tripTag == "테마공원"'> AND TRIP_TAG = 'A02020600' </when>
+                        <when test='tripTag == "체험"'> AND TRIP_TAG IN ('A02030100', 'A02030200', 'A02030300') </when>
+                        <when test='tripTag == "기념/전망"'> AND TRIP_TAG = 'A02050200' </when>
+                        <when test='tripTag == "문화시설"'> AND TRIP_TAG IN ('A02060100', 'A02060200', 'A02060300', 'A02060500', 'A02061200') </when>
+                        <when test='tripTag == "레포츠"'> AND TRIP_TAG LIKE 'A03%' </when>
+                        <when test='tripTag == "기타"'>
+                            AND TRIP_TAG NOT LIKE 'A01%' 
+                            AND TRIP_TAG NOT LIKE 'A02%' 
+                            AND TRIP_TAG NOT LIKE 'A03%'
+                        </when>
+                        <otherwise> AND TRIP_TAG = #{tripTag} </otherwise>
+                    </choose>
+                </if>
+
+                <if test="tripCtpv != 0"> AND TRIP_CTPV = #{tripCtpv} </if>
+                <if test="tripGungu != 0"> AND TRIP_GUNGU = #{tripGungu} </if>
+                
+                <choose>
+                    <when test="orderType == 'pop'"> ORDER BY TRIP_INQ_CNT DESC </when>
+                    <otherwise> ORDER BY TRIP_CONTS_ID DESC </otherwise>
+                </choose>
+            ) T1  
+            <![CDATA[ WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize} ]]>
+        ) TT1
+        <![CDATA[ WHERE RNUM >= #{pageSize} * (#{pageNo} - 1) + 1 ]]>
+    ) A CROSS JOIN (
+        SELECT COUNT(*) TOTAL_CNT
+        FROM TRIP
+        WHERE 1=1
+        <if test="searchWord != null and searchWord != ''">
+            AND (TRIP_NM LIKE '%' || #{searchWord} || '%')
+        </if>
+        <if test="tripTag != null and tripTag != ''">
+            <choose>
+                <when test='tripTag == "산"'> AND TRIP_TAG = 'A01010400' </when>
+                <when test='tripTag == "폭포"'> AND TRIP_TAG = 'A01010800' </when>
+                <when test='tripTag == "계곡"'> AND TRIP_TAG = 'A01010900' </when>
+                <when test='tripTag == "바다"'> AND TRIP_TAG IN ('A01010900','A01011200', 'A01011400', 'A01011600') </when>
+                <when test='tripTag == "호수"'> AND TRIP_TAG = 'A01011700' </when>
+                <when test='tripTag == "강"'> AND TRIP_TAG = 'A01011800' </when>
+                <when test='tripTag == "동굴"'> AND TRIP_TAG = 'A01011900' </when>
+                <when test='tripTag == "역사 관광지" or tripTag == "역사관광지"'> 
+                    AND TRIP_TAG IN ('A02010100', 'A02010200', 'A02010300', 'A02010600', 'A02010700') 
+                </when>
+                <when test='tripTag == "사찰"'> AND TRIP_TAG = 'A02010800' </when>
+                <when test='tripTag == "온천/욕장/스파"'> AND TRIP_TAG = 'A02020300' </when>
+                <when test='tripTag == "테마공원"'> AND TRIP_TAG = 'A02020600' </when>
+                <when test='tripTag == "체험"'> AND TRIP_TAG IN ('A02030100', 'A02030200', 'A02030300') </when>
+                <when test='tripTag == "기념/전망"'> AND TRIP_TAG = 'A02050200' </when>
+                <when test='tripTag == "문화시설"'> AND TRIP_TAG IN ('A02060100', 'A02060200', 'A02060300', 'A02060500', 'A02061200') </when>
+                <when test='tripTag == "레포츠"'> AND TRIP_TAG LIKE 'A03%' </when>
+                <when test='tripTag == "기타"'>
+                    AND TRIP_TAG NOT LIKE 'A01%' AND TRIP_TAG NOT LIKE 'A02%' AND TRIP_TAG NOT LIKE 'A03%'
+                </when>
+                <otherwise> AND TRIP_TAG = #{tripTag} </otherwise>
+            </choose>
+        </if>
+        <if test="tripCtpv != 0"> AND TRIP_CTPV = #{tripCtpv} </if>
+        <if test="tripGungu != 0"> AND TRIP_GUNGU = #{tripGungu} </if>
+    ) B    
+</select>
 
         <!--인기관광지 -->
     <select id="popularTop3" resultType="TripVO">

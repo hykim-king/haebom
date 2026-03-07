@@ -3,7 +3,7 @@ package com.pcwk.ehr.main;
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.trip.TripMapper;
-import com.pcwk.ehr.utill.weather.WeatherService;
+import com.pcwk.ehr.util.weather.WeatherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -44,17 +44,17 @@ public class MainServiceImpl implements MainService {
 
     @Override
     public int doUpdate(TripVO param) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int doDelete(TripVO param) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int doSave(TripVO param) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.comment.CommentMapper;
 import com.pcwk.ehr.domain.CommentVO;
+import com.pcwk.ehr.report.ReportMapper;
 
 @SpringBootTest
 class CommentDaoTest {
@@ -26,6 +27,9 @@ class CommentDaoTest {
 
     @Autowired                                                                                                                                                            
     CommentMapper commentMapper;
+
+    @Autowired
+    ReportMapper reportMapper;
 
     CommentVO comment01;
     CommentVO comment02;
@@ -37,14 +41,15 @@ class CommentDaoTest {
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
 
-        // 0. 전체삭제
+        // 0. 전체삭제 (report → cmt 순서: FK_CMT_TO_REPORT)
+        reportMapper.deleteAll();
         commentMapper.deleteAll();
 
         comment01 = new CommentVO();
         comment01.setCmtCn("좋은 여행지입니다!");
         comment01.setCmtStarng(5);
         comment01.setCmtClsf(1);
-        comment01.setTripCourseNo(1);
+        comment01.setTripCourseNo(6);
         comment01.setCmtHideYn("N");
         comment01.setRegNo(10);
 
@@ -52,7 +57,7 @@ class CommentDaoTest {
         comment02.setCmtCn("경치가 아름다워요");
         comment02.setCmtStarng(4);
         comment02.setCmtClsf(1);
-        comment02.setTripCourseNo(1);
+        comment02.setTripCourseNo(6);
         comment02.setCmtHideYn("N");
         comment02.setRegNo(10);
 
@@ -127,7 +132,7 @@ class CommentDaoTest {
     }  
 
 
-    @Disabled
+    //@Disabled
     @Test
     @DisplayName("목록 조회")
     void doRetrieve() {

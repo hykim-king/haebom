@@ -1,15 +1,26 @@
 package com.pcwk.ehr.notice;
 
-import com.pcwk.ehr.domain.NoticeVO; // [수정] VO 임포트 추가
+import com.pcwk.ehr.domain.NoticeVO;
 import com.pcwk.ehr.domain.UserVO;
+import com.pcwk.ehr.user.UserEntity;
+import com.pcwk.ehr.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller
@@ -19,141 +30,171 @@ public class NoticeController {
 
     private final Logger log = LogManager.getLogger(getClass());
     private final NoticeService noticeService;
+    private final UserService userService;
 
-    @PostMapping("/doSave.do")
+    private static final String UPLOAD_PATH = "/Users/hani/upload/notice/";
+
+    // ── 공통: 관리자 여부 ──
+    private String resolveAdminYn(HttpSession session) {
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
+        if (loginUser == null) return "N";
+        String dbAuth = noticeService.checkAdminAuth(loginUser.getUserEmlAddr());
+        return "Y".equalsIgnoreCase(dbAuth) ? "Y" : "N";
+    }
+
+    // ── 로그인 ──
+    @GetMapping("/login")
+    public String loginForm(Model model) {
+        model.addAttribute("userVO", new UserVO());
+        return "user/login";
+    }
+
+    @PostMapping("/login")
     @ResponseBody
-    public String doSave(NoticeVO inVO) { // [수정] 파라미터 추가
-        log.info("┌──────────────────────────┐");
-        log.info("│ doSave()                 │");
-        log.info("│ outVO: " + inVO);         // [추가] 데이터 확인용 로그
-        log.info("└──────────────────────────┘");
-
-        int flag = noticeService.doSave(inVO);
-
-        return flag == 1 ? "저장 성공" : "저장 실패";
-    }
-
-    @GetMapping("/noticeWrite")
-    public String noticeWrite(@RequestParam("ntcNo") int ntcNo, Model model) {
-        log.info("┌──────────────────────────┐");
-        log.info("│ noticeWrite()            │");
-        log.info("└──────────────────────────┘");
-
-        if (ntcNo != 0) {
-            NoticeVO inVO = new NoticeVO();
-            inVO.setNtcNo(ntcNo);
-
-            // 수정
-            NoticeVO outVO = noticeService.doSelectOne(inVO);
-            // 전달
-            model.addAttribute(outVO);
-        } else {
-            // 이동
-            model.addAttribute(new NoticeVO());
+    public ResponseEntity<?> login(@RequestBody UserVO vo, HttpSession session) {
+        try {
+            UserEntity loginUser = userService.loginDetail(vo.getUserEmlAddr(), vo.getUserEnpswd());
+            session.setAttribute("user", loginUser);
+            return ResponseEntity.ok().body("{\"success\": true}");
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("{\"success\": false}");
         }
-        return "notice/notice_write";
     }
 
+    // ── 목록 ──
+    @GetMapping("")
+    public String notice(NoticeVO inVO, Model model, HttpSession session) {
+        if (inVO.getPageNo() == 0)   inVO.setPageNo(1);
+        if (inVO.getPageSize() == 0) inVO.setPageSize(10);
 
+        int totalCount = noticeService.doRetrieveCount(inVO);
+        int totalPages = (int) Math.ceil((double) totalCount / inVO.getPageSize());
+        if (totalPages < 1) totalPages = 1;
 
-    @GetMapping("/notice")
-    public String notice(Model model) {
-        log.info("┌──────────────────────────┐");
-        log.info("│ notice()                 │");
-        log.info("└──────────────────────────┘");
-
-        NoticeVO searchVO = new NoticeVO();
-        searchVO.setPageNo(1);
-        searchVO.setPageSize(10);
-
-        List<NoticeVO> list = noticeService.doRetrieve(searchVO);
-
-        model.addAttribute("list", list);
-
+        model.addAttribute("userMngrYn", resolveAdminYn(session));
+        model.addAttribute("list", noticeService.doRetrieve(inVO));
+        model.addAttribute("searchVO", inVO);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("currentPage", inVO.getPageNo());
         return "notice/notice";
     }
 
-    @GetMapping("/noticeDetail")
-    public String noticeDetail(@RequestParam("ntcNo") int ntcNo, Model model) {
-        log.info("┌──────────────────────────┐");
-        log.info("│ noticeDetail()           │");
-        log.info("└──────────────────────────┘");
+    // ── 글쓰기 페이지 ──
+    @GetMapping("/noticeWrite")
+    public String noticeWrite(@RequestParam(value = "ntcNo", defaultValue = "0") int ntcNo,
+                              Model model, HttpSession session) {
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
+        if (loginUser == null) return "redirect:/user/login";
 
+        UserVO fullUser = noticeService.getLoginUserInfo(loginUser.getUserEmlAddr());
+        if (fullUser == null) return "redirect:/user/login";
+
+        if (!"Y".equals(fullUser.getUserMngrYn() != null
+                ? fullUser.getUserMngrYn().trim().toUpperCase() : "N"))
+            return "redirect:/notice";
+
+        NoticeVO outVO;
+        if (ntcNo != 0) {
+            NoticeVO inVO = new NoticeVO();
+            inVO.setNtcNo(ntcNo);
+            outVO = noticeService.doSelectOne(inVO);
+            if (outVO == null) outVO = new NoticeVO();
+        } else {
+            outVO = new NoticeVO();
+            outVO.setRegNo(fullUser.getUserNo());
+        }
+        outVO.setUserVO(fullUser);
+        model.addAttribute("noticeVO", outVO);
+        return "notice/notice_write";
+    }
+
+    // ── 등록 처리 (multipart) ──
+    @PostMapping("/doSave.do")
+    @ResponseBody
+    public String doSave(NoticeVO inVO,
+                         @RequestParam(value = "files", required = false) List<MultipartFile> files,
+                         HttpSession session) {
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
+        if (loginUser == null) return "로그인 필요";
+
+        UserVO fullUser = noticeService.getLoginUserInfo(loginUser.getUserEmlAddr());
+        if (fullUser == null) return "유저 정보 오류";
+        if (!"Y".equals(fullUser.getUserMngrYn() != null
+                ? fullUser.getUserMngrYn().trim().toUpperCase() : "N")) return "권한이 없습니다.";
+
+        inVO.setRegNo(fullUser.getUserNo());
+        inVO.setUserVO(fullUser);
+
+        int flag = ((NoticeServiceImpl) noticeService).doSave(inVO, files);
+        return flag == 1 ? "저장 성공" : "저장 실패";
+    }
+
+    // ── 상세 조회 ──
+    @GetMapping("/noticeDetail")
+    public String noticeDetail(@RequestParam("ntcNo") int ntcNo, Model model, HttpSession session) {
         NoticeVO searchVO = new NoticeVO();
         searchVO.setNtcNo(ntcNo);
+        NoticeVO outVO = noticeService.doSelectOne(searchVO); // 파일 목록도 포함됨
 
-        // 1. 상세보기 호출
-        NoticeVO outVO = noticeService.doSelectOne(searchVO);
-
-        // 2. 조회 결과
         model.addAttribute("outVO", outVO);
-
+        model.addAttribute("userMngrYn", resolveAdminYn(session));
         return "notice/notice_detail";
     }
 
+    // ── 삭제 ──
     @GetMapping("/doDelete.do")
     public String doDelete(@RequestParam("ntcNo") int ntcNo) {
         NoticeVO inVO = new NoticeVO();
         inVO.setNtcNo(ntcNo);
-
-        noticeService.doDelete(inVO);
-
-        return "redirect:/notice/notice";
+        noticeService.doDelete(inVO); // attach_file도 같이 삭제
+        return "redirect:/notice";
     }
 
-    @PostMapping("/doSelectOne.do")
-    @ResponseBody
-    public String doSelectOne(NoticeVO inVO) { // [수정] 파라미터 추가
-        log.info("┌──────────────────────────┐");
-        log.info("│ doSelectOne()            │");
-        log.info("│ outVO: " + inVO);         // [추가] 데이터 확인용 로그
-        log.info("└──────────────────────────┘");
-
-        return "조회 성공";
-    }
-
+    // ── 수정 처리 (multipart) ──
     @PostMapping("/doUpdate.do")
     @ResponseBody
-    public String doUpdate(NoticeVO inVO, HttpSession session) { // [수정] 파라미터 추가
-        log.info("┌──────────────────────────┐");
-        log.info("│ doUpdate()               │");
-        log.info("│ outVO: " + inVO);         // [추가] 데이터 확인용 로그
-        log.info("└──────────────────────────┘");
+    public String doUpdate(NoticeVO inVO,
+                           @RequestParam(value = "files", required = false) List<MultipartFile> files,
+                           HttpSession session) {
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
+        if (loginUser == null) return "권한 없음";
 
-        // 로그인 했을때 주석 풀기
-//        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-//
-//        if (loginUser == null) {
-//            log.warn("관리자가 아님");
-//            return "권한이 없습니다.";
-//        }
-//
-//        String mngrYn = loginUser.getUserMngrYn();
-//        if (mngrYn == null || !"Y".equals(mngrYn.trim())) {
-//            log.warn("관리자 권한 부족. 현재값: " + mngrYn);
-//            return "권한이 없습니다.";
-//        }
+        String dbAuth = noticeService.checkAdminAuth(loginUser.getUserEmlAddr());
+        if (!"Y".equalsIgnoreCase(dbAuth)) return "권한 없음";
 
-//        inVO.setModNo(loginUser.getUserNo());
-//        inVO.setUserVO(loginUser);
+        UserVO fullUser = noticeService.getLoginUserInfo(loginUser.getUserEmlAddr());
+        if (fullUser == null) return "유저 정보 오류";
+        fullUser.setUserMngrYn("Y");
+        inVO.setModNo(fullUser.getUserNo());
+        inVO.setUserVO(fullUser);
 
-        if(inVO.getModNo()==0){
-            inVO.setModNo(1);
-        }
-
-        int flag = noticeService.doUpdate(inVO);
+        int flag = ((NoticeServiceImpl) noticeService).doUpdate(inVO, files);
         return flag == 1 ? "수정 성공" : "수정 실패";
     }
 
+    // ── 파일 다운로드 ──
+    @GetMapping("/download")
+    public ResponseEntity<Resource> download(@RequestParam("filePathNm") String filePathNm,
+                                             @RequestParam("fileNm") String fileNm) {
+        try {
+            File file = new File(filePathNm);
+            if (!file.exists()) return ResponseEntity.notFound().build();
 
-    @PostMapping("/doRetrieve.do")
-    @ResponseBody
-    public String doRetrieve(NoticeVO inVO) { // [수정] 파라미터 추가
-        log.info("┌──────────────────────────┐");
-        log.info("│ doRetrieve()             │");
-        log.info("│ outVO: " + inVO);         // [추가] 데이터 확인용 로그
-        log.info("└──────────────────────────┘");
+            Resource resource = new FileSystemResource(file);
+            String encodedName = URLEncoder.encode(fileNm, StandardCharsets.UTF_8)
+                    .replace("+", "%20");
 
-        return "목록 조회 성공";
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename*=UTF-8''" + encodedName)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
+
+    @PostMapping("/doSelectOne.do") @ResponseBody public String doSelectOne(NoticeVO inVO) { return "조회 성공"; }
+    @PostMapping("/doRetrieve.do")  @ResponseBody public String doRetrieve(NoticeVO inVO)  { return "목록 조회 성공"; }
 }

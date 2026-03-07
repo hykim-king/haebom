@@ -1,5 +1,7 @@
 package com.pcwk.ehr.drug;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.pcwk.ehr.cmn.WorkDiv;
@@ -11,4 +13,6 @@ public interface DrugMapper extends WorkDiv<DrugVO> {
     int getCount();
 
     int deleteAll();
+
+    List<DrugVO> getAll();
 }

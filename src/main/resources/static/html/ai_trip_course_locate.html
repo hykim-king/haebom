@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해봄트립 - AI콕콕 플래너 지역 선택</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/ai_trip_course_locate.css">
+
+</head>
+<body>
+
+<div th:replace="~{main/header :: header}"></div>
+
+<div class="scenery-bg">
+    <div class="clouds"></div>
+    <div class="clouds clouds-2"></div>
+    <div class="mountains-bg"></div>
+    <div class="wind-turbines" style="left: 15%; bottom: 80px;"><i class="fa-solid fa-fan"></i></div>
+    <div class="wind-turbines" style="left: 25%; bottom: 60px; font-size: 2rem;"><i class="fa-solid fa-fan"></i></div>
+</div>
+
+<div class="card-wrapper container">
+    <div class="planner-card">
+        <div class="card-header-custom">
+            <div class="logo-text">AI콕콕 플래너</div>
+            <div class="step-indicator">
+                <span class="step-active">01</span>
+                <div class="step-line"></div>
+                <span class="step-inactive">02</span>
+                <span class="step-inactive">03</span>
+            </div>
+        </div>
+
+        <div class="sub-title">이번 여행, 어디로 떠나볼까요?</div>
+        <h1 class="main-title">
+            여행을 떠나고 싶은 지역을<br>
+            선택해 주세요.
+        </h1>
+
+        <div class="region-grid" id="regionGrid">
+            <div class="region-item" data-region="서울">서울</div>
+            <div class="region-item" data-region="부산">부산</div>
+            <div class="region-item" data-region="대구">대구</div>
+            <div class="region-item" data-region="인천">인천</div>
+            <div class="region-item" data-region="광주">광주</div>
+            <div class="region-item" data-region="대전">대전</div>
+            <div class="region-item" data-region="울산">울산</div>
+            <div class="region-item" data-region="세종">세종</div>
+            <div class="region-item" data-region="경기">경기</div>
+            <div class="region-item" data-region="강원">강원</div>
+            <div class="region-item" data-region="충북">충북</div>
+            <div class="region-item" data-region="충남">충남</div>
+            <div class="region-item" data-region="전북">전북</div>
+            <div class="region-item" data-region="전남">전남</div>
+            <div class="region-item" data-region="경북">경북</div>
+            <div class="region-item" data-region="경남">경남</div>
+            <div class="region-item" data-region="제주">제주</div>
+        </div>
+
+        <div class="btn-next-wrap">
+            <button class="btn-next" id="nextBtn" disabled>다음</button>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{main/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const regionItems = document.querySelectorAll('.region-item');
+    const nextBtn = document.getElementById('nextBtn');
+    let selectedRegions = new Set();
+
+    regionItems.forEach(item => {
+        // [기존 로직 유지]
+        item.addEventListener('click', () => {
+            const region = item.getAttribute('data-region');
+            if (item.classList.contains('selected')) {
+                item.classList.remove('selected');
+                selectedRegions.delete(region);
+            } else {
+                item.classList.add('selected');
+                selectedRegions.add(region);
+            }
+            nextBtn.disabled = selectedRegions.size <= 0;
+        });
+    });
+
+    // [수정사항] 다음 버튼 클릭 시 기간 선택(ai_trip_course_date.html) 페이지로 이동하도록 설정
+    nextBtn.addEventListener('click', () => {
+        const selectedArray = Array.from(selectedRegions);
+        alert(`선택된 지역: ${selectedArray.join(', ')}\n다음 단계로 이동합니다.`);
+        location.href = 'ai_trip_course_date.html'; // 기간 선택 페이지 이동 주석 추가
+    });
+</script>
+</body>
+</html>

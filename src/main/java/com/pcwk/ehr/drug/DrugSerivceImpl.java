@@ -40,7 +40,12 @@ public class DrugSerivceImpl implements DrugService {
     @Override
     public int doDelete(DrugVO param) {
         throw new UnsupportedOperationException();
-    }   
+    }
+
+    @Override
+    public List<DrugVO> getAll() {
+        return drugMapper.getAll();
+    }
 
 
 

@@ -204,7 +204,7 @@
 ========================= */
 .hero {
     position: relative;
-    height: 800px;
+    height: 100%;
     padding: 200px 20px 140px;
     background: #000;
     color: #fff;

@@ -30,7 +30,7 @@ class SupportDaoTest {
         log.info("│──setup───────────────────│");
         log.info("└──────────────────────────┘");
         // 하니님 원본 유지 (9개 필드 생성자/세터 구조)
-        support01 = new SupportVO(0, "문의 내용 01", "답변 대기 중", null, null, null, "N", 13, null);
+        support01 = new SupportVO(0, "문의 내용 01", "답변 대기 중", null, null, null, "N", 13, null, null);
     }
 
     @AfterEach

@@ -25,9 +25,11 @@ public class DrugController  {
 
     @GetMapping(value = "/api/drugs")
     @ResponseBody
-    public List<DrugVO> getAllDrugs() {
-        log.info("getAllDrugs()");
-        return drugService.getAll();
+    public List<DrugVO> doRetrieveDrugs(DrugVO drugVO) {
+        log.info("doRetrieveDrugs() drugVO: {}", drugVO);
+        if (drugVO.getPageNo() == 0) drugVO.setPageNo(1);
+        if (drugVO.getPageSize() == 0) drugVO.setPageSize(5);
+        return drugService.doRetrieve(drugVO);
     }
 
     @GetMapping(value = "/drug_detail")

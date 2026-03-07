@@ -2,6 +2,7 @@ package com.pcwk.ehr.notice;
 
 import com.pcwk.ehr.domain.NoticeVO;
 import com.pcwk.ehr.domain.UserVO;
+import com.pcwk.ehr.user.UserEntity;
 import com.pcwk.ehr.user.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class NoticeController {
 
     // ── 공통: 관리자 여부 ──
     private String resolveAdminYn(HttpSession session) {
-        UserVO loginUser = (UserVO) session.getAttribute("user");
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
         if (loginUser == null) return "N";
         String dbAuth = noticeService.checkAdminAuth(loginUser.getUserEmlAddr());
         return "Y".equalsIgnoreCase(dbAuth) ? "Y" : "N";
@@ -52,7 +53,7 @@ public class NoticeController {
     @ResponseBody
     public ResponseEntity<?> login(@RequestBody UserVO vo, HttpSession session) {
         try {
-            UserVO loginUser = userService.loginDetail(vo.getUserEmlAddr(), vo.getUserEnpswd());
+            UserEntity loginUser = userService.loginDetail(vo.getUserEmlAddr(), vo.getUserEnpswd());
             session.setAttribute("user", loginUser);
             return ResponseEntity.ok().body("{\"success\": true}");
         } catch (Exception e) {
@@ -83,7 +84,7 @@ public class NoticeController {
     @GetMapping("/noticeWrite")
     public String noticeWrite(@RequestParam(value = "ntcNo", defaultValue = "0") int ntcNo,
                               Model model, HttpSession session) {
-        UserVO loginUser = (UserVO) session.getAttribute("user");
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
         if (loginUser == null) return "redirect:/user/login";
 
         UserVO fullUser = noticeService.getLoginUserInfo(loginUser.getUserEmlAddr());
@@ -91,7 +92,7 @@ public class NoticeController {
 
         if (!"Y".equals(fullUser.getUserMngrYn() != null
                 ? fullUser.getUserMngrYn().trim().toUpperCase() : "N"))
-            return "redirect:/notice/notice";
+            return "redirect:/notice";
 
         NoticeVO outVO;
         if (ntcNo != 0) {
@@ -114,7 +115,7 @@ public class NoticeController {
     public String doSave(NoticeVO inVO,
                          @RequestParam(value = "files", required = false) List<MultipartFile> files,
                          HttpSession session) {
-        UserVO loginUser = (UserVO) session.getAttribute("user");
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
         if (loginUser == null) return "로그인 필요";
 
         UserVO fullUser = noticeService.getLoginUserInfo(loginUser.getUserEmlAddr());
@@ -147,7 +148,7 @@ public class NoticeController {
         NoticeVO inVO = new NoticeVO();
         inVO.setNtcNo(ntcNo);
         noticeService.doDelete(inVO); // attach_file도 같이 삭제
-        return "redirect:/notice/notice";
+        return "redirect:/notice";
     }
 
     // ── 수정 처리 (multipart) ──
@@ -156,18 +157,17 @@ public class NoticeController {
     public String doUpdate(NoticeVO inVO,
                            @RequestParam(value = "files", required = false) List<MultipartFile> files,
                            HttpSession session) {
-        UserVO loginUser = (UserVO) session.getAttribute("user");
+        UserEntity loginUser = (UserEntity) session.getAttribute("user");
         if (loginUser == null) return "권한 없음";
 
         String dbAuth = noticeService.checkAdminAuth(loginUser.getUserEmlAddr());
         if (!"Y".equalsIgnoreCase(dbAuth)) return "권한 없음";
 
-        if (loginUser.getUserNo() == null || loginUser.getUserNo() == 0) {
-            loginUser.setUserNo(noticeService.getUserIdByEmail(loginUser.getUserEmlAddr()));
-        }
-        loginUser.setUserMngrYn("Y");
-        inVO.setModNo(loginUser.getUserNo());
-        inVO.setUserVO(loginUser);
+        UserVO fullUser = noticeService.getLoginUserInfo(loginUser.getUserEmlAddr());
+        if (fullUser == null) return "유저 정보 오류";
+        fullUser.setUserMngrYn("Y");
+        inVO.setModNo(fullUser.getUserNo());
+        inVO.setUserVO(fullUser);
 
         int flag = ((NoticeServiceImpl) noticeService).doUpdate(inVO, files);
         return flag == 1 ? "수정 성공" : "수정 실패";

@@ -150,6 +150,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Secret properties
+application-secret.properties
+
 # VSCode
 .vscode/
 

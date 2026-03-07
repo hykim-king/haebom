@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
             success: function (result) {
                 if (result.includes('성공')) {
                     alert(ntcNo == 0 ? '등록되었습니다.' : '수정되었습니다.');
-                    window.location.href = '/notice/notice';
+                    window.location.href = '/notice';
                 } else {
                     alert('처리 실패: ' + result);
                 }

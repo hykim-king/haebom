@@ -29,4 +29,8 @@ public interface MyPageService extends WorkDiv<UserVO>{
 
     /** 사용자 정보 단건 조회 (WorkDiv 대용) */
     UserVO doSelectOne(UserVO userVO);
+
+    /** 찜 목록 개별 삭제 */
+    int doDeleteWish(UserVO inVO);
+    
 }

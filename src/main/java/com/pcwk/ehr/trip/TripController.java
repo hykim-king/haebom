@@ -169,6 +169,13 @@ public class TripController {
         return relationService.existsFavorite(vo);
     }
 
+    // 해당 여행지의 총 찜수 조회 API
+    @GetMapping("/getCount.do")
+    @ResponseBody
+    public int getCount(@RequestParam int tripContsId) {
+        return relationService.getCount(tripContsId);
+    }
+
     /*
      * 8. 찜하기 / 취소 실행
      */
@@ -182,25 +189,29 @@ public class TripController {
         UserVO user = (UserVO) session.getAttribute("user");
 
         if (user == null) {
-            resultList.add(-1); // 로그인 필요
+            resultList.add(-1); // [0]: 로그인 필요
             return resultList;
         }
 
         RelationVO vo = new RelationVO();
         vo.setUserNo(user.getUserNo());
         vo.setTripContsId(tripContsId);
-        vo.setRelClsf(10); // 찜하기 구분 코드
+        vo.setRelClsf(10);
 
         try {
-            // 서비스에서 존재 여부 체크 후 insert/delete 처리
+            // 1. 토글 실행 (Insert 또는 Delete)
             relationService.toggleFavorite(vo);
-            int currentCount = relationService.getCount(tripContsId);
 
-            resultList.add(1); // 성공
-            resultList.add(currentCount);
+            // 2. 결과 데이터 수집
+            int userTotalCount = relationService.getCountByUser(vo); // 내가 찜한 총 개수 (10개 제한 체크용)
+            int tripTotalCount = relationService.getCount(tripContsId); // 이 여행지의 총 찜수 (화면 표시용)
+
+            resultList.add(1); // [0]: 성공 여부
+            resultList.add(userTotalCount); // [1]: 사용자의 총 찜 개수
+            resultList.add(tripTotalCount); // [2]: 이 여행지의 총 찜 개수
         } catch (Exception e) {
-            e.printStackTrace(); // 콘솔에 에러 원인을 찍기 위해 반드시 필요
-            resultList.add(0); // 실패
+            log.error("toggleFavorite error: {}", e.getMessage());
+            resultList.add(0); // [0]: 실패
         }
 
         return resultList;

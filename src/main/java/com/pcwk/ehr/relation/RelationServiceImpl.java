@@ -80,13 +80,18 @@ public class RelationServiceImpl implements RelationService {
 
     @Override
     public int toggleFavorite(RelationVO vo) {
+        // 1. 모든 조건을 먼저 세팅 (조회와 삽입/삭제에 동일하게 적용되도록)
+        vo.setRelClsf(10);
+        vo.setCourseNo(null);
+
+        // 2. 세팅된 조건(userNo, tripContsId, relClsf)으로 존재 여부 확인
         int exists = relationMapper.existsFavorite(vo);
 
         if (exists > 0) {
-            // 이미 찜 -> 취소
+            // 3. 존재하면 삭제
             return relationMapper.deleteFavorite(vo);
         } else {
-            // 찜 안됨 -> 추가
+            // 4. 없으면 추가
             return relationMapper.FavoriteStatus(vo);
         }
     }

@@ -77,4 +77,6 @@ public class MyPageServiceImpl implements MyPageService {
     public int deleteRelation(UserVO userVO) {
         return myPageMapper.deleteRelation(userVO);
     }
+
+    
 }

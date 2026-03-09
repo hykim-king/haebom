@@ -30,12 +30,14 @@ public class DisasterRegionMapper {
     private DisasterRegionMapper() {
     }
 
+    // 짧은 시도명을 정식명으로 바꿔준다
     public static String toFullCtpvName(String ctpvNm) {
         if (ctpvNm == null || ctpvNm.isBlank())
             return "";
         return CTPV_FULL_NAME.getOrDefault(ctpvNm.trim(), ctpvNm.trim());
     }
 
+    // api요청용 지역 문자열을 만든다.
     public static String buildRequestRegionName(String ctpvNm, String sggNm) {
         String fullCtpv = toFullCtpvName(ctpvNm);
         String sub = sggNm == null ? "" : sggNm.trim();
@@ -46,10 +48,12 @@ public class DisasterRegionMapper {
         return fullCtpv + " " + sub;
     }
 
+    // 응답에 포함된 지역 문자열이 현재 사용자가 선택한 지역과 일치하는 지 판단
     public static boolean matchesRegion(String regionText, String ctpvNm, String sggNm) {
         if (regionText == null || regionText.isBlank())
             return false;
 
+        // normalize(value): 공백 제거 및 정규화 함수
         String normalizedText = normalize(regionText);
         String normalizedCtpv = normalize(toFullCtpvName(ctpvNm));
         String normalizedSgg = normalize(sggNm);

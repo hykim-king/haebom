@@ -1,6 +1,3 @@
-/**
- * 해봄트립 통합 JavaScript
- */
 const tripState = {
     pageNo: 1,
     pageSize: 10,
@@ -349,100 +346,6 @@ function movePage(num) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ✅ (1) 페이지 로딩 시: 내가 찜했는지 확인해서 하트 스타일 반영
-function initFavorite(tripContsId) {
-    const icon = document.getElementById("like-icon");
-    if (!icon) return;
-
-    fetch(`/trip/favoriteStatus.do?tripContsId=${encodeURIComponent(tripContsId)}`)
-        .then(res => res.text())
-        .then(txt => {
-            const exists = parseInt(txt, 10);
-
-            // 찜한 상태면 빨간색(또는 fill 느낌)
-            if (exists > 0) {
-                icon.classList.add("text-red-500");
-            } else {
-                icon.classList.remove("text-red-500");
-            }
-            // lucide 아이콘 다시 렌더(필요시)
-            if (window.lucide) lucide.createIcons();
-        })
-        .catch(() => {
-            // 실패해도 페이지는 계속 사용 가능하게 조용히 무시
-        });
-}
-
-function handleLike() {
-    // 1. ID 가져오기
-    const tripContsId =
-        document.getElementById("tripContsId")?.value ||
-        new URLSearchParams(window.location.search).get("tripContsId");
-
-    if (!tripContsId) return;
-
-    // [추가] 현재 하트 상태 확인 (이미 빨간색이면 '취소', 아니면 '추가')
-    const icon = document.getElementById("like-icon");
-    const isAdding = icon ? !icon.classList.contains("text-red-500") : true;
-    
-    // [추가] 사용자 확인 문구
-    const confirmMsg = isAdding 
-        ? "해당 여행지를 찜 목록에 추가하시겠습니까?" 
-        : "찜을 취소하시겠습니까?";
-
-    if (!confirm(confirmMsg)) return;
-
-    // 2. GET 방식으로 호출
-    fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`, {
-        method: "GET",
-        credentials: "same-origin"
-    })
-    .then(res => {
-        if (!res.ok) throw new Error("서버 응답 오류"); 
-        return res.json(); 
-    })
-    .then(data => {
-        const status = data[0]; // 1: 성공, -1: 로그인 필요
-        const totalCountByUser = data[1]; // [중요] 사용자의 '총' 찜 개수 (서버에서 넘겨줘야 함)
-
-        if (status === -1) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
-
-        if (status === 1) {
-            // [추가] 10개 제한 체크 로직
-            // 서버에서 "추가" 처리가 되었는데 총 개수가 10개를 넘었다면 알림 후 원상복구
-            if (isAdding && totalCountByUser > 10) {
-                alert("찜 목록이 가득 찼습니다! (최대 10개)\n기존의 찜 목록을 정리해 주세요.");
-                
-                // 11개째 저장된 것을 다시 삭제하기 위해 서버를 한 번 더 호출하거나,
-                // 애초에 서버에서 10개 넘으면 저장을 안 하고 다른 상태값을 주는 것이 좋습니다.
-                // 일단은 사용자에게 알리고 다시 toggle을 호출해 취소시킵니다.
-                handleLike(); 
-                return;
-            }
-
-            // 하트 옆 숫자 업데이트 (해당 여행지의 총 찜수)
-            // ※ 주의: data[2] 등에 해당 여행지 전체 찜수를 따로 받아온다면 그걸 쓰세요.
-            // 현재 컨트롤러가 어떻게 주느냐에 따라 수정이 필요할 수 있습니다.
-
-            // 하트 색깔 토글
-            if (icon) {
-                icon.classList.toggle("text-red-500");
-                alert(isAdding ? "찜 목록에 추가되었습니다." : "찜이 취소되었습니다.");
-            }
-
-            if (window.lucide) lucide.createIcons();
-        }
-    })
-    .catch((err) => {
-        console.error("찜 처리 에러:", err);
-        alert("처리에 실패했습니다.");
-    });
-}
-
-
 function renderThemeTags() {
     fetch('/trip/getTripTags.do')
         .then(res => res.json())
@@ -458,7 +361,82 @@ function renderThemeTags() {
             `).join("");
         })
 
+}
 
+// ✅ UI 업데이트 공통 함수 (숫자 반영 로직 포함)
+function updateLikeUI(isLiked, count) {
+    const icon = document.getElementById("like-icon");
+    const countSpan = document.getElementById("like-count");
 
+    if (icon) {
+        if (isLiked) {
+            icon.classList.add("text-red-500", "fill-current");
+        } else {
+            icon.classList.remove("text-red-500", "fill-current");
+        }
+        // Lucide 아이콘 다시 렌더링
+        if (window.lucide) lucide.createIcons();
+    }
 
+    // 💡 이 부분이 핵심입니다: 서버에서 받은 전체 찜수를 화면에 반영
+    if (countSpan && count !== undefined) {
+        countSpan.innerText = count;
+    }
+}
+
+function initFavorite(tripContsId) {
+
+    // 1. 찜 상태(하트 색상) 가져오기
+    fetch(`/trip/favoriteStatus.do?tripContsId=${encodeURIComponent(tripContsId)}`)
+        .then(res => res.text())
+        .then(txt => {
+            const exists = parseInt(txt, 10) > 0;
+            updateLikeUI(exists); // 초기 로딩 시 상태 반영
+        });
+
+    // 2. 총 찜수(숫자) 가져오기
+    fetch(`/trip/getCount.do?tripContsId=${encodeURIComponent(tripContsId)}`)
+        .then(res => res.text())
+        .then(count => {
+            const countSpan = document.getElementById("like-count");
+            if (countSpan) {
+                countSpan.innerText = count; // 0으로 되어있던 숫자를 실제 데이터로 변경
+            }
+        });
+}
+
+function handleLike() {
+    const tripContsId = new URLSearchParams(window.location.search).get("tripContsId");
+    if (!tripContsId) return;
+
+    const icon = document.getElementById("like-icon");
+    const isAdding = !icon.classList.contains("text-red-500");
+
+    if (!confirm(isAdding ? "찜 목록에 추가하시겠습니까?" : "찜을 취소하시겠습니까?")) return;
+
+    fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`)
+        .then(res => res.json())
+        .then(data => {
+            const status = data[0];
+            const userTotal = data[1];
+            const tripTotal = data[2]; // 서버에서 보낸 해당 여행지의 전체 찜수
+
+            if (status === -1) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+
+            if (status === 1) {
+                if (isAdding && userTotal > 10) {
+                    alert("찜 목록이 가득 찼습니다! (최대 10개)");
+                    fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`);
+                    return;
+                }
+
+                // ✅ 성공 시 하트 상태와 'tripTotal(전체 찜수)'을 함께 전달
+                updateLikeUI(isAdding, tripTotal);
+                alert(isAdding ? "찜 목록에 추가되었습니다." : "찜이 취소되었습니다.");
+            }
+        })
+        .catch(err => alert("처리에 실패했습니다."));
 }

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.mypage.MyPageMapper">
+
+    <insert id="doSave" parameterType="UserVO">
+        INSERT INTO ss_user (
+            USER_NO, USER_NICK, USER_EML_ADDR, USER_ENPSWD, USER_NM,
+            USER_BRDT, USER_TELNO, USER_GNDR, USER_MNGR_YN, USER_REG,
+            USER_REG_HM, USER_DEL_YN, USER_DRM_YN, USER_TAG, USER_ZIP,
+            USER_ADDR, USER_DADDR
+        ) VALUES (
+            USER_NO_SEQ.NEXTVAL, #{userNick}, #{userEmlAddr}, #{userEnpswd}, #{userNm},
+            #{userBrdt}, #{userTelno}, #{userGndr}, 'N',
+            TO_CHAR(SYSDATE, 'YYYYMMDD'), TO_CHAR(SYSDATE, 'HH24MI'),
+            'N', 'N', #{userTag}, #{userZip}, #{userAddr}, #{userDaddr}
+        )
+    </insert>
+
+    <delete id="doDelete" parameterType="UserVO">
+        DELETE FROM ss_user WHERE USER_NO = #{userNo}
+    </delete>
+
+    <select id="doSelectOne" parameterType="int" resultType="UserVO">
+        SELECT USER_NO, USER_NICK, USER_EML_ADDR, USER_NM, USER_ENPSWD,
+               USER_TELNO, USER_TAG, USER_ZIP, USER_ADDR, USER_DADDR
+          FROM ss_user
+         WHERE USER_NO = #{userNo}
+    </select>
+
+    <delete id="doDeleteWish" parameterType="map">
+        DELETE FROM relation 
+         WHERE USER_NO = #{userNo} 
+           AND TRIP_CONTS_ID = #{tripContsId}
+    </delete>
+
+    <update id="doUpdateNick" parameterType="UserVO">
+        UPDATE ss_user SET USER_NICK = #{userNick} WHERE USER_NO = #{userNo}
+    </update>
+
+    <update id="doUpdateTag" parameterType="UserVO">
+        UPDATE ss_user SET USER_TAG = #{userTag} WHERE USER_NO = #{userNo}
+    </update>
+
+    <update id="doUpdateAddr" parameterType="UserVO">
+        UPDATE ss_user 
+           SET USER_ZIP = #{userZip}, USER_ADDR = #{userAddr}, USER_DADDR = #{userDaddr}
+         WHERE USER_NO = #{userNo}
+    </update>
+
+    <update id="doUpdatePw" parameterType="UserVO">
+        UPDATE ss_user SET USER_ENPSWD = #{userEnpswd} WHERE USER_NO = #{userNo}
+    </update>
+
+    <select id="getRelationList" parameterType="UserVO" resultType="UserVO">
+        SELECT r.REL_CLSF, r.TRIP_CONTS_ID,
+               t.TITLE as itemTitle, t.ADDR1 as itemAddr, t.FIRSTIMAGE as itemImage
+          FROM relation r
+          JOIN trip t ON r.TRIP_CONTS_ID = t.CONTS_ID
+         WHERE r.USER_NO = #{userNo}
+           AND r.REL_CLSF = #{relClsf}
+    </select>
+
+    <select id="getRelationCount" parameterType="UserVO" resultType="int">
+        SELECT COUNT(REL_CLSF)
+          FROM relation
+         WHERE USER_NO = #{userNo}
+           AND REL_CLSF = #{relClsf}
+    </select>
+
+    <delete id="deleteRelation" parameterType="UserVO">
+        DELETE FROM relation
+         WHERE USER_NO = #{userNo}
+           AND REL_CLSF = #{relClsf}
+    </delete>
+
+</mapper>

@@ -286,7 +286,7 @@ function renderDestList(list) {
         return;
     }
 
-    const defaultImg = 'https://via.placeholder.com/400x300?text=No+Image';
+    const defaultImg = '../img/no_img.png';
 
     container.innerHTML = list.map(item => `
         <div class="group flex flex-col md:flex-row gap-6 p-6 bg-white rounded-3xl border border-gray-100 hover:shadow-xl transition-all cursor-pointer" 

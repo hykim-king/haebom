@@ -57,7 +57,7 @@
         </div>
 
         <div class="relative mb-12">
-            <img id="detail-img" th:src="${vo != null ? vo.tripPathNm : ''}"
+            <img id="detail-img" th:src="${vo != null && vo.tripPathNm != null ? vo.tripPathNm : '/img/no_img.png'}"
                 class="w-full h-[450px] object-cover rounded-[32px] mb-12 shadow-lg bg-gray-100">
         </div>
 

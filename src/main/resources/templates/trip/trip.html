@@ -37,7 +37,13 @@
                 <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 sticky top-10 shadow-sm">
                     
                     <div class="flex items-center bg-white border rounded-lg px-3 py-2 mb-6 shadow-sm">
-                        <input type="text" id="search-input" placeholder="여행지명, 주소 검색" class="w-full text-sm outline-none">
+
+                        <!-- 수정:2026/03/07_유빈 -->
+                        <input type="text" id="search-input"
+                               th:value="${tripVO != null ? tripVO.searchWord : ''}"
+                               placeholder="여행지명, 주소 검색"
+                               class="w-full text-sm outline-none">
+                        <!-- 수정:2026/03/07_유빈 -->
                         <button type="button" id="clear-btn" class="text-gray-400 hover:text-blue-500 hover:rotate-[-45deg] transition-all duration-200">
                             <i data-lucide="rotate-ccw" size="18"></i>
                         </button>

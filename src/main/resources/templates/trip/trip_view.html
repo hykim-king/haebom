@@ -57,7 +57,7 @@
         </div>
 
         <div class="relative mb-12">
-            <img id="detail-img" th:src="${vo != null ? vo.tripPathNm : ''}"
+            <img id="detail-img" th:src="${vo != null && vo.tripPathNm != null ? vo.tripPathNm : '/img/no_img.png'}"
                 class="w-full h-[450px] object-cover rounded-[32px] mb-12 shadow-lg bg-gray-100">
         </div>
 
@@ -91,47 +91,8 @@
             </div>
         </div>
 
-        <div class="mt-20">
-            <h3 class="text-lg font-bold mb-6">후기 및 댓글 <span id="comment-count"
-                    class="text-orange-500 ml-1 text-sm font-normal">0</span></h3>
-            <div class="bg-gray-50/50 border border-gray-100 rounded-2xl p-8 mb-10">
-                <div class="space-y-6">
-                    <div class="flex items-center gap-6">
-                        <span class="text-sm font-bold text-gray-700 w-16">별점 등록</span>
-                        <div class="flex flex-row-reverse justify-end star-rating-input">
-                            <input type="radio" id="st5" name="rating" value="5" class="hidden"><label for="st5"
-                                class="cursor-pointer text-gray-300 text-2xl">★</label>
-                            <input type="radio" id="st4" name="rating" value="4" class="hidden"><label for="st4"
-                                class="cursor-pointer text-gray-300 text-2xl">★</label>
-                            <input type="radio" id="st3" name="rating" value="3" class="hidden"><label for="st3"
-                                class="cursor-pointer text-gray-300 text-2xl">★</label>
-                            <input type="radio" id="st2" name="rating" value="2" class="hidden"><label for="st2"
-                                class="cursor-pointer text-gray-300 text-2xl">★</label>
-                            <input type="radio" id="st1" name="rating" value="1" class="hidden"><label for="st1"
-                                class="cursor-pointer text-gray-300 text-2xl">★</label>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-6">
-                        <span class="text-sm font-bold text-gray-700 w-16">사진 첨부</span>
-                        <label for="image-upload"
-                            class="bg-white border px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer hover:bg-gray-50 transition-colors">파일
-                            선택</label>
-                        <input type="file" id="image-upload" class="hidden" accept="image/*">
-                        <span id="file-name" class="text-xs text-gray-400">선택된 파일 없음</span>
-                    </div>
-                    <div class="relative">
-                        <textarea id="comment-input"
-                            class="w-full p-5 border border-gray-200 rounded-xl h-32 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-all"
-                            placeholder="여행지의 생생한 후기를 남겨주세요."></textarea>
-                    </div>
-                    <div class="flex justify-end">
-                        <button onclick="submitComment()"
-                            class="bg-orange-500 text-white px-10 py-3 rounded-xl font-bold hover:bg-orange-600 shadow-lg shadow-orange-500/20 transition-all">등록하기</button>
-                    </div>
-                </div>
-            </div>
-            <div id="comment-list" class="divide-y divide-gray-100 border-t"></div>
-        </div>
+        <div th:replace="~{fragment/comment :: commentSection(cmtClsf=1, targetNo=${vo != null ? vo.tripContsId : 0})}"></div>
+
     </main>
 
     <div th:replace="~{main/footer :: footer}"></div>

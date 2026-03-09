@@ -34,6 +34,30 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initListPage() {
+
+    // --- [추가 시작] URL 파라미터 읽기 및 상태 반영 : 26/03/07_유빈
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlSearchWord = urlParams.get('searchWord');
+
+    if (urlSearchWord) {
+        // 1. 상태값에 저장
+        tripState.searchWord = urlSearchWord;
+
+        // 2. 검색창(input)에 글자 넣어주기
+        const searchInput = document.getElementById("search-input");
+        if (searchInput) {
+            searchInput.value = urlSearchWord;
+        }
+
+        // 3. (선택사항) 타이틀 텍스트 변경
+        const viewTitle = document.getElementById("view-title");
+        if (viewTitle) {
+            viewTitle.innerText = `"${urlSearchWord}" 검색 결과`;
+        }
+    }
+
+    // [추가 끝] : 26/03/07_유빈
+
     fetchAreaTags();     // 1. 시도 목록 로드
     renderThemeTags();   // 2. 테마 목록 로드
     fetchList();         // 3. 첫 화면 리스트 로드
@@ -286,7 +310,7 @@ function renderDestList(list) {
         return;
     }
 
-    const defaultImg = 'https://via.placeholder.com/400x300?text=No+Image';
+    const defaultImg = '../img/no_img.png';
 
     container.innerHTML = list.map(item => `
         <div class="group flex flex-col md:flex-row gap-6 p-6 bg-white rounded-3xl border border-gray-100 hover:shadow-xl transition-all cursor-pointer" 
@@ -439,4 +463,49 @@ function handleLike() {
             }
         })
         .catch(err => alert("처리에 실패했습니다."));
+}
+
+// 2026/03/09: 수정 시작_유빈
+
+// [조회] 시도(CTPV) 목록 로드
+function fetchAreaTags() {
+    fetch('/trip/getCtpvList.do')
+        .then(res => res.json())
+        .then(areas => {
+            const container = document.getElementById("main-region-tags");
+            if (!container) return;
+
+            // 1. 검색어 확인
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchWord = urlParams.get('searchWord');
+
+            // 2. 검색어가 있으면 전체 버튼을 회색으로
+            const allBtnClass = searchWord ? "text-gray-400" : "text-orange-500 font-bold border-b-2 border-orange-500";
+
+            let html = `<button class="area-tag ${allBtnClass} pb-1 cursor-pointer" onclick="handleCityClick(0, '전체', this)">#전체</button>`;
+
+            html += areas.map(area => `
+                <button class="area-tag text-gray-400 hover:text-orange-500 pb-1 transition-all cursor-pointer" 
+                        onclick="handleCityClick(${area.tripCtpv}, '${area.tripCtpvNm}', this)">
+                    #${area.tripCtpvNm}
+                </button>
+            `).join("");
+
+            container.innerHTML = html;
+
+            // 3. 아이콘 초기화
+            if (window.lucide) lucide.createIcons();
+
+            // 4. 검색어가 있다면 해당 지역 버튼 강조
+            if (searchWord) {
+                const buttons = document.querySelectorAll(".area-tag");
+                buttons.forEach(btn => {
+                    // 버튼 텍스트(예: "#서울")에 검색어("서울")가 포함되어 있는지 확인
+                    if (btn.innerText.includes(searchWord)) {
+                        // handleCityClick 내부에서 클래스 조작이 이루어지므로 호출
+                        handleCityClick(null, searchWord, btn);
+                    }
+                });
+            }
+        });
 }

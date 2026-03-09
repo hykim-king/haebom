@@ -21,8 +21,16 @@
     </delete>
 
     <select id="doSelectOne" parameterType="int" resultType="UserVO">
-        SELECT USER_NO, USER_NICK, USER_EML_ADDR, USER_NM, USER_ENPSWD,
-               USER_TELNO, USER_TAG, USER_ZIP, USER_ADDR, USER_DADDR
+        SELECT USER_NO,
+               USER_NICK, 
+               USER_EML_ADDR, 
+               USER_NM, 
+               USER_ENPSWD,
+               USER_TELNO, 
+               USER_TAG, 
+               USER_ZIP, 
+               USER_ADDR, 
+               USER_DADDR
           FROM ss_user
          WHERE USER_NO = #{userNo}
     </select>
@@ -51,20 +59,24 @@
         UPDATE ss_user SET USER_ENPSWD = #{userEnpswd} WHERE USER_NO = #{userNo}
     </update>
 
-    <select id="getRelationList" parameterType="UserVO" resultType="UserVO">
-        SELECT r.REL_CLSF, r.TRIP_CONTS_ID,
-               t.TITLE as itemTitle, t.ADDR1 as itemAddr, t.FIRSTIMAGE as itemImage
+    <select id="getRelationList" parameterType="TripVO" resultType="TripVO">
+        SELECT r.TRIP_CONTS_ID,
+               t.TRIP_NM, 
+               t.ADDR, 
+               t.TRIP_PATH_NM
           FROM relation r
-          JOIN trip t ON r.TRIP_CONTS_ID = t.CONTS_ID
+          JOIN trip t ON r.TRIP_CONTS_ID = t.TRIP_CONTS_ID
          WHERE r.USER_NO = #{userNo}
            AND r.REL_CLSF = #{relClsf}
     </select>
 
+    <!-- userNo 받고, relClsf 받은 다음 여행지 아이디 null 아닌 값만 select 후 카운트-->
     <select id="getRelationCount" parameterType="UserVO" resultType="int">
-        SELECT COUNT(REL_CLSF)
+        SELECT COUNT(*)
           FROM relation
          WHERE USER_NO = #{userNo}
            AND REL_CLSF = #{relClsf}
+           AND TRIP_CONTS_ID IS NOT NULL
     </select>
 
     <delete id="deleteRelation" parameterType="UserVO">
@@ -72,5 +84,12 @@
          WHERE USER_NO = #{userNo}
            AND REL_CLSF = #{relClsf}
     </delete>
+
+    <delete id="del">
+    
+    
+    </delete>
+
+
 
 </mapper>

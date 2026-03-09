@@ -26,6 +26,19 @@ public class MyPageController {
     private MyPageService myPageService;
 
     /**
+     * 0. 마이페이지 화면 이동 (View)
+     * 이 메서드는 @ResponseBody가 없어야 합니다!
+     */
+    @GetMapping("/mypage.do")
+    public String myPageHome() {
+        log.info("마이페이지 화면으로 이동");
+        // templates 폴더 기준 경로 (확장자 .html 제외)
+        // 만약 src/main/resources/templates/mypage/mypage.html 이라면 아래처럼 작성
+        return "mypage/mypage"; 
+    }
+
+
+    /**
      * 1. 내 정보 상세 조회
      */
     @GetMapping("/getUserInfo.do")

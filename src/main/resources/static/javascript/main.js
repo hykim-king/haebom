@@ -53,6 +53,24 @@ function initHeroSlider() {
     }, 4000);
 }
 
+function handleMainSearch() {
+    const category = document.getElementById("search-category").value;
+    const keyword = document.getElementById("main-search-input").value.trim();
+
+    if (!keyword) {
+        alert("검색어를 입력해주세요.");
+        return;
+    }
+
+    if (category === "trip") {
+        // 기존 여행지 페이지로 이동
+        window.location.href = `/trip/trip?searchWord=${encodeURIComponent(keyword)}`;
+    } else if (category === "course") {
+        // 여행코스 페이지(미구현)로 이동
+        window.location.href = `/course/course_list?searchWord=${encodeURIComponent(keyword)}`;
+    }
+}
+
 /* ==========================================
    3. 지역별 추천 섹션 (Swiper.js)
 ========================================== */
@@ -186,10 +204,10 @@ const regionMap = {
     "21F20804": "무안",
 
     // 부산, 울산, 경상남도 (11H2) // 제주도 (11G)
-    "11H20201": "부산",          "11G00201": "제주",
-    "11H20101": "울산",          "11G00401": "서귀포",
-    "11H20102": "양산",          "11G00800": "추자도",
-    "11H20301": "창원",          "11G00000": "제주도",
+    "11H20201": "부산",          "11G00201": "제주시",
+    "11H20101": "울산",          "11G00401": "서귀포시",
+    "11H20102": "양산",          //"11G00000": "제주도",
+    "11H20301": "창원",
     "11H20304": "김해",
     "11H20401": "통영",          // 주요 산악 지역 (필요시 사용)
     "11H20402": "사천",          "11B101P0": "북한산",
@@ -408,12 +426,21 @@ function renderBestWeather(allRegions) {
 
     best3.forEach((data, index) => {
         const clone = template.content.cloneNode(true);
+        const card = clone.querySelector('.weather-link-card');
 
         // 데이터 채우기
         clone.querySelector(".medal-slot").textContent = medals[index];
         clone.querySelector(".region-name").textContent = data.region;
         clone.querySelector(".temp-val").textContent = `${data.TA}°C`;
         clone.querySelector(".rain-val").textContent = `${data.ST}%`;
+
+        // 클릭 시, 여행지 목록 페이지로 이동
+        card.onclick = function() {
+            // Thymeleaf 프로젝트의 기본 경로인 /trip/trip 으로 이동하며
+            // 검색어 파라미터(searchWord)에 해당 지역명을 담아 보냅니다.
+            const regionName = data.region;
+            window.location.href = `/trip/trip?searchWord=${encodeURIComponent(regionName)}`;
+        };
 
         const windDir = windDirMap[data.WIND_DIR.trim()] || data.WIND_DIR;
         clone.querySelector(".wind-val").textContent = `${windDir} ${data.WIND}m/s`;

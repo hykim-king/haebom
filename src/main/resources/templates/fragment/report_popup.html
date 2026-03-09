@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title>댓글 신고</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #f9fafb; }
+    </style>
+</head>
+
+<body class="p-6">
+    <input type="hidden" id="cmtNo" th:value="${cmtNo}" />
+
+    <h2 class="text-lg font-bold text-gray-900 mb-6">댓글 신고</h2>
+
+    <div class="space-y-4">
+        <div>
+            <p class="text-sm font-bold text-gray-700 mb-3">신고 사유</p>
+            <div class="space-y-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="repClsf" value="1" class="accent-orange-500">
+                    <span class="text-sm text-gray-700">스팸/광고</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="repClsf" value="2" class="accent-orange-500">
+                    <span class="text-sm text-gray-700">욕설/비하</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="repClsf" value="3" class="accent-orange-500">
+                    <span class="text-sm text-gray-700">허위 정보</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="repClsf" value="4" class="accent-orange-500">
+                    <span class="text-sm text-gray-700">개인정보 노출</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="repClsf" value="5" class="accent-orange-500">
+                    <span class="text-sm text-gray-700">기타</span>
+                </label>
+            </div>
+        </div>
+
+        <div>
+            <p class="text-sm font-bold text-gray-700 mb-2">상세 내용 (선택)</p>
+            <textarea id="repCn"
+                class="w-full p-4 border border-gray-200 rounded-xl h-24 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm"
+                placeholder="신고 사유를 상세히 적어주세요."></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+            <button onclick="window.close()"
+                class="px-6 py-2.5 rounded-xl text-sm text-gray-500 border hover:bg-gray-50 transition-colors">취소</button>
+            <button onclick="submitReport()"
+                class="px-6 py-2.5 rounded-xl text-sm text-white bg-red-500 hover:bg-red-600 font-bold transition-colors">신고하기</button>
+        </div>
+    </div>
+
+    <script>
+        function getCsrfToken() {
+            return document.querySelector('meta[name="_csrf"]')?.content || '';
+        }
+        function getCsrfHeader() {
+            return document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+        }
+
+        function submitReport() {
+            const cmtNo = parseInt(document.getElementById('cmtNo').value);
+            const repClsfEl = document.querySelector('input[name="repClsf"]:checked');
+            const repCn = document.getElementById('repCn').value.trim();
+
+            if (!repClsfEl) {
+                alert("신고 사유를 선택해주세요.");
+                return;
+            }
+
+            const body = {
+                cmtNo: cmtNo,
+                repClsf: parseInt(repClsfEl.value),
+                repCn: repCn
+            };
+
+            fetch('/report/doSave.do', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [getCsrfHeader()]: getCsrfToken()
+                },
+                body: JSON.stringify(body)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === -1) {
+                        alert("로그인이 필요합니다.");
+                        return;
+                    }
+                    alert(data.message);
+                    if (data.status === 1) {
+                        window.close();
+                    }
+                })
+                .catch(err => {
+                    console.error("신고 실패:", err);
+                    alert("신고 중 오류가 발생했습니다.");
+                });
+        }
+    </script>
+</body>
+
+</html>

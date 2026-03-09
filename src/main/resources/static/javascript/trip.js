@@ -189,6 +189,7 @@ function fetchDetailData(tripContsId) {
         .catch(err => console.error("AJAX 호출 에러:", err));
 }
 
+// 2026/03/09: 수정 시작_유빈
 
 // [조회] 시도(CTPV) 목록 로드
 function fetchAreaTags() {
@@ -197,16 +198,43 @@ function fetchAreaTags() {
         .then(areas => {
             const container = document.getElementById("main-region-tags");
             if (!container) return;
-            let html = `<button class="area-tag text-orange-500 font-bold border-b-2 border-orange-500 pb-1 cursor-pointer" onclick="handleCityClick(0, '전체', this)">#전체</button>`;
+
+            // 1. 검색어 확인
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchWord = urlParams.get('searchWord');
+
+            // 2. 검색어가 있으면 전체 버튼을 회색으로
+            const allBtnClass = searchWord ? "text-gray-400" : "text-orange-500 font-bold border-b-2 border-orange-500";
+
+            let html = `<button class="area-tag ${allBtnClass} pb-1 cursor-pointer" onclick="handleCityClick(0, '전체', this)">#전체</button>`;
+
             html += areas.map(area => `
                 <button class="area-tag text-gray-400 hover:text-orange-500 pb-1 transition-all cursor-pointer" 
                         onclick="handleCityClick(${area.tripCtpv}, '${area.tripCtpvNm}', this)">
                     #${area.tripCtpvNm}
                 </button>
             `).join("");
+
             container.innerHTML = html;
+
+            // 3. 아이콘 초기화
+            if (window.lucide) lucide.createIcons();
+
+            // 4. 검색어가 있다면 해당 지역 버튼 강조
+            if (searchWord) {
+                const buttons = document.querySelectorAll(".area-tag");
+                buttons.forEach(btn => {
+                    // 버튼 텍스트(예: "#서울")에 검색어("서울")가 포함되어 있는지 확인
+                    if (btn.innerText.includes(searchWord)) {
+                        // handleCityClick 내부에서 클래스 조작이 이루어지므로 호출
+                        handleCityClick(null, searchWord, btn);
+                    }
+                });
+            }
         });
 }
+
+// 2026/03/09: 수정 끝_유빈
 
 // [기능] 시도 클릭 -> 군구 로드 및 필터 적용
 function handleCityClick(ctpvCode, ctpvNm, btnElem) {

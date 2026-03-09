@@ -53,6 +53,24 @@ function initHeroSlider() {
     }, 4000);
 }
 
+function handleMainSearch() {
+    const category = document.getElementById("search-category").value;
+    const keyword = document.getElementById("main-search-input").value.trim();
+
+    if (!keyword) {
+        alert("검색어를 입력해주세요.");
+        return;
+    }
+
+    if (category === "trip") {
+        // 기존 여행지 페이지로 이동
+        window.location.href = `/trip/trip?searchWord=${encodeURIComponent(keyword)}`;
+    } else if (category === "course") {
+        // 여행코스 페이지(미구현)로 이동
+        window.location.href = `/course/course_list?searchWord=${encodeURIComponent(keyword)}`;
+    }
+}
+
 /* ==========================================
    3. 지역별 추천 섹션 (Swiper.js)
 ========================================== */
@@ -186,10 +204,10 @@ const regionMap = {
     "21F20804": "무안",
 
     // 부산, 울산, 경상남도 (11H2) // 제주도 (11G)
-    "11H20201": "부산",          "11G00201": "제주",
-    "11H20101": "울산",          "11G00401": "서귀포",
-    "11H20102": "양산",          "11G00800": "추자도",
-    "11H20301": "창원",          "11G00000": "제주도",
+    "11H20201": "부산",          "11G00201": "제주시",
+    "11H20101": "울산",          "11G00401": "서귀포시",
+    "11H20102": "양산",          //"11G00000": "제주도",
+    "11H20301": "창원",
     "11H20304": "김해",
     "11H20401": "통영",          // 주요 산악 지역 (필요시 사용)
     "11H20402": "사천",          "11B101P0": "북한산",

@@ -31,8 +31,14 @@
         당신만의 특별한 여행을 시작하세요.
       </p>
       <div class="hero-search">
-        <input type="text" placeholder="어디로 떠나고 싶으신가요?" />
-        <button class="hero-btn">검색</button>
+        <div class="select-wrapper">
+          <select id="search-category" class="hero-select">
+            <option value="trip">여행지 ▼</option>
+            <option value="course">여행코스 ▼</option>
+          </select>
+        </div>
+        <input type="text" id="main-search-input" class="text-white" placeholder="어디로 떠나고 싶으신가요?" />
+        <button class="hero-btn" onclick="handleMainSearch()">검색</button>
       </div>
     </div>
   </section>
@@ -56,8 +62,12 @@
         </div>
 
         <div class="flex-grow-1">
-          <h4 class="fw-bold mb-1" th:text="${trip.tripNm}">관광지명</h4>
-          <p class="text-muted mb-0 text-truncate" style="max-width: 400px;" th:text="${trip.tripAddr}">주소</p>
+          <p class="card-text text-muted small mb-3 text-truncate" th:text="${trip.tripAddr}">주소</p>
+
+          <p class="card-text text-muted small mb-3 text-truncate"
+             th:text="${#strings.arraySplit(trip.tripAddr, ' ')[0]} + ' ' + ${#strings.arraySplit(trip.tripAddr, ' ')[1]}">
+            지역명
+          </p>
         </div>
 
         <div class="views-box text-muted">
@@ -106,40 +116,32 @@
       <div class="swiper regionSwiper">
         <div class="swiper-wrapper">
           <div th:each="trip : ${randomRegionList}" class="swiper-slide">
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-lift">
-
-              <a th:href="@{/trip/trip_view(tripContsId=${trip.tripContsId})}">
-                <img th:src="${trip.tripPathNm}" class="card-img-top"
-                     style="height: 250px; object-fit: cover;"
-                     th:alt="${trip.tripNm}" loading="lazy">
-              </a>
-
-              <div class="card-body">
-                <h5 class="fw-bold mb-2 text-truncate">
-                  <a th:href="@{/trip/trip_view(tripContsId=${trip.tripContsId})}"
-                     class="text-decoration-none text-dark"
-                     th:text="${trip.tripNm}">관광지명</a>
-                </h5>
-                <p class="card-text text-muted small mb-3 text-truncate" th:text="${trip.tripAddr}">주소</p>
+            <a th:href="@{/trip/trip_view(tripContsId=${trip.tripContsId})}" class="card-full-link">
+              <div class="card h-100 border-0 shadow-lg rounded-4 overflow-hidden">
+                <img th:src="${trip.tripPathNm}" class="card-img-full" th:alt="${trip.tripNm}">
+                <div class="card-img-overlay-custom">
+                  <span class="badge-region" th:text="${#strings.arraySplit(trip.tripAddr, ' ')[0]}">지역명</span>
+                  <h5 class="trip-title" th:text="${trip.tripNm}">여행지 이름</h5>
+                </div>
               </div>
-            </div>
+            </a>
           </div>
-        </div>
-      </div>
-
-      <div class="swiper-pagination custom-pagination"></div>
+        </div> </div> <div class="swiper-pagination custom-pagination"></div>
       <div class="swiper-button-prev"></div>
       <div class="swiper-button-next"></div>
-    </div>
-  </section>
+    </div> </section>
 
+  <!-- 오늘의 날씨 BEST3 -->
   <section class="container-fluid py-4 weather-section">
     <div class="weather-inner">
-      <h2 class="fw-bold mb-2 d-flex align-items-center justify-content-center gap-2">
+      <h2 class="mb-2 d-flex align-items-center justify-content-center gap-2 best-font">
         <i data-lucide="thermometer-sun" class="text-warning"></i>
         오늘의 날씨 BEST 3
       </h2>
-      <p class="text-muted mb-5">지금 여행하기 가장 좋은 지역이에요.</p>
+      <p class="mb-5 fw-bold best-Description">
+        날씨가 대신 전해주는 초대장, 오늘 여행하기 가장 곳들만 모았습니다.<br>
+        지금 이 계절에 가장 완벽하게 누릴 수 있는 기상 조건을 확인해 보세요!
+      </p>
       <div class="row g-4 justify-content-center" id="weatherList"></div>
     </div>
   </section>

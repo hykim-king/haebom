@@ -14,9 +14,9 @@ import java.util.List;
 public class DisasterResponseVO {
 
     private boolean success;
-    private String ctpvNm;
-    private String sggNm;
-    private String requestRegionName;
-    private String summary;
+    private String ctpvNm; // 도시 명
+    private String sggNm; // 군구명
+    private String requestRegionName; // ex)서울특별시 동작구
+    private String summary; // 재난 문자 내용
     private List<DisasterItemVO> items;
 }

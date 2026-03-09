@@ -27,10 +27,12 @@ public class DisasterRegionMapper {
         CTPV_FULL_NAME.put("제주", "제주특별자치도");
     }
 
-    private DisasterRegionMapper() {}
+    private DisasterRegionMapper() {
+    }
 
     public static String toFullCtpvName(String ctpvNm) {
-        if (ctpvNm == null || ctpvNm.isBlank()) return "";
+        if (ctpvNm == null || ctpvNm.isBlank())
+            return "";
         return CTPV_FULL_NAME.getOrDefault(ctpvNm.trim(), ctpvNm.trim());
     }
 
@@ -45,7 +47,8 @@ public class DisasterRegionMapper {
     }
 
     public static boolean matchesRegion(String regionText, String ctpvNm, String sggNm) {
-        if (regionText == null || regionText.isBlank()) return false;
+        if (regionText == null || regionText.isBlank())
+            return false;
 
         String normalizedText = normalize(regionText);
         String normalizedCtpv = normalize(toFullCtpvName(ctpvNm));
@@ -60,7 +63,8 @@ public class DisasterRegionMapper {
     }
 
     public static String normalize(String value) {
-        if (value == null) return "";
+        if (value == null)
+            return "";
         return value.replaceAll("\\s+", "").trim();
     }
 }

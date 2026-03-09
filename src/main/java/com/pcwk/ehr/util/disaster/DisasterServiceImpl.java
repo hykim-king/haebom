@@ -48,6 +48,11 @@ public class DisasterServiceImpl implements DisasterService {
         try {
             String apiUrl = buildApiUrl(crtDt, requestRegionName);
 
+            log.debug("[DISASTER] baseUrl={}", baseUrl);
+            log.debug("[DISASTER] serviceKey(first8)={}",
+                    serviceKey != null && serviceKey.length() >= 8 ? serviceKey.substring(0, 8) : serviceKey);
+            log.debug("[DISASTER] requestRegionName={}", requestRegionName);
+            log.debug("[DISASTER] crtDt={}", crtDt);
             log.debug("[DISASTER] apiUrl={}", apiUrl);
 
             String rawJson = restTemplate.getForObject(apiUrl, String.class);
@@ -58,7 +63,23 @@ public class DisasterServiceImpl implements DisasterService {
             }
 
             JsonNode root = objectMapper.readTree(rawJson);
+
+            String resultCode = root.path("header").path("resultCode").asText("");
+            String resultMsg = root.path("header").path("resultMsg").asText("");
+            String errorMsg = root.path("header").path("errorMsg").asText("");
+
+            log.debug("[DISASTER] resultCode={}, resultMsg={}, errorMsg={}", resultCode, resultMsg, errorMsg);
+
+            // 공식 API가 실패 응답을 body:null 로 주는 경우를 먼저 차단
+            if (!resultCode.isBlank() && !"00".equals(resultCode)) {
+                String failMessage = !errorMsg.isBlank() ? errorMsg : resultMsg;
+                log.warn("[DISASTER] API FAIL - resultCode={}, failMessage={}", resultCode, failMessage);
+                return emptyResponse(ctpvNm, sggNm, requestRegionName,
+                        "재난 API 조회 실패: " + failMessage);
+            }
+
             List<JsonNode> rawItems = extractCandidateItems(root);
+            log.debug("[DISASTER] rawItems.size={}", rawItems.size());
 
             List<DisasterItemVO> filtered = new ArrayList<>();
             for (JsonNode item : rawItems) {
@@ -67,6 +88,7 @@ public class DisasterServiceImpl implements DisasterService {
                     filtered.add(vo);
                 }
             }
+            log.debug("[DISASTER] filtered.size={}", filtered.size());
 
             String summary = filtered.isEmpty()
                     ? requestRegionName + " 기준 현재 표시할 재난 문자가 없습니다."
@@ -89,7 +111,7 @@ public class DisasterServiceImpl implements DisasterService {
 
     private String buildApiUrl(String crtDt, String requestRegionName) {
         StringBuilder urlBuilder = new StringBuilder(baseUrl);
-        urlBuilder.append("?serviceKey=").append(encode(serviceKey));
+        urlBuilder.append("?serviceKey=").append(serviceKey);
         urlBuilder.append("&numOfRows=").append(numOfRows);
         urlBuilder.append("&pageNo=1");
         urlBuilder.append("&returnType=").append(encode(returnType));
@@ -129,8 +151,7 @@ public class DisasterServiceImpl implements DisasterService {
         }
 
         if (node.isObject()) {
-            boolean looksLikeItem =
-                    node.has("MSG_CN") ||
+            boolean looksLikeItem = node.has("MSG_CN") ||
                     node.has("RCPTN_RGN_NM") ||
                     node.has("CRT_DT") ||
                     node.has("DST_SE_NM") ||

@@ -176,6 +176,30 @@ function execPostCode() {
         }
     }).open();
 }
+function validateNickname(nickname) {
+    // 한글(가-힣), 영문, 숫자만 허용 (초성/모음 단독 사용 불가)
+    //const regex = /^[a-zA-Z0-9가-힣]+$/;  필요시 정규식 수정가능
+    
+    // 한글 초성/모음 범위를 직접 체크하여 포함 여부 확인
+    const jaumMoumRegex = /[ㄱ-ㅎㅏ-ㅣ]/;
+
+    if (jaumMoumRegex.test(nickname)) {
+        alert("닉네임에 초성이나 모음을 단독으로 사용할 수 없습니다. (예: 'ㅋㅋ', 'ㅠㅠ' 불가)");
+        return false;
+    }
+    /*
+    if (!regex.test(nickname)) {
+        alert("닉네임은 한글, 영문, 숫자만 가능합니다.");
+        return false;
+    }*/
+
+    if (nickname.length < 2 || nickname.length > 10) {
+        alert("닉네임은 2~10자 사이여야 합니다.");
+        return false;
+    }
+
+    return true;
+}
 
 // [주소] 저장
 document.getElementById('btn-addr-save')?.addEventListener('click', async () => {
@@ -194,10 +218,21 @@ document.getElementById('btn-nick-check')?.addEventListener('click', function ()
     const msg = document.getElementById('nick-msg');
     const saveBtn = document.getElementById('btn-nick-save');
 
-    if (!nick.trim()) return alert("닉네임을 입력하세요.");
+    // 1. 빈 값 체크
+    if (!nick) {
+        alert("닉네임을 입력하세요.");
+        return;
+    }
 
+    // 2. 유효성 검사 (초성, 특수문자, 길이 체크)
+    if (!validateNickname(nick)) {
+        // validateNickname 내부에서 alert를 띄우므로 여기선 메시지 초기화만
+        msg.innerText = ""; 
+        saveBtn.disabled = true;
+        return;
+    }
     // 컨트롤러 경로에 맞게 수정 (.do 추가)
-    fetch(`/mypage/api/check-nickname.do?nickname=${encodeURIComponent(nick)}`)
+    fetch(`/mypage/nickCheck.do?nickname=${encodeURIComponent(nick)}`)
         .then(res => res.json())
         .then(count => {
             if (count > 0) {
@@ -211,6 +246,15 @@ document.getElementById('btn-nick-check')?.addEventListener('click', function ()
             }
         });
 });
+
+document.getElementById('new-nickname')?.addEventListener('input', () => {
+    const msg = document.getElementById('nick-msg');
+    const saveBtn = document.getElementById('btn-nick-save');
+    msg.innerText = "중복 확인이 필요합니다.";
+    msg.style.color = "gray";
+    saveBtn.disabled = true;
+});
+
 
 // [닉네임] 저장
 document.getElementById('btn-nick-save')?.addEventListener('click', async () => {

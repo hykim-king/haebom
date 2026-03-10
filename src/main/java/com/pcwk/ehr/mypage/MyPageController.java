@@ -104,6 +104,14 @@ public class MyPageController {
         return myPageService.doUpdateNick(userVO);
     }
 
+    // 닉네임 중복 체크 API
+    @GetMapping("/nickCheck.do")
+    @ResponseBody
+    public int checkNickname(@RequestParam("nickname") String nickname) {
+        // 전달받은 닉네임으로 서비스 호출
+        return myPageService.nickCheck(nickname);
+    }
+
     /**
      * 5. 주소 수정
      */

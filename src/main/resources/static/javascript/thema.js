@@ -46,12 +46,12 @@ function createCardHTML(item) {
 
     return `
     <div class="col-md-3 col-sm-6 mb-4">
-      <div class="card h-100 shadow-sm" data-id="${item.id}"> 
+      <div class="card h-100 shadow-sm" data-id="${item.id}" style="cursor: pointer;"> 
         <img src="${item.img}" class="card-img-top" alt="${item.title}">
         <div class="card-body">
           <div class="card-title-row d-flex justify-content-between align-items-center mb-2">
             <h5 class="card-title mb-0 text-truncate" style="max-width: 80%;">${item.title}</h5>
-            <button class="btn-wish border-0 bg-transparent p-0 ${activeClass}">
+            <button class="btn-wish border-0 bg-transparent p-0 ${activeClass}" style="position: relative; z-index: 2;">
               <i class="${heartIconClass} fa-heart" style="color: #ff4d4d;"></i>
             </button>
           </div>
@@ -73,7 +73,6 @@ function mapItemToCard(item) {
         let district = addrParts[1] || "";
         displayAddr = `${city} ${district}`.trim();
     }
-    // ⭐ [수정] XML에서 tripInqCnt 필드에 isWish 결과값을 담아 보냈으므로 이를 매핑합니다.
     return { 
         id: item.tripContsId, 
         title: item.tripNm, 
@@ -252,73 +251,75 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // -----------------------------
-    // 하트 토글 이벤트
+    // ⭐ [수정] 카드 클릭(상세이동) 및 하트 토글 통합 이벤트
     // -----------------------------
     document.addEventListener("click", (e) => {
-        const btn = e.target.closest(".btn-wish");
-        if (!btn) return;
-
-        // 로그인 여부 체크
-        if (typeof window.isFirstLogin === 'undefined' || window.isFirstLogin === false) {
-            alert("로그인이 필요한 서비스입니다.");
-            return;
-        }
-
-        const icon = btn.querySelector("i");
-        const isActivating = icon.classList.contains("fa-regular");
-        const card = btn.closest(".card");
-        const tripContsId = card ? card.dataset.id : null;
-
-        if (!tripContsId) {
-            console.error("여행지 ID를 찾을 수 없습니다.");
-            return;
-        }
-
-        $.ajax({
-            url: isActivating ? "/thema/wish/add.do" : "/thema/wish/delete.do",
-            type: "POST",
-            beforeSend: function (xhr) {
-                const token = $("meta[name='_csrf']").attr("content");
-                const header = $("meta[name='_csrf_header']").attr("content");
-                if (header && token) {
-                    xhr.setRequestHeader(header, token);
-                }
-            },
-            data: { "tripContsId": tripContsId },
-            success: function (res) {
-                if (isActivating) {
-                    icon.classList.replace("fa-regular", "fa-solid"); 
-                    btn.classList.add("active");
-                } else {
-                    icon.classList.replace("fa-solid", "fa-regular");
-                    btn.classList.remove("active");
-                }
-            },
-            error: function (xhr) {
-                if (xhr.status === 403) {
-                    alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-                } else {
-                    alert("처리 중 오류가 발생했습니다.");
-                }
+        // 1. 하트 버튼 클릭 여부 확인
+        const btnWish = e.target.closest(".btn-wish");
+        
+        if (btnWish) {
+            // 하트 클릭 시 상세 페이지 이동 방지
+            e.stopPropagation(); 
+            
+            // 로그인 여부 체크
+            if (typeof window.isFirstLogin === 'undefined' || window.isFirstLogin === false) {
+                alert("로그인이 필요한 서비스입니다.");
+                return;
             }
-        });
+
+            const icon = btnWish.querySelector("i");
+            const isActivating = icon.classList.contains("fa-regular");
+            const card = btnWish.closest(".card");
+            const tripContsId = card ? card.dataset.id : null;
+
+            if (!tripContsId) return;
+
+            $.ajax({
+                url: isActivating ? "/thema/wish/add.do" : "/thema/wish/delete.do",
+                type: "POST",
+                beforeSend: function (xhr) {
+                    const token = $("meta[name='_csrf']").attr("content");
+                    const header = $("meta[name='_csrf_header']").attr("content");
+                    if (header && token) xhr.setRequestHeader(header, token);
+                },
+                data: { "tripContsId": tripContsId },
+                success: function (res) {
+                    if (isActivating) {
+                        icon.classList.replace("fa-regular", "fa-solid"); 
+                        btnWish.classList.add("active");
+                    } else {
+                        icon.classList.replace("fa-solid", "fa-regular");
+                        btnWish.classList.remove("active");
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.status === 403 ? "세션 만료" : "오류 발생");
+                }
+            });
+            return; // 하트 로직 실행 후 종료
+        }
+
+        // 2. 카드 전체 클릭 여부 확인 (하트 버튼이 아닐 때)
+        const card = e.target.closest(".card");
+        if (card) {
+            const tripId = card.dataset.id;
+            if (tripId) {
+                // 아까 만든 컨트롤러 경로로 이동
+                location.href = "/thema/trip_view?tripContsId=" + tripId;
+            }
+        }
     });
 });
 
+// 하단 버튼 및 스크롤 이벤트 유지
 window.addEventListener("scroll", function () {
     const topBtn = document.getElementById("backToTop");
     if (topBtn) {
-        if (window.scrollY > 300) {
-            topBtn.style.setProperty("display", "flex", "important");
-        } else {
-            topBtn.style.setProperty("display", "none", "important");
-        }
+        topBtn.style.setProperty("display", window.scrollY > 300 ? "flex" : "none", "important");
     }
 });
 
 const topBtnEl = document.getElementById("backToTop");
 if (topBtnEl) {
-    topBtnEl.addEventListener("click", function () {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    topBtnEl.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 }

@@ -14,8 +14,11 @@
                     COALESCE(t1.trip_path_nm, t2.file_path_nm) AS tripPathNm, 
                     t1.trip_addr     AS tripAddr,
                     t1.trip_tag      AS tripTag,
-                    t1.trip_inq_cnt  AS tripInqCnt, 
-                    COUNT(*) OVER()  AS totalCnt
+                    COUNT(*) OVER()  AS totalCnt,
+                    (SELECT COUNT(*) 
+                     FROM relation r 
+                     WHERE r.trip_conts_id = t1.trip_conts_id 
+                     AND r.user_no = #{tripInqCnt} AND r.rel_clsf = 10) AS tripInqCnt
                 FROM TRIP t1
                 LEFT OUTER JOIN (
                     SELECT board_id, MAX(file_path_nm) as file_path_nm 
@@ -23,10 +26,11 @@
                     GROUP BY board_id
                 ) t2 ON t1.trip_conts_id = t2.board_id
                 WHERE 1=1
+                AND (t1.trip_path_nm IS NOT NULL OR t2.file_path_nm IS NOT NULL)
                 
                 <if test="searchWord != null and searchWord != '' and searchWord != 'hits' and searchWord != 'default'">
                     AND (UPPER(t1.TRIP_NM) LIKE '%' || UPPER(#{searchWord}) || '%' 
-                         OR UPPER(t1.TRIP_ADDR) LIKE '%' || UPPER(#{searchWord}) || '%')
+                        OR UPPER(t1.TRIP_ADDR) LIKE '%' || UPPER(#{searchWord}) || '%')
                 </if>
                 
                 <if test="tripTag != null and tripTag != '0'.toString() and tripTag != ''">
@@ -54,9 +58,30 @@
                     </otherwise>
                 </choose>
             ) TT1
-            WHERE ROWNUM <![CDATA[ <= ]]> #{pageSize} * (#{pageNo} - 1) + #{pageSize}
+            WHERE ROWNUM <![CDATA[ <= ]]> (#{pageNo} * #{pageSize})
         )
-        WHERE rnum <![CDATA[ >= ]]> #{pageSize} * (#{pageNo} - 1) + 1
+        WHERE rnum <![CDATA[ >= ]]> ((#{pageNo} - 1) * #{pageSize} + 1)
     </select>
+
+    <insert id="doSaveWish" parameterType="map">
+        INSERT INTO relation (
+            REL_NO,
+            REL_CLSF,
+            USER_NO,
+            TRIP_CONTS_ID
+            ) VALUES (
+            SEQ_REL_NO.NEXTVAL,
+            #{relClsf},
+            #{userNo},
+            #{tripContsId}
+        )
+    </insert>
+
+    <delete id="doDeleteWish" parameterType="map">
+        DELETE FROM relation
+        WHERE USER_NO = #{userNo}
+        AND TRIP_CONTS_ID = #{tripContsId}
+        AND REL_CLSF = #{relClsf}
+    </delete>
 
 </mapper>

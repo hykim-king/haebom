@@ -2,7 +2,7 @@
 // ⭐ 1️⃣ 전역 상태 변수
 // -----------------------------
 let page = 1;
-const pageSize = 8;
+let pageSize = 8;
 let selectedTheme = "0";
 let currentSort = "default"; // "default" 또는 "hits"
 let isLoading = false;
@@ -40,15 +40,19 @@ const THEMES = [
 // 2️⃣ 카드 템플릿 및 변환 유틸
 // -----------------------------
 function createCardHTML(item) {
+    const isWished = Number(item.isWish) > 0;
+    const heartIconClass = isWished ? 'fa-solid' : 'fa-regular';
+    const activeClass = isWished ? 'active' : '';
+
     return `
     <div class="col-md-3 col-sm-6 mb-4">
-      <div class="card h-100 shadow-sm">
+      <div class="card h-100 shadow-sm" data-id="${item.id}" style="cursor: pointer;"> 
         <img src="${item.img}" class="card-img-top" alt="${item.title}">
         <div class="card-body">
           <div class="card-title-row d-flex justify-content-between align-items-center mb-2">
             <h5 class="card-title mb-0 text-truncate" style="max-width: 80%;">${item.title}</h5>
-            <button class="btn-wish border-0 bg-transparent p-0">
-              <i class="fa-regular fa-heart" style="color: #ff4d4d;"></i>
+            <button class="btn-wish border-0 bg-transparent p-0 ${activeClass}" style="position: relative; z-index: 2;">
+              <i class="${heartIconClass} fa-heart" style="color: #ff4d4d;"></i>
             </button>
           </div>
           <span class="card-location small text-muted text-truncate d-block">${item.location}</span>
@@ -59,8 +63,8 @@ function createCardHTML(item) {
 
 function mapItemToCard(item) {
     let finalImg = item.tripPathNm;
-    if (!finalImg || finalImg === 'null') {
-        finalImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    if (!finalImg || finalImg === 'null' || finalImg.trim() === '') {
+        return null;
     }
     let displayAddr = item.tripAddr || "";
     if (displayAddr) {
@@ -69,7 +73,13 @@ function mapItemToCard(item) {
         let district = addrParts[1] || "";
         displayAddr = `${city} ${district}`.trim();
     }
-    return { id: item.tripContsId, title: item.tripNm, location: displayAddr, img: finalImg };
+    return { 
+        id: item.tripContsId, 
+        title: item.tripNm, 
+        location: displayAddr, 
+        img: finalImg, 
+        isWish: item.tripInqCnt 
+    };
 }
 
 // -----------------------------
@@ -79,14 +89,20 @@ function loadListAjax(isMore = false) {
     if (isLoading) return;
     isLoading = true;
 
-    const codeArray = THEME_CODE_MAP[selectedTheme];
-    let tagValue = (selectedTheme === "0" || !codeArray) ? "0" : codeArray.join(",");
+    let tagValue = "";
+    if (selectedTheme === "0") {
+        const allCodes = Object.values(THEME_CODE_MAP).flat();
+        tagValue = allCodes.join(",");
+    } else {
+        const codeArray = THEME_CODE_MAP[selectedTheme];
+        tagValue = codeArray ? codeArray.join(",") : "0";
+    }
 
     const searchVO = {
         tripTag: tagValue,
         pageNo: page,
         pageSize: pageSize,
-        searchWord: currentSort // 서버에서 이 값을 보고 정렬 분기
+        searchWord: currentSort
     };
 
     $.ajax({
@@ -114,13 +130,25 @@ function renderAjaxList(list) {
         grid.innerHTML = '<div class="col-12 text-center py-5">조회된 여행지가 없습니다.</div>';
         return;
     }
-    list.forEach(item => grid.insertAdjacentHTML("beforeend", createCardHTML(mapItemToCard(item))));
+
+    list.forEach(item => {
+        const cardData = mapItemToCard(item);
+        if (cardData) {
+            grid.insertAdjacentHTML("beforeend", createCardHTML(cardData));
+        }
+    });
 }
 
 function appendAjaxList(list) {
     const grid = document.getElementById("localTravelGrid");
     if (!grid || !list) return;
-    list.forEach(item => grid.insertAdjacentHTML("beforeend", createCardHTML(mapItemToCard(item))));
+
+    list.forEach(item => {
+        const cardData = mapItemToCard(item);
+        if (cardData) {
+            grid.insertAdjacentHTML("beforeend", createCardHTML(cardData));
+        }
+    });
 }
 
 // -----------------------------
@@ -150,7 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const wrapper = document.getElementById("categoryWrapper");
     const sortByHitsBtn = document.getElementById("sortByHits");
 
-    // 카테고리 초기 렌더링
     if (wrapper) {
         wrapper.innerHTML = THEMES.map(theme => `
             <div class="swiper-slide category-item ${theme.id === selectedTheme ? 'active' : ''}" data-id="${theme.id}">
@@ -166,13 +193,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 최초 8개 로드
     loadListAjax();
 
-    // 더보기 버튼
     if (loadMoreBtn) {
         loadMoreBtn.addEventListener("click", function () {
-            page++;
+            if (pageSize === 8) {
+                pageSize = 12;
+                page = 2;
+            } else {
+                page++;
+            }
             loadListAjax(true);
             if (!isScrollActive) {
                 isScrollActive = true;
@@ -182,40 +212,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ⭐ [중요] 조회수 정렬 버튼 이벤트 (하나로 통합 및 스타일 수정)
     if (sortByHitsBtn) {
         sortByHitsBtn.addEventListener("click", function () {
-            // 1. 상태 토글
             if (currentSort === "hits") {
                 currentSort = "default";
                 this.classList.remove("active");
-                // 인라인 스타일 직접 제거 (CSS 클래스로 제어하는 것이 더 좋지만 우선 인라인으로 처리)
-                this.style.backgroundColor = ""; 
+                this.style.backgroundColor = "";
                 this.style.color = "";
                 this.style.borderColor = "";
-                console.log("정렬: 최신순으로 복귀");
             } else {
                 currentSort = "hits";
                 this.classList.add("active");
-                // 활성화 색상 적용
                 this.style.backgroundColor = "#ff4d4d";
                 this.style.color = "#fff";
                 this.style.borderColor = "#ff4d4d";
-                console.log("정렬: 조회수순으로 변경");
             }
-
-            // 2. 페이지 및 스크롤 초기화
             page = 1;
             isScrollActive = false;
             $(window).off("scroll");
             if (loadMoreBtn) $(loadMoreBtn).show();
-
-            // 3. 데이터 재조회
-            loadListAjax(); 
+            loadListAjax();
         });
     }
 
-    // 카테고리 클릭
     document.addEventListener("click", function (e) {
         const category = e.target.closest(".category-item");
         if (!category) return;
@@ -228,20 +247,79 @@ document.addEventListener("DOMContentLoaded", () => {
         isScrollActive = false;
         $(window).off("scroll");
         if (loadMoreBtn) $(loadMoreBtn).show();
-
-        loadListAjax(); 
+        loadListAjax();
     });
 
-    // 하트 토글
+    // -----------------------------
+    // ⭐ [수정] 카드 클릭(상세이동) 및 하트 토글 통합 이벤트
+    // -----------------------------
     document.addEventListener("click", (e) => {
-        const btn = e.target.closest(".btn-wish");
-        if (!btn) return;
-        const icon = btn.querySelector("i");
-        btn.classList.toggle("active");
-        if (icon.classList.contains("fa-regular")) {
-            icon.classList.replace("fa-regular", "fa-solid");
-        } else {
-            icon.classList.replace("fa-solid", "fa-regular");
+        // 1. 하트 버튼 클릭 여부 확인
+        const btnWish = e.target.closest(".btn-wish");
+        
+        if (btnWish) {
+            // 하트 클릭 시 상세 페이지 이동 방지
+            e.stopPropagation(); 
+            
+            // 로그인 여부 체크
+            if (typeof window.isFirstLogin === 'undefined' || window.isFirstLogin === false) {
+                alert("로그인이 필요한 서비스입니다.");
+                return;
+            }
+
+            const icon = btnWish.querySelector("i");
+            const isActivating = icon.classList.contains("fa-regular");
+            const card = btnWish.closest(".card");
+            const tripContsId = card ? card.dataset.id : null;
+
+            if (!tripContsId) return;
+
+            $.ajax({
+                url: isActivating ? "/thema/wish/add.do" : "/thema/wish/delete.do",
+                type: "POST",
+                beforeSend: function (xhr) {
+                    const token = $("meta[name='_csrf']").attr("content");
+                    const header = $("meta[name='_csrf_header']").attr("content");
+                    if (header && token) xhr.setRequestHeader(header, token);
+                },
+                data: { "tripContsId": tripContsId },
+                success: function (res) {
+                    if (isActivating) {
+                        icon.classList.replace("fa-regular", "fa-solid"); 
+                        btnWish.classList.add("active");
+                    } else {
+                        icon.classList.replace("fa-solid", "fa-regular");
+                        btnWish.classList.remove("active");
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.status === 403 ? "세션 만료" : "오류 발생");
+                }
+            });
+            return; // 하트 로직 실행 후 종료
+        }
+
+        // 2. 카드 전체 클릭 여부 확인 (하트 버튼이 아닐 때)
+        const card = e.target.closest(".card");
+        if (card) {
+            const tripId = card.dataset.id;
+            if (tripId) {
+                // 아까 만든 컨트롤러 경로로 이동
+                location.href = "/thema/trip_view?tripContsId=" + tripId;
+            }
         }
     });
 });
+
+// 하단 버튼 및 스크롤 이벤트 유지
+window.addEventListener("scroll", function () {
+    const topBtn = document.getElementById("backToTop");
+    if (topBtn) {
+        topBtn.style.setProperty("display", window.scrollY > 300 ? "flex" : "none", "important");
+    }
+});
+
+const topBtnEl = document.getElementById("backToTop");
+if (topBtnEl) {
+    topBtnEl.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+}

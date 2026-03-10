@@ -74,12 +74,40 @@ public class ThemaServiceImpl implements ThemaService {
         // 3. MyBatis Mapper 호출
         // XML에서 tripTag 문자열을 .split(',') 하여 처리하게 됩니다.
         List<TripVO> list = themaMapper.doRetrieve(searchVO);
-        
-        if(list != null) {
+
+        if (list != null) {
             log.info("조회된 목록 개수: {}", list.size());
         }
-        
+
         return list;
+    }
+
+
+    @Override
+    public int doSaveWish(java.util.Map<String, Object> params) {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doSaveWish() - 찜 추가   │"); 
+        log.info("└──────────────────────────┘");
+        
+        // 컨트롤러에서 이미 Map에 userNo, tripContsId, relClsf를 담아 보냈으므로 
+        // 그대로 Mapper에 전달합니다.
+        log.info("전달 파라미터: {}", params);
+
+        return themaMapper.doSaveWish(params);
+    }
+
+    // ---------------------------------------------------------
+    // ⭐ 찜하기 삭제 (파라미터를 Map으로 변경)
+    // ---------------------------------------------------------
+    @Override
+    public int doDeleteWish(java.util.Map<String, Object> params) {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doDeleteWish() - 찜 삭제 │");
+        log.info("└──────────────────────────┘");
+        
+        log.info("전달 파라미터: {}", params);
+
+        return themaMapper.doDeleteWish(params);
     }
 
 }

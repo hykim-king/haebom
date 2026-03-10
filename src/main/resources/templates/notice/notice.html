@@ -101,12 +101,15 @@
                     </tr>
                     </thead>
                     <tbody id="notice-tbody">
-                    <tr th:each="vo : ${list}">
+                    <tr th:each="vo : ${list}"
+                        th:onclick="|location.href='@{/notice/noticeDetail(ntcNo=${vo.ntcNo})}'|"
+                        style="cursor: pointer;">
                         <td th:text="${vo.ntcNo}">1</td>
                         <td class="text-start">
                             <a th:href="@{/notice/noticeDetail(ntcNo=${vo.ntcNo})}"
                                th:text="${vo.ntcTtl}"
-                               class="text-decoration-none text-dark">
+                               class="text-decoration-none text-dark"
+                               onclick="event.stopPropagation();">
                                 공지사항 제목
                             </a>
                         </td>

@@ -33,10 +33,21 @@
             </div>
 
             <div class="write-body">
-                <textarea class="content-textarea"
-                          placeholder="여기에 내용을 자유롭게 작성해 보세요..."
-                          id="postContent" name="ntcCn"
-                          th:text="${noticeVO.ntcCn}" required></textarea>
+              <textarea class="content-textarea"
+              placeholder="여기에 내용을 자유롭게 작성해 보세요..."
+              id="postContent" name="ntcCn"
+              th:text="${noticeVO.ntcCn}" required></textarea>
+
+                <!-- 수정 모드: 기존 이미지 파일만 글 영역 아래에 미리보기 -->
+                <div th:if="${noticeVO.fileList != null and !noticeVO.fileList.isEmpty()}">
+                    <th:block th:each="f : ${noticeVO.fileList}">
+                        <div th:if="${f.fileClsf == 'img'}" style="margin-top: 12px;">
+                            <img th:src="@{/notice/download(filePathNm=${f.filePathNm}, fileNm=${f.fileNm})}"
+                                 th:alt="${f.fileNm}"
+                                 style="max-width: 100%; border-radius: 6px; display: block;" />
+                        </div>
+                    </th:block>
+                </div>
             </div>
 
             <!-- 파일 첨부 영역 -->
@@ -51,7 +62,7 @@
                 <!-- 수정 모드: 기존 첨부파일 목록 표시 -->
                 <div th:if="${noticeVO.fileList != null and !noticeVO.fileList.isEmpty()}"
                      style="margin-top:8px; font-size:0.85rem; color:#888;">
-                    <div>현재 첨부파일 (새 파일 선택 시 추가됩니다):</div>
+                    <div>현재 첨부파일 : </div>
                     <div th:each="f : ${noticeVO.fileList}">
                         📎 <span th:text="${f.fileNm}"></span>
                     </div>

@@ -94,7 +94,7 @@ body {
     background-color: #f8f9fa; /* 관심태그 박스와 유사한 연회색 */
     border: 1px solid #eee;    /* 아주 연한 테두리 */
     border-radius: 15px;       /* 둥근 모서리 */
-    padding: 20px 25px;        /* 내부 여백 (충분히) */
+    padding: 10px 20px;        /* 내부 여백 (충분히) */
     margin-bottom: 16px;       /* 박스 간 간격 */
     transition: all 0.2s ease;
 }
@@ -183,4 +183,100 @@ body {
         width: 100%;
         margin-top: 10px;
     }
+}
+
+
+/*
+*/
+
+        .btn-orange {
+            background-color: #ff9f43;
+            color: white;
+            border: none;
+        }
+
+        .btn-orange:hover {
+            background-color: #e68a2e;
+            color: white;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .pw-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #ccc;
+        }
+
+        .validation-msg {
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .custom-card {
+            border-radius: 15px;
+            border: none;
+            background: #fff;
+        }
+
+        .content-pane {
+            display: none;
+        }
+
+        .content-pane.active {
+            display: block;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 10px;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-item:hover {
+            background-color: #fff9f2;
+        }
+
+        .menu-item.active {
+            background-color: #ff9f43;
+            color: white;
+        }
+
+        /* 1. 수정창 슬라이딩 애니메이션 */
+#nick-edit-fields, #pw-edit-fields, #addr-edit-fields {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block !important; /* d-none 대신 블록으로 유지 */
+    margin-top: 0;
+}
+
+/* 열렸을 때 적용할 클래스 */
+.is-open {
+    max-height: 500px !important; /* 충분한 높이 */
+    opacity: 1 !important;
+    margin-top: 15px !important;
+    padding: 1rem !important;
+}
+
+/* 2. 해시태그 왼쪽 밀착 정렬 */
+#selected-hashtags-display {
+    text-align: left !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important; /* 왼쪽 밀착 */
+    gap: 8px !important;
+    padding: 15px !important;
+    background-color: #f8f9fa;
+    border-radius: 12px;
 }

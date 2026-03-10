@@ -17,69 +17,6 @@
     <link rel="stylesheet" th:href="@{/css/footer.css}" />
     <link rel="stylesheet" th:href="@{/css/myPage.css}">
 
-    <style>
-        .btn-orange {
-            background-color: #ff9f43;
-            color: white;
-            border: none;
-        }
-
-        .btn-orange:hover {
-            background-color: #e68a2e;
-            color: white;
-        }
-
-        .password-wrapper {
-            position: relative;
-        }
-
-        .pw-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #ccc;
-        }
-
-        .validation-msg {
-            font-size: 0.85rem;
-            margin-top: 5px;
-        }
-
-        .custom-card {
-            border-radius: 15px;
-            border: none;
-            background: #fff;
-        }
-
-        .content-pane {
-            display: none;
-        }
-
-        .content-pane.active {
-            display: block;
-        }
-
-        .menu-item {
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 10px;
-            transition: 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .menu-item:hover {
-            background-color: #fff9f2;
-        }
-
-        .menu-item.active {
-            background-color: #ff9f43;
-            color: white;
-        }
-    </style>
 </head>
 
 <body>
@@ -142,7 +79,7 @@
                         <div class="info-box">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <div id="display-nickname" class="small text-muted">로딩 중...</div>
+                                    <div id="display-nickname" class="fw-bold md">로딩 중...</div>
                                 </div>
                                 <button class="btn btn-orange rounded-pill px-4" id="btn-nick-edit-toggle">변경하기</button>
                             </div>
@@ -159,7 +96,7 @@
                         <div class="info-box">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <div class="fw-bold">비밀번호를 수정할 시 오른쪽 버튼을 눌러주세요.</div>
+                                    <div class="fw-bold">비밀번호를 변경하겠습니까?</div>
                                 </div>
                                 <button class="btn btn-orange rounded-pill px-4" id="btn-pw-edit-toggle">변경하기</button>
                             </div>
@@ -181,7 +118,7 @@
                         <div class="info-box">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div>
-                                    <div id="current-addr-text" class="text-muted small">주소를 등록해 주세요.</div>
+                                    <div id="current-addr-text" class="fw-bold md">주소를 등록해 주세요.</div>
                                 </div>
                                 <button class="btn btn-orange rounded-pill px-4" onclick="execPostCode()">수정하기</button>
                             </div>

@@ -120,7 +120,7 @@
 </select>
 
     <select id="getCount" resultType="int">
-        SELECT COUNT(*) FROM trip
+        SELECT COUNT(*) FROM trip WHERE TRIP_PATH_NM IS NOT NULL
     </select>
 
 
@@ -168,6 +168,7 @@
                     WHERE rn = 1 /* 각 게시물당 1번 파일만 선택 */
                         ) AF ON T.TRIP_CONTS_ID = AF.board_id
                     WHERE 1=1
+                    AND (T.TRIP_PATH_NM IS NOT NULL OR AF.FILE_PATH_NM IS NOT NULL)
                 <if test="searchWord != null and searchWord != ''">
                     AND (T.TRIP_NM LIKE '%' || #{searchWord} || '%')
                 </if>
@@ -213,8 +214,15 @@
         <![CDATA[ WHERE RNUM >= #{pageSize} * (#{pageNo} - 1) + 1 ]]>
     ) A CROSS JOIN (
         SELECT COUNT(*) TOTAL_CNT
-        FROM TRIP
+        FROM TRIP T
+        LEFT OUTER JOIN (
+            SELECT board_id, file_path_nm FROM (
+                SELECT board_id, file_path_nm, ROW_NUMBER() OVER(PARTITION BY board_id ORDER BY ROWID ASC) as rn
+                FROM ATTACH_FILE WHERE board_clsf = 'trip'
+            ) WHERE rn = 1
+        ) AF ON T.TRIP_CONTS_ID = AF.board_id
         WHERE 1=1
+        AND (T.TRIP_PATH_NM IS NOT NULL OR AF.FILE_PATH_NM IS NOT NULL)
         <if test="searchWord != null and searchWord != ''">
             AND (TRIP_NM LIKE '%' || #{searchWord} || '%')
         </if>

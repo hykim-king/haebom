@@ -144,14 +144,18 @@ def oracle_search_ss_trip(q: TripSearchQuery):
         
         # --- 2. 그 외 카테고리 (공통 trip 테이블) 조회 로직 ---
         else:
+            keyword_where = []
             for i, kw in enumerate(q.keywords):
                 key = f"kw{i}"
-                where.append(
+                keyword_where.append(
                     f"(LOWER(t.trip_nm) LIKE '%'||LOWER(:{key})||'%' "
                     f"OR LOWER(t.trip_addr) LIKE '%'||LOWER(:{key})||'%' "
                     f"OR LOWER(td.tripdtl_info) LIKE '%'||LOWER(:{key})||'%')"
                 )
                 params[key] = str(kw)
+
+            if keyword_where:
+                where.append("(" + " OR ".join(keyword_where) + ")")
 
             if q.trip_clsf in ["12", "14", "15", "25", "28", "32", "38", "39"]:
                 str_clsf = str(q.trip_clsf).strip().lower()

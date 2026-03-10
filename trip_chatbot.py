@@ -10,15 +10,17 @@ import configparser
 
 # application-secret.properties 읽기
 config = configparser.ConfigParser()
-with open("src/main/resources/application-secret.properties", "r") as f:
+with open("src/main/resources/application-secret.properties", "r", encoding="utf-8") as f:
     config.read_string("[default]\n" + f.read())
 
 OPENAI_API_KEY = config.get("default", "openai.api.key")
 HAEBOM_USER = config.get("default", "spring.datasource.username")
 HAEBOM_PASSWORD = config.get("default", "spring.datasource.password")
-# DSN: url에서 host:port/sid 추출
+# DSN: url에서 host:port/sid 추출 (jdbc url은 :sid, oracledb는 /sid)
 _db_url = config.get("default", "spring.datasource.url")
-HAEBOM_DSN = _db_url.split("@")[-1]
+_raw_dsn = _db_url.split("@")[-1]  # 192.168.100.30:1522:xe
+_parts = _raw_dsn.rsplit(":", 1)     # ['192.168.100.30:1522', 'xe']
+HAEBOM_DSN = _parts[0] + "/" + _parts[1]  # 192.168.100.30:1522/xe
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 

@@ -1,13 +1,11 @@
 package com.pcwk.ehr.mypage;
 
+import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.cmn.WorkDiv;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-
-import java.util.Map;
-import java.util.HashMap;
-
+import org.apache.ibatis.annotations.Param;
 
 
 @Mapper
@@ -36,19 +34,20 @@ public interface MyPageMapper extends WorkDiv<UserVO> {
     /**
      * 찜/여행완료 목록 조회
      */
-    List<UserVO> getRelationList(UserVO userVO);
+    List<TripVO> getRelationList(@Param("userNo") int userNo, @Param("relClsf") int relClsf);
 
     /**
      * 찜/여행완료 카운트 조회
      */
-    int getRelationCount(UserVO userVO);
+    int getRelationCount(@Param("userNo") int userNo, @Param("relClsf") int relClsf);
 
     /**
      * 관계 데이터 삭제 (찜 취소 등)
      */
-    int deleteRelation(UserVO userVO);
+    int deleteRelation(@Param("userNo") int userNo, 
+                       @Param("relClsf") int relClsf,
+                       @Param("tripContsId") Integer tripContsId);
 
-    /* 찜 목록 삭제 */
-    // 💡 UserVO userVO -> Map<String, Object> paramMap 으로 변경
-    int doDeleteWish(Map<String, Object> paramMap);
+    // 닉네임 중복 체크
+    int nickCheck(String userNick);
 }

@@ -20,7 +20,7 @@
         DELETE FROM ss_user WHERE USER_NO = #{userNo}
     </delete>
 
-    <select id="doSelectOne" parameterType="int" resultType="UserVO">
+    <select id="doSelectOne" parameterType="UserVO" resultType="UserVO">
         SELECT USER_NO,
                USER_NICK, 
                USER_EML_ADDR, 
@@ -35,11 +35,11 @@
          WHERE USER_NO = #{userNo}
     </select>
 
-    <delete id="doDeleteWish" parameterType="map">
-        DELETE FROM relation 
-         WHERE USER_NO = #{userNo} 
-           AND TRIP_CONTS_ID = #{tripContsId}
-    </delete>
+    <select id="nickCheck" parameterType="String" resultType="int">
+    SELECT COUNT(*)
+    FROM ss_user
+    WHERE user_nick = #{userNick}
+    </select>
 
     <update id="doUpdateNick" parameterType="UserVO">
         UPDATE ss_user SET USER_NICK = #{userNick} WHERE USER_NO = #{userNo}
@@ -59,10 +59,10 @@
         UPDATE ss_user SET USER_ENPSWD = #{userEnpswd} WHERE USER_NO = #{userNo}
     </update>
 
-    <select id="getRelationList" parameterType="TripVO" resultType="TripVO">
+    <select id="getRelationList" resultType="TripVO">
         SELECT r.TRIP_CONTS_ID,
                t.TRIP_NM, 
-               t.ADDR, 
+               t.TRIP_ADDR, 
                t.TRIP_PATH_NM
           FROM relation r
           JOIN trip t ON r.TRIP_CONTS_ID = t.TRIP_CONTS_ID
@@ -71,7 +71,7 @@
     </select>
 
     <!-- userNo 받고, relClsf 받은 다음 여행지 아이디 null 아닌 값만 select 후 카운트-->
-    <select id="getRelationCount" parameterType="UserVO" resultType="int">
+    <select id="getRelationCount" resultType="int">
         SELECT COUNT(*)
           FROM relation
          WHERE USER_NO = #{userNo}
@@ -79,17 +79,13 @@
            AND TRIP_CONTS_ID IS NOT NULL
     </select>
 
-    <delete id="deleteRelation" parameterType="UserVO">
+    <delete id="deleteRelation">
         DELETE FROM relation
          WHERE USER_NO = #{userNo}
            AND REL_CLSF = #{relClsf}
+        <if test="tripContsId != null and tripContsId != 0">
+           AND TRIP_CONTS_ID = #{tripContsId}
+        </if>
     </delete>
-
-    <delete id="del">
-    
-    
-    </delete>
-
-
 
 </mapper>

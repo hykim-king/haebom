@@ -1,55 +1,99 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>해봄트립 - 여행지 코스</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>해봄트립 - 여행코스</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
     <!-- CSS -->
-    <link rel="stylesheet" href="../css/trip_course.css">
+    <link rel="stylesheet" href="../css/trip_course.css" />
     <link rel="stylesheet" href="../css/header.css" />
     <link rel="stylesheet" href="../css/footer.css" />
 </head>
 <body>
-        <!-- Header -->
- <div id="header"></div>
+    <!-- Header -->
+    <div id="header"></div>
+
     <div id="main-wrapper">
         <main class="max-w-6xl mx-auto px-4 py-10 w-full">
             <div id="home-view" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+                <!-- 왼쪽 목록 영역 -->
                 <div class="lg:col-span-8 order-2 lg:order-1">
                     <div class="flex justify-between items-end mb-6 pb-4 border-b-2 border-gray-900">
                         <div class="flex items-center gap-4">
                             <h2 class="text-3xl font-bold">#<span id="view-title">전체</span></h2>
-                            <div id="selected-city-temp" class="hidden px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full items-center gap-1 animate-bounce">
-                                <i data-lucide="thermometer" size="12"></i> <span id="target-temp-val">0°C</span>
+
+                            <div id="selected-city-temp"
+                                 class="hidden px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full items-center gap-1 animate-bounce">
+                                <i data-lucide="thermometer" size="12"></i>
+                                <span id="target-temp-val">0°C</span>
                             </div>
                         </div>
-                        <div class="flex gap-4 text-sm text-gray-400 font-medium">
+
+                        <div class="flex gap-4 text-sm text-gray-400 font-medium items-center">
                             <span class="text-blue-600 font-bold">총 <span id="total-count">0</span>건</span>
-                            <button class="text-gray-900 font-bold underline">최신순</button>
-                            <span>|</span> <button class="hover:text-gray-900">인기순</button>
+
+                            <button type="button"
+                                    class="sort-btn text-gray-900 font-bold underline"
+                                    data-sort="new">
+                                최신순
+                            </button>
+
+                            <span>|</span>
+
+                            <button type="button"
+                                    class="sort-btn hover:text-gray-900"
+                                    data-sort="pop">
+                                인기순
+                            </button>
                         </div>
                     </div>
+
+                    <!-- 목록 출력 영역 -->
                     <div id="dest-list" class="space-y-10"></div>
+
+                    <!-- 페이징 영역 -->
+                    <div id="pagination" class="flex justify-center gap-2 mt-10"></div>
                 </div>
 
+                <!-- 오른쪽 사이드바 -->
                 <aside class="lg:col-span-4 order-1 lg:order-2">
                     <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 sticky top-10 shadow-sm">
+
+                        <!-- 검색 -->
                         <div class="flex items-center bg-white border rounded-lg px-3 py-2 mb-6 shadow-sm">
-                            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="검색어 입력" class="w-full text-sm outline-none">
-                            <button onclick="resetFilters()"><i data-lucide="refresh-cw" size="18" class="text-gray-400"></i></button>
+                            <input type="text"
+                                   id="search-input"
+                                   placeholder="검색어 입력"
+                                   class="w-full text-sm outline-none" />
+
+                            <button type="button" id="reset-btn">
+                                <i data-lucide="refresh-cw" size="18" class="text-gray-400"></i>
+                            </button>
                         </div>
+
+                        <!-- 지역 태그 -->
                         <div id="main-region-tags" class="flex flex-wrap gap-x-3 gap-y-2 mb-6 border-b pb-6"></div>
                         <div id="sub-region-tags" class="flex flex-wrap gap-x-4 gap-y-3 mb-6 text-sm text-gray-500 border-b pb-6"></div>
+
+                        <!-- 테마 태그 -->
                         <h4 class="font-bold text-sm mb-4 text-gray-900">테마별 선택</h4>
                         <div id="theme-tags" class="flex flex-wrap gap-x-3 gap-y-2 text-sm text-gray-400 border-b pb-6 mb-6"></div>
+
+                        <!-- 재난/기온 -->
                         <div class="space-y-4">
                             <div class="bg-red-50 border border-red-100 p-4 rounded-xl flex items-start gap-3">
                                 <i data-lucide="alert-triangle" class="text-red-500 shrink-0" size="20"></i>
-                                <div><h5 class="text-red-700 font-bold text-sm">기상/재난 특보</h5><p class="text-red-600 text-xs mt-1" id="disaster-info">현재 특보가 없습니다.</p></div>
+                                <div>
+                                    <h5 class="text-red-700 font-bold text-sm">기상/재난 특보</h5>
+                                    <p class="text-red-600 text-xs mt-1" id="disaster-info">현재 특보가 없습니다.</p>
+                                </div>
                             </div>
+
                             <div class="bg-white border border-gray-100 p-4 rounded-xl shadow-sm">
                                 <h5 class="font-bold text-sm text-gray-800 mb-3">지역별 기온</h5>
                                 <div id="temperature-list" class="grid grid-cols-2 gap-2"></div>
@@ -59,26 +103,18 @@
                 </aside>
             </div>
 
+            <!-- 상세 영역 -->
             <div id="detail-view" class="hidden">
                 <div id="detail-content"></div>
             </div>
         </main>
     </div>
 
-        <!-- Footer -->
+    <!-- Footer -->
     <div id="footer"></div>
 
-    <script>
-      fetch("header.html")
-        .then((res) => res.text())
-        .then((html) => (document.getElementById("header").innerHTML = html));
-
-      fetch("footer.html")
-        .then((res) => res.text())
-        .then((html) => (document.getElementById("footer").innerHTML = html));
-    </script>
     <!-- JS -->
     <script src="../javascript/header.js"></script>
-    <script src="../javascript/trip_course.js"></script>
+    <script src="../javascript/trip_course_cr.js"></script>
 </body>
 </html>

@@ -31,14 +31,11 @@ public class DisasterServiceImpl implements DisasterService {
     @Value("${disaster.api.service-key}")
     private String serviceKey;
 
-    @Value("${disaster.api.base-url}")
-    private String baseUrl;
+    private static final String BASE_URL = "https://www.safetydata.go.kr/V2/api/DSSP-IF-00247";
 
-    @Value("${disaster.api.return-type:json}")
-    private String returnType;
+    private static final String RETURN_TYPE = "json";
 
-    @Value("${disaster.api.num-of-rows:50}")
-    private int numOfRows;
+    private static final int NUM_OF_ROWS = 50;
 
     @Override
     public DisasterResponseVO getDisasterByRegion(String ctpvNm, String sggNm) {
@@ -48,7 +45,7 @@ public class DisasterServiceImpl implements DisasterService {
         try {
             String apiUrl = buildApiUrl(crtDt, requestRegionName);
 
-            log.debug("[DISASTER] baseUrl={}", baseUrl);
+            log.debug("[DISASTER] baseUrl={}", BASE_URL);
             log.debug("[DISASTER] serviceKey(first8)={}",
                     serviceKey != null && serviceKey.length() >= 8 ? serviceKey.substring(0, 8) : serviceKey);
             log.debug("[DISASTER] requestRegionName={}", requestRegionName);
@@ -110,11 +107,11 @@ public class DisasterServiceImpl implements DisasterService {
     }
 
     private String buildApiUrl(String crtDt, String requestRegionName) {
-        StringBuilder urlBuilder = new StringBuilder(baseUrl);
+        StringBuilder urlBuilder = new StringBuilder(BASE_URL);
         urlBuilder.append("?serviceKey=").append(serviceKey);
-        urlBuilder.append("&numOfRows=").append(numOfRows);
+        urlBuilder.append("&numOfRows=").append(NUM_OF_ROWS);
         urlBuilder.append("&pageNo=1");
-        urlBuilder.append("&returnType=").append(encode(returnType));
+        urlBuilder.append("&returnType=").append(encode(RETURN_TYPE));
         urlBuilder.append("&crtDt=").append(encode(crtDt));
         urlBuilder.append("&rgnNm=").append(encode(requestRegionName));
         return urlBuilder.toString();

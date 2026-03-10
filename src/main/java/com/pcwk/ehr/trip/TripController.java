@@ -219,4 +219,9 @@ public class TripController {
 
         return disasterService.getDisasterByRegion(ctpvNm, sggNm);
     }
+
+    @GetMapping("/trip_course")
+    public String tripCourse(Model model) {
+        return "trip/trip_course"; // templates/trip/trip_detail.html
+    }
 }

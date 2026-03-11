@@ -83,7 +83,7 @@ public class SecurityConfig {
 			}
 
 			private OAuth2AuthorizationRequest customize(HttpServletRequest request,
-					OAuth2AuthorizationRequest authRequest) {
+														 OAuth2AuthorizationRequest authRequest) {
 				if (authRequest == null)
 					return null;
 
@@ -122,8 +122,8 @@ public class SecurityConfig {
 						"/user/signup/**",
 						"/user/login",
 						"/user/main",
-						"/user/social-signup" 
-
+						"/user/social-signup",
+						"/admin/users/api"
 				))
 
 				.authorizeHttpRequests(auth -> auth
@@ -140,7 +140,7 @@ public class SecurityConfig {
 						// .anyRequest().authenticated()
 
 						// 방식2: 전체 허용 + 차단 목록 (임시적 허용)
-						.requestMatchers("/admin/**").hasRole("ADMIN")
+						.requestMatchers("/admin/**").hasRole("ADMIN") //권한 체크
 						.anyRequest().permitAll())
 
 				.formLogin(form -> form

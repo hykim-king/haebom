@@ -74,7 +74,7 @@ public class MainController {
         log.debug("└──────────────────────────────────┘");
 
         // 3. trip_detail.html로 이동 (파일 위치에 맞게 경로 조정)
-        return "trip/trip_detail";
+        return "trip/trip_view";
     }
 
     // 날씨 API

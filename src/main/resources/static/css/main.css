@@ -50,7 +50,7 @@
 
 /* 메인 배너 검색 창 */
 .hero-search {
-    max-width: 1200px !important;
+    max-width: 1800px !important;
     margin: 0 auto;
     display: flex;
     align-items: center; /* 세로 중앙 정렬 */
@@ -60,6 +60,9 @@
     padding: 8px;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.3);
+    flex-wrap: nowrap; /* 줄바꿈 방지 */
+    max-width: 100%; /* 부모(hero-inner)의 최대 너비를 넘지 않도록 */
+    width: 100%;     /* 가로 공간을 100% 다 쓰게 설정 */
 }
 
 /* 플레이스홀더 색상 변경 (희미한 흰색) */
@@ -102,11 +105,17 @@
 #main-search-input {
     border: none;
     outline: none;
-    flex-grow: 1;
+    flex: 1;
     background: transparent;
-    padding: 12px 20px;
+    padding: 12px 5px;
     font-size: 15px;
     color: white;
+
+    min-width: 200px; /* 너무 좁아지는 것을 방지 (필요 시 조절) */
+    width: 100%;     /* 가로로 꽉 차게 */
+    white-space: nowrap; /* 한 줄로 유지 */
+    /* 아래 두 줄은 텍스트가 잘리는 것을 방지하기 위해 중요합니다 */
+    box-sizing: border-box;
 }
 
 .hero-btn {
@@ -414,73 +423,82 @@
    지역별 여행지 추천 (Swiper)
 ========================= */
 
-/* 카드 전체 링크 설정 */
+/* 1. 카드 전체 링크 설정 (전체 클릭 가능하게) */
 .card-full-link {
     display: block;
     height: 100%;
     text-decoration: none;
 }
 
-/* 이미지 꽉 채우기 및 어둡게 처리(글씨 가독성) */
+/* 2. 이미지 꽉 채우기 및 밝기 보정 */
 .card-img-full {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.85); /* 텍스트가 잘 보이도록 이미지를 살짝 어둡게 */
+    filter: brightness(0.85); /* 텍스트 가독성을 위해 살짝 어둡게 */
     transition: transform 0.5s ease;
 }
 
 .card:hover .card-img-full {
-    transform: scale(1.1);
-    filter: brightness(0.7);
+    transform: scale(1.1); /* 호버 시 살짝 확대 */
 }
 
-/* 상단 텍스트 오버레이 디자인 */
-.card-img-overlay-custom {
+/* 3. 상단 정보 오버레이 */
+.card-img-overlay-top {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 25px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%);
+    padding: 20px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
     color: white;
 }
 
+/* 4. 지역명 배지 */
 .badge-region {
     display: inline-block;
-    font-size: 0.85rem;
-    background: rgba(249, 115, 22, 0.9); /* 포인트 주황색 */
+    font-size: 0.75rem;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(5px);
     padding: 4px 12px;
     border-radius: 20px;
     margin-bottom: 8px;
     font-weight: 600;
 }
 
+/* 5. 여행지 이름 */
 .trip-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 800;
     margin: 0;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
+
+/*.region-slider-section {*/
+/*    max-width: 1400px;*/
+/*    margin: 0 auto;*/
+/*    border-radius: 1.5rem;*/
+/*    padding: 80px 20px;*/
+/*    background-color: #fff4e3;*/
+/*}*/
 
 /* Swiper 카드 바디의 패딩을 극단적으로 줄임 */
 .regionSwiper .card-body {
-    padding: 20px 15px !important; /* 여백을 아주 조금 더 주어 안정감 확보 */
-    text-align: center; /* 지역명은 중앙 정렬이 깔끔할 수 있습니다 */
-}
-
-.regionSwiper .card-text {
-    color: #f97316 !important; /* 주소 대신 지역명이니 포인트 컬러를 줘도 좋습니다 */
-    font-weight: 600;
+    padding: 15px 10px !important; /* 상하 8px, 좌우 10px로 축소 */
 }
 
 /* 지역별 여행지 추천 제목 옆 아이콘 수정 */
 .container h2 [data-lucide="map-pin"] {
     color: #f97316 !important; /* 주황색으로 변경 */
-    width: 28px !important; /* 크기 조절 */
+    width: 28px !important;    /* 크기 조절 */
     height: 28px !important;
-    stroke-width: 2.5px; /* 선 두께 조정 */
+    stroke-width: 2.5px;       /* 선 두께 조정 */
+}
+.region-inner {
+    max-width: 1200px;
+    margin: 0 auto !important;
+    padding: 0 40px !important;
+    position: relative;
 }
 
 .slider-container {

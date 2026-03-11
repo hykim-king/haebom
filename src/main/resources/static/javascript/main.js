@@ -29,7 +29,7 @@ function initHeroSlider() {
         "/img/korea_trip1.jpg", "/img/korea_trip2.jpg", "/img/korea_trip3.jpg",
         "/img/korea_trip4.jpg", "/img/korea_trip5.jpg", "/img/korea_trip6.jpg",
         "/img/korea_trip7.jpg", "/img/korea_trip8.jpg", "/img/korea_trip9.jpg",
-        "/img/korea_trip10.jpg", "/img/korea_trip11.jpg",
+        "/img/korea_trip10.jpg", "/img/korea_trip11.jpg", "/img/korea_trip.png",
     ];
 
     // 슬라이드 DOM 요소 동적 생성
@@ -53,9 +53,10 @@ function initHeroSlider() {
     }, 4000);
 }
 
+/* 1. 실제 검색 동작을 수행하는 함수 */
 function handleMainSearch() {
-    const category = document.getElementById("search-category").value;
-    const keyword = document.getElementById("main-search-input").value.trim();
+    const category = document.getElementById("search-category").value; // 카테고리값 가져오기
+    const keyword = document.getElementById("main-search-input").value.trim(); // 검색어 가져오기
 
     if (!keyword) {
         alert("검색어를 입력해주세요.");
@@ -63,13 +64,40 @@ function handleMainSearch() {
     }
 
     if (category === "trip") {
-        // 기존 여행지 페이지로 이동
         window.location.href = `/trip/trip?searchWord=${encodeURIComponent(keyword)}`;
     } else if (category === "course") {
-        // 여행코스 페이지(미구현)로 이동
         window.location.href = `/course/course_list?searchWord=${encodeURIComponent(keyword)}`;
     }
 }
+
+/* 2. 이벤트 리스너를 설정하는 함수 (DOMContentLoaded 안에서 호출) */
+function initSearchEvents() {
+    const searchInput = document.getElementById("main-search-input");
+    const searchBtn = document.getElementById("main-search-btn");
+
+    // 엔터키 처리
+    if (searchInput) {
+        searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                handleMainSearch();
+            }
+        });
+    }
+
+    // 버튼 클릭 처리
+    if (searchBtn) {
+        searchBtn.addEventListener("click", handleMainSearch);
+    }
+}
+
+// 3. 페이지 로드 시 실행
+document.addEventListener("DOMContentLoaded", () => {
+    initHeroSlider();
+    initRegionSlider();
+    initPopularSpots();
+    initWeather();
+    initSearchEvents(); // 여기에 추가!
+});
 
 /* ==========================================
    3. 지역별 추천 섹션 (Swiper.js)

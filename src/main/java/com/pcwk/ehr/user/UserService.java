@@ -2,6 +2,7 @@ package com.pcwk.ehr.user;
 
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -77,29 +79,29 @@ public class UserService {
 
     // ✅ [추가] 비밀번호 찾기: 이메일+이름 확인 → 임시 비번 발급/저장/메일 발송
     public void resetPasswordAndSendTemp(String email, String name) {
-    UserEntity user = userRepository.findByUserEmlAddr(email)
-            .orElseThrow(() -> new RuntimeException("일치하는 사용자가 없습니다."));
+        UserEntity user = userRepository.findByUserEmlAddr(email)
+                .orElseThrow(() -> new RuntimeException("일치하는 사용자가 없습니다."));
 
-    // 이름 일치 확인 (공백 제거 비교)
-    String inputName = (name == null) ? "" : name.trim();
-    String dbName = (user.getUserNm() == null) ? "" : user.getUserNm().trim();
+        // 이름 일치 확인 (공백 제거 비교)
+        String inputName = (name == null) ? "" : name.trim();
+        String dbName = (user.getUserNm() == null) ? "" : user.getUserNm().trim();
 
-    if (!dbName.equals(inputName)) {
-        throw new RuntimeException("일치하는 사용자가 없습니다.");
+        if (!dbName.equals(inputName)) {
+            throw new RuntimeException("일치하는 사용자가 없습니다.");
+        }
+
+        // 1. 임시 비밀번호 생성 (평문)
+        String tempPw = mailService.generateTempPassword(10);
+
+        // 2. 중요: 임시 비밀번호를 암호화하여 DB용 변수에 저장
+        String encodedTempPw = passwordEncoder.encode(tempPw);
+        user.setUserEnpswd(encodedTempPw); // 암호화된 비밀번호를 세팅
+
+        userRepository.save(user);
+
+        // 3. 사용자에게는 암호화되지 않은 '평문' 임시 비밀번호를 메일로 발송
+        mailService.sendTempPassword(email, tempPw);
     }
-
-    // 1. 임시 비밀번호 생성 (평문)
-    String tempPw = mailService.generateTempPassword(10);
-
-    // 2. 중요: 임시 비밀번호를 암호화하여 DB용 변수에 저장
-    String encodedTempPw = passwordEncoder.encode(tempPw);
-    user.setUserEnpswd(encodedTempPw); // 암호화된 비밀번호를 세팅
-    
-    userRepository.save(user);
-
-    // 3. 사용자에게는 암호화되지 않은 '평문' 임시 비밀번호를 메일로 발송
-    mailService.sendTempPassword(email, tempPw);
-}
 
     // UserService.java 내부에 추가
 
@@ -119,5 +121,45 @@ public class UserService {
     public boolean isNicknameAvailable(String nickname) {
         return !userRepository.existsByUserNick(nickname);
     }
+
+    //==========================2026/03/11
+    public List<UserEntity> getAllUsers() {
+        return userRepository.findAll(); // JPA의 기본 메서드 사용
+    }
+
+    public UserEntity findByEmail(String email) {
+        // UserRepository에 findByUserEmlAddr 메서드가 있다고 가정합니다.
+        return userRepository.findByUserEmlAddr(email)
+                .orElse(null); // 사용자가 없으면 null 반환
+    }
+
+    @Transactional
+    public void updateUserStatus(Integer userNo, String status) {
+        UserEntity user = userRepository.findById(userNo)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (!"Y".equals(status) && !"N".equals(status)) {
+            throw new IllegalArgumentException("유효하지 않은 상태값입니다.");
+        }
+
+        user.setUserDrmYn(status);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(Integer userNo) {
+        if (!userRepository.existsById(userNo)) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
+
+        try {
+            userRepository.deleteById(userNo);
+            userRepository.flush(); // 삭제 시점 예외를 여기서 바로 확인
+        } catch (Exception e) {
+            throw new RuntimeException("사용자 삭제 중 오류가 발생했습니다.", e);
+        }
+    }
+
+
 
 }

@@ -244,13 +244,13 @@ function goCourseDetail(courseNo) {
             return response.text();
         })
         .then(() => {
-            console.log("상세페이지 미구현, courseNo:", courseNo);
-
-            // 상세페이지가 생기면 아래로 변경
-            // location.href = `/trip_course/view?courseNo=${courseNo}`;
+            location.href = `/trip_course/detail?courseNo=${courseNo}`;
         })
         .catch((error) => {
             console.error("doUpdateInqCnt error:", error);
+
+            // 조회수 증가 실패해도 상세페이지는 진입되게 처리
+            location.href = `/trip_course/detail?courseNo=${courseNo}`;
         });
 }
 

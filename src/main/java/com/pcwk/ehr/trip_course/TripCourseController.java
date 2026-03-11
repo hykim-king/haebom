@@ -89,6 +89,7 @@ public class TripCourseController {
 
         return tripCourseService.doSelectOne(inVO);
     }
+
     /**
      * 조회수 증가 API추가
      */
@@ -101,5 +102,18 @@ public class TripCourseController {
         log.debug("inVO={}", inVO);
 
         return tripCourseService.increaseInqCnt(inVO);
+    }
+
+    @GetMapping("/detail")
+    public String tripCourseDetailView(TripCourseVO inVO, Model model) {
+        log.debug("┌───────────────────────────────────┐");
+        log.debug("│ tripCourseDetailView()            │");
+        log.debug("└───────────────────────────────────┘");
+        log.debug("inVO={}", inVO);
+
+        TripCourseVO outVO = tripCourseService.doSelectOne(inVO);
+        model.addAttribute("course", outVO);
+
+        return "trip/trip_course_detail";
     }
 }

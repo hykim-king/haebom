@@ -44,4 +44,9 @@ public class TripCourseServiceImpl implements TripCourseService {
     public int getCount() {
         return tripCourseMapper.getCount();
     }
+
+    @Override
+    public int increaseInqCnt(TripCourseVO inVO) {
+        return tripCourseMapper.increaseInqCnt(inVO);
+    }
 }

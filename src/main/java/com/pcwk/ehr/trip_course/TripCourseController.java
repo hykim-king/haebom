@@ -38,22 +38,13 @@ public class TripCourseController {
         }
 
         if (inVO.getPageSize() == 0) {
-            inVO.setPageSize(10);
+            inVO.setPageSize(7);
         }
 
         if (inVO.getOrderType() == null || inVO.getOrderType().isEmpty()) {
             inVO.setOrderType("new");
         }
 
-        List<TripCourseVO> list = tripCourseService.doRetrieve(inVO);
-
-        int totalCnt = 0;
-        if (list != null && !list.isEmpty()) {
-            totalCnt = list.get(0).getTotalCnt();
-        }
-
-        model.addAttribute("list", list);
-        model.addAttribute("totalCnt", totalCnt);
         model.addAttribute("vo", inVO);
 
         return "trip/trip_course";
@@ -75,7 +66,7 @@ public class TripCourseController {
         }
 
         if (inVO.getPageSize() == 0) {
-            inVO.setPageSize(10);
+            inVO.setPageSize(7);
         }
 
         if (inVO.getOrderType() == null || inVO.getOrderType().isEmpty()) {
@@ -97,5 +88,18 @@ public class TripCourseController {
         log.debug("inVO={}", inVO);
 
         return tripCourseService.doSelectOne(inVO);
+    }
+    /**
+     * 조회수 증가 API추가
+     */
+    @GetMapping(value = "/doUpdateInqCnt.do", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public int doUpdateInqCnt(TripCourseVO inVO) {
+        log.debug("┌───────────────────────────────────┐");
+        log.debug("│ doUpdateInqCnt()                 │");
+        log.debug("└───────────────────────────────────┘");
+        log.debug("inVO={}", inVO);
+
+        return tripCourseService.increaseInqCnt(inVO);
     }
 }

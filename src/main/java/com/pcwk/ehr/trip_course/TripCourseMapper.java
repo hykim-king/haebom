@@ -12,4 +12,5 @@ public interface TripCourseMapper extends WorkDiv<TripCourseVO> {
      * 전체 건수 조회
      */
     int getCount();
+    int increaseInqCnt(TripCourseVO inVO);
 }

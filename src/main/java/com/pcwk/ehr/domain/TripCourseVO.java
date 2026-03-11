@@ -26,5 +26,6 @@ public class TripCourseVO extends DTO {
     /** 조회 결과/화면 제어용 */
     private int totalCnt; // COUNT(*) OVER / CROSS JOIN COUNT 결과 수신용
     private String hashTag; // 추후 해시태그 필터용
-    private String orderType; // 최신순/인기순 정렬용
+    private String orderType; // 최신순용
+    private int courseInqCnt;
 }

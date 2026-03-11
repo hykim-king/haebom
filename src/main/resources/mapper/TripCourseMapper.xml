@@ -9,12 +9,13 @@
             parameterType="TripCourseVO"
             resultType="TripCourseVO">
         SELECT
-              COURSE_NO       AS courseNo
+            COURSE_NO       AS courseNo
             , COURSE_NM       AS courseNm
             , COURSE_INFO     AS courseInfo
             , COURSE_PATH_NM  AS coursePathNm
             , COURSE_DSTNC    AS courseDstnc
             , COURSE_REQ_TM   AS courseReqTm
+            , COURSE_INQ_CNT  AS courseInqCnt
         FROM COURSE
         WHERE COURSE_NO = #{courseNo}
     </select>
@@ -27,8 +28,8 @@
 
     <!-- 목록 조회 + 페이징 -->
     <select id="doRetrieve"
-            parameterType="TripCourseVO"
-            resultType="TripCourseVO">
+        parameterType="TripCourseVO"
+        resultType="TripCourseVO">
 
         SELECT A.*, B.TOTAL_CNT AS totalCnt
         FROM (
@@ -37,12 +38,13 @@
                 SELECT ROWNUM AS RNUM, T1.*
                 FROM (
                     SELECT
-                          COURSE_NO       AS courseNo
+                        COURSE_NO       AS courseNo
                         , COURSE_NM       AS courseNm
                         , COURSE_INFO     AS courseInfo
                         , COURSE_PATH_NM  AS coursePathNm
                         , COURSE_DSTNC    AS courseDstnc
                         , COURSE_REQ_TM   AS courseReqTm
+                        , COURSE_INQ_CNT  AS courseInqCnt
                     FROM COURSE
                     WHERE 1=1
                     <if test="searchWord != null and searchWord != ''">
@@ -50,9 +52,11 @@
                     </if>
 
                     <choose>
-                        <!-- 현재 COURSE 테이블의 인기 컬럼이 확인되지 않았으므로 임시 동일 정렬 -->
-                        <when test="orderType == 'pop'">
+                        <when test="orderType == 'new'">
                             ORDER BY COURSE_NO DESC
+                        </when>
+                        <when test="orderType == 'pop'">
+                            ORDER BY COURSE_INQ_CNT DESC, COURSE_NO DESC
                         </when>
                         <otherwise>
                             ORDER BY COURSE_NO DESC
@@ -93,13 +97,12 @@
          WHERE COURSE_NO = #{courseNo}
     </delete>
 
-    <!-- WorkDiv 상속 때문에 인터페이스에는 남아있지만 현재 미사용 -->
-    <insert id="doSave"
+    <update id="increaseInqCnt"
             parameterType="TripCourseVO">
-        <selectKey keyProperty="courseNo" resultType="int" order="BEFORE">
-            SELECT 0 FROM DUAL
-        </selectKey>
-        SELECT 1 FROM DUAL
-    </insert>
+        UPDATE COURSE
+        SET COURSE_INQ_CNT = NVL(COURSE_INQ_CNT, 0) + 1
+        WHERE COURSE_NO = #{courseNo}
+    </update>
+
 
 </mapper>

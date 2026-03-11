@@ -1,0 +1,318 @@
+body {
+        background-color: #ffffff;
+    }
+
+    .course-navigation {
+        background-color: #f3f4f6;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+
+    .step-indicators {
+        display:grid;
+	    grid-template-columns:repeat(auto-fit,40px);
+	    justify-content:center;
+	    gap:12px;
+	    margin-top:-20px;
+    }
+
+    .step-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px;
+        border: 2px solid #d1d5db;
+        background: #ffffff;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+
+    .step-circle.active {
+        background: #ea580c;
+        border-color: #ea580c;
+        color: #ffffff;
+    }
+
+    .step-circle.completed {
+        background: #ffffff;
+        border-color: #d1d5db;
+        color: #9ca3af;
+    }
+
+    .step-line {
+        display:none;
+    }
+
+    .step-line.completed {
+        background: #ea580c;
+    }
+
+    .course-swiper-wrap {
+        margin-top:8px;
+    }
+
+	
+
+    .courseSwiper {
+        padding: 4px 2px 8px 12px;
+        overflow:visible;
+    }
+	    
+	.courseSwiper .swiper-button-prev,
+	.courseSwiper .swiper-button-next{
+	    width:40px;
+	    height:40px;
+	    border-radius:50%;
+	
+	    background:rgba(255,255,255,0.9);
+	    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+	
+	    color:#ea580c;
+	
+	    display:flex;
+	    align-items:center;
+	    justify-content:center;
+	}
+	
+	.courseSwiper .swiper-button-prev{
+	    left:10px;
+	}
+	
+	.courseSwiper .swiper-button-next{
+	    right:10px;
+	}
+	
+	.courseSwiper .swiper-button-prev::after,
+	.courseSwiper .swiper-button-next::after{
+	    font-size:18px;
+	    font-weight:bold;
+	}
+		
+
+    .swiper-slide {
+    	width:auto;
+    }
+
+	
+
+    .course-card {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: #d1d5db;
+    }
+
+    .course-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+    }
+
+    .course-card.active {
+        box-shadow: 0 6px 18px rgba(234, 88, 12, 0.15);
+	    outline: 3px solid rgba(234, 88, 12, 0.12);
+	}
+
+    .course-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .course-card-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.28);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .course-card.active .course-card-overlay {
+        background: rgba(234, 88, 12, 0.35);
+    }
+
+    .course-card-title {
+        color: #ffffff;
+        font-size: 1.15rem;
+        font-weight: 700;
+        line-height: 1.35;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+        word-break: keep-all;
+    }
+
+    .detail-panel {
+        background: #ffffff;
+        border: 2px solid #fed7aa;
+        border-radius: 16px;
+        padding: 32px;
+        margin-top: 20px;
+        position: relative;
+    }
+
+
+
+    .detail-step-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 9999px;
+        background: #ea580c;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .detailImageSwiper{
+	    margin-bottom:24px;
+	    overflow: visible;
+	}
+	
+	.detailImageSwiper .swiper-slide{
+	    width:auto;
+	}
+	.detailImageSwiper .swiper-button-prev,
+	.detailImageSwiper .swiper-button-next{
+	    width:40px;
+	    height:40px;
+	    border-radius:50%;
+	
+	    background:rgba(255,255,255,0.9);
+	    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+	
+	    color:#ea580c;
+	
+	    display:flex;
+	    align-items:center;
+	    justify-content:center;
+	}
+	
+	.detailImageSwiper .swiper-button-prev{
+	    left:10px;
+	}
+	
+	.detailImageSwiper .swiper-button-next{
+	    right:10px;
+	}
+	
+	.detailImageSwiper .swiper-button-prev::after,
+	.detailImageSwiper .swiper-button-next::after{
+	    font-size:18px;
+	    font-weight:bold;
+	}
+	
+	.detail-image-box{
+	    width:260px;
+	    aspect-ratio:4/3;
+	}
+
+    .detail-image-box {
+        aspect-ratio: 4 / 3;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #e5e7eb;
+    }
+
+    .detail-image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 24px;
+        color: #6b7280;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+    }
+
+    .detail-reason {
+        color: #ea580c;
+        font-weight: 600;
+        margin-bottom: 16px;
+        white-space: pre-wrap;
+    }
+
+    .food-box {
+        background: #fff7ed;
+        border: 1px solid #fdba74;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 16px;
+    }
+
+    .food-box.hidden {
+        display: none;
+    }
+
+    .placeholder-text {
+        color: #9ca3af;
+    }
+
+    .no-image-box {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #d1d5db, #9ca3af);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+	.detail-daytime{
+	    color:#ea580c;
+	    font-weight:600;
+	}
+
+	
+	
+	
+	
+	
+	
+	
+    @media (max-width: 768px) {
+        .course-navigation {
+            padding: 24px 16px;
+        }
+
+        .step-line {
+            width: 36px;
+            margin: 0 6px;
+        }
+
+        .detail-panel {
+            padding: 20px;
+        }
+
+        .detail-gallery {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    
+    

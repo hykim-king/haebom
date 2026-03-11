@@ -1,224 +1,266 @@
 const tripCourseState = {
     pageNo: 1,
-    pageSize: 10,
+    pageSize: 7,
     searchWord: "",
     orderType: "new"
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadLayoutFragments();
-    initTripCoursePage();
-    createLucideIcons();
+document.addEventListener("DOMContentLoaded", function () {
+    initEvent();
+    doRetrieve();
 });
 
-function loadLayoutFragments() {
-    const headerEl = document.getElementById("header");
-    const footerEl = document.getElementById("footer");
+function initEvent() {
+    const searchInput = document.getElementById("search-input");
+    const resetBtn = document.getElementById("reset-btn");
+    const sortBtns = document.querySelectorAll(".sort-btn");
 
-    if (headerEl) {
-        fetch("header.html")
-            .then((res) => res.text())
-            .then((html) => {
-                headerEl.innerHTML = html;
-            })
-            .catch((err) => console.error("헤더 로드 실패:", err));
+    let debounceTimer;
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function (e) {
+            clearTimeout(debounceTimer);
+
+            debounceTimer = setTimeout(() => {
+                tripCourseState.searchWord = e.target.value.trim();
+                tripCourseState.pageNo = 1;
+                doRetrieve();
+            }, 300);
+        });
     }
 
-    if (footerEl) {
-        fetch("footer.html")
-            .then((res) => res.text())
-            .then((html) => {
-                footerEl.innerHTML = html;
-            })
-            .catch((err) => console.error("푸터 로드 실패:", err));
+    if (resetBtn) {
+        resetBtn.addEventListener("click", function () {
+            tripCourseState.pageNo = 1;
+            tripCourseState.pageSize = 7;
+            tripCourseState.searchWord = "";
+            tripCourseState.orderType = "new";
+
+            if (searchInput) {
+                searchInput.value = "";
+            }
+
+            updateSortButtonUI();
+            doRetrieve();
+        });
     }
+
+        sortBtns.forEach((btn) => {
+            btn.addEventListener("click", function () {
+                const sortType = this.dataset.sort;
+
+                tripCourseState.orderType = sortType;
+                tripCourseState.pageNo = 1;
+
+                updateSortButtonUI();
+                doRetrieve();
+            });
+        });
 }
 
-function createLucideIcons() {
+function updateSortButtonUI() {
+    const sortBtns = document.querySelectorAll(".sort-btn");
+
+    sortBtns.forEach((btn) => {
+        if (btn.dataset.sort === tripCourseState.orderType) {
+            btn.classList.remove("text-gray-400");
+            btn.classList.add("text-gray-900", "font-bold", "underline");
+        } else {
+            btn.classList.remove("text-gray-900", "font-bold", "underline");
+            btn.classList.add("text-gray-400");
+        }
+    });
+}
+
+function doRetrieve() {
+    const params = new URLSearchParams({
+        pageNo: tripCourseState.pageNo,
+        pageSize: tripCourseState.pageSize,
+        searchWord: tripCourseState.searchWord,
+        orderType: tripCourseState.orderType
+    });
+
+    fetch(`/trip_course/doRetrieve.do?${params.toString()}`, {
+        method: "GET"
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("목록 조회 실패");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            renderDestList(data);
+
+            const totalCnt = data && data.length > 0 ? Number(data[0].totalCnt) : 0;
+            renderTotalCount(totalCnt);
+            renderPagination(totalCnt);
+        })
+        .catch((error) => {
+            console.error("doRetrieve error:", error);
+            renderDestList([]);
+            renderTotalCount(0);
+            renderPagination(0);
+        });
+}
+
+function renderDestList(data) {
+    const destList = document.getElementById("dest-list");
+    if (!destList) return;
+
+    if (!data || data.length === 0) {
+        destList.innerHTML = `
+            <div class="text-center text-gray-500 py-10 border rounded-xl bg-gray-50">
+                조회된 여행코스가 없습니다.
+            </div>
+        `;
+        return;
+    }
+
+    let html = "";
+
+    data.forEach((item) => {
+        const imagePath = item.coursePathNm ? escapeHtml(item.coursePathNm) : "/images/no-image.png";
+        const courseNm = item.courseNm ? escapeHtml(item.courseNm) : "코스명 없음";
+        const courseNo = item.courseNo ?? "";
+        const courseInqCnt = item.courseInqCnt ?? 0;
+
+            html += `
+            <article class="course-list-item" onclick="goCourseDetail(${courseNo})">
+                <div class="course-thumb-wrap">
+                    <img class="course-thumb"
+                        src="${imagePath}"
+                        alt="${courseNm}"
+                        onerror="this.onerror=null; this.src='/images/no-image.png';">
+                </div>
+
+                <div class="course-body">
+                    <div class="course-head">
+                        <div>
+                            <h3 class="course-title">${courseNm}</h3>
+
+                            <div class="flex items-center gap-4 text-xs text-gray-400 mt-3">
+                                <span class="flex items-center gap-1">
+                                    <i data-lucide="eye" size="14"></i>
+                                    조회 ${courseInqCnt}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `;
+    });
+
+    destList.innerHTML = html;
+
     if (window.lucide) {
         lucide.createIcons();
     }
 }
 
-function initTripCoursePage() {
-    fetchCourseList();
-    bindSearchEvent();
-    bindSortButtons();
-    bindResetButton();
+function renderTotalCount(totalCnt) {
+    const totalCountEl = document.getElementById("total-count");
+    if (totalCountEl) {
+        totalCountEl.textContent = totalCnt.toLocaleString();
+    }
 }
 
-function bindSearchEvent() {
-    const searchInput = document.getElementById("search-input");
-    let searchTimer;
+function renderPagination(totalCnt) {
+    const paginationEl = document.getElementById("pagination");
+    if (!paginationEl) return;
 
-    if (!searchInput) return;
+    const pageSize = tripCourseState.pageSize;
+    const currentPage = tripCourseState.pageNo;
+    const totalPage = Math.ceil(totalCnt / pageSize);
+    const pageBlockSize = 5;
 
-    searchInput.addEventListener("input", (e) => {
-        clearTimeout(searchTimer);
-
-        searchTimer = setTimeout(() => {
-            tripCourseState.searchWord = e.target.value.trim();
-            tripCourseState.pageNo = 1;
-            fetchCourseList();
-        }, 300);
-    });
-}
-
-function bindSortButtons() {
-    document.querySelectorAll(".sort-btn").forEach((btn) => {
-        btn.addEventListener("click", function () {
-            document.querySelectorAll(".sort-btn").forEach((b) => {
-                b.classList.remove("text-gray-900", "font-bold", "underline");
-                b.classList.add("hover:text-gray-900");
-            });
-
-            this.classList.add("text-gray-900", "font-bold", "underline");
-            this.classList.remove("hover:text-gray-900");
-
-            tripCourseState.orderType = this.dataset.sort;
-            tripCourseState.pageNo = 1;
-
-            fetchCourseList();
-        });
-    });
-}
-
-function bindResetButton() {
-    const resetBtn = document.getElementById("reset-btn");
-    const searchInput = document.getElementById("search-input");
-
-    if (!resetBtn) return;
-
-    resetBtn.addEventListener("click", () => {
-        if (searchInput) {
-            searchInput.value = "";
-        }
-
-        tripCourseState.pageNo = 1;
-        tripCourseState.searchWord = "";
-        tripCourseState.orderType = "new";
-
-        document.querySelectorAll(".sort-btn").forEach((btn) => {
-            btn.classList.remove("text-gray-900", "font-bold", "underline");
-            btn.classList.add("hover:text-gray-900");
-        });
-
-        const newBtn = document.querySelector('.sort-btn[data-sort="new"]');
-        if (newBtn) {
-            newBtn.classList.add("text-gray-900", "font-bold", "underline");
-            newBtn.classList.remove("hover:text-gray-900");
-        }
-
-        fetchCourseList();
-    });
-}
-
-function fetchCourseList() {
-    const params = new URLSearchParams(tripCourseState).toString();
-
-    fetch(`/trip_course/doRetrieve.do?${params}`)
-        .then((res) => res.json())
-        .then((data) => {
-            renderCourseList(data);
-
-            const totalCount = data.length > 0 ? (data[0].totalCnt || 0) : 0;
-
-            const totalCountElem = document.getElementById("total-count");
-            if (totalCountElem) {
-                totalCountElem.innerText = totalCount;
-            }
-
-            renderCoursePagination(totalCount);
-            createLucideIcons();
-        })
-        .catch((err) => console.error("여행코스 데이터 로드 실패:", err));
-}
-
-function renderCourseList(list) {
-    const container = document.getElementById("dest-list");
-    if (!container) return;
-
-    if (!list || list.length === 0) {
-        container.innerHTML = `
-            <div class="py-20 text-center text-gray-400 font-medium font-bold">
-                검색 결과가 없습니다.
-            </div>
-        `;
+    if (totalPage === 0) {
+        paginationEl.innerHTML = "";
         return;
     }
 
-    const defaultImg = "https://via.placeholder.com/400x300?text=No+Image";
-
-    container.innerHTML = list.map((item) => `
-        <div class="group flex flex-col md:flex-row gap-6 p-6 bg-white rounded-3xl border border-gray-100 hover:shadow-xl transition-all cursor-pointer"
-             onclick="goCourseDetail(${item.courseNo})">
-
-            <div class="shrink-0 overflow-hidden rounded-2xl w-full md:w-64 h-44 bg-gray-50">
-                <img src="${item.coursePathNm || defaultImg}"
-                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                     onerror="this.onerror=null; this.src='${defaultImg}';">
-            </div>
-
-            <div class="flex flex-col justify-center flex-1">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                        ${item.courseNm || ""}
-                    </h3>
-                    <span class="text-gray-400 text-sm font-medium">
-                        코스번호 ${item.courseNo || ""}
-                    </span>
-                </div>
-
-                <div class="mb-3 text-gray-500 text-sm leading-relaxed">
-                    ${item.courseInfo || ""}
-                </div>
-
-                <div class="flex items-center gap-4 text-xs text-gray-400">
-                    <span>거리 ${item.courseDstnc || "-"}</span>
-                    <span>소요시간 ${item.courseReqTm || "-"}</span>
-                </div>
-            </div>
-        </div>
-    `).join("");
-}
-
-function renderCoursePagination(totalCnt) {
-    const totalPage = Math.ceil(totalCnt / tripCourseState.pageSize);
-    const container = document.getElementById("pagination");
-
-    if (!container || totalPage <= 1) {
-        if (container) {
-            container.innerHTML = "";
-        }
-        return;
-    }
-
-    const curr = tripCourseState.pageNo;
-    const startPage = Math.max(1, curr - 2);
-    const endPage = Math.min(totalPage, startPage + 4);
+    const currentBlock = Math.ceil(currentPage / pageBlockSize);
+    const startPage = (currentBlock - 1) * pageBlockSize + 1;
+    const endPage = Math.min(startPage + pageBlockSize - 1, totalPage);
 
     let html = "";
 
-    for (let i = startPage; i <= endPage; i++) {
+    // 이전 페이지 그룹
+    if (startPage > 1) {
+        const prevBlockPage = startPage - 1;
         html += `
             <button type="button"
-                    onclick="moveCoursePage(${i})"
-                    class="w-10 h-10 border rounded-xl flex items-center justify-center transition-all cursor-pointer
-                    ${i === curr ? "bg-gray-900 text-white font-bold" : "text-gray-400 bg-white hover:border-gray-900"}">
+                    class="page-btn px-3 py-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-100"
+                    onclick="movePage(${prevBlockPage})">
+                &lt;
+            </button>
+        `;
+    }
+
+    // 페이지 번호 1~5
+    for (let i = startPage; i <= endPage; i++) {
+        const activeClass = i === currentPage
+            ? "bg-slate-900 text-white border-slate-900"
+            : "bg-white text-gray-500 border-gray-300 hover:bg-gray-100";
+
+        html += `
+            <button type="button"
+                    class="page-btn min-w-[44px] h-[44px] rounded-xl border ${activeClass}"
+                    onclick="movePage(${i})">
                 ${i}
             </button>
         `;
     }
 
-    container.innerHTML = html;
+    // 다음 페이지 그룹
+    if (endPage < totalPage) {
+        const nextBlockPage = endPage + 1;
+        html += `
+            <button type="button"
+                    class="page-btn px-3 py-2 rounded-xl border border-gray-300 bg-white hover:bg-gray-100"
+                    onclick="movePage(${nextBlockPage})">
+                &gt;
+            </button>
+        `;
+    }
+
+    paginationEl.innerHTML = html;
 }
 
-function moveCoursePage(num) {
-    tripCourseState.pageNo = num;
-    fetchCourseList();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+function movePage(pageNo) {
+    tripCourseState.pageNo = pageNo;
+    doRetrieve();
 }
 
 function goCourseDetail(courseNo) {
-    console.log("상세페이지 미구현, courseNo:", courseNo);
+    fetch(`/trip_course/doUpdateInqCnt.do?courseNo=${courseNo}`, {
+        method: "GET"
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("조회수 증가 실패");
+            }
+            return response.text();
+        })
+        .then(() => {
+            console.log("상세페이지 미구현, courseNo:", courseNo);
+
+            // 상세페이지가 생기면 아래로 변경
+            // location.href = `/trip_course/view?courseNo=${courseNo}`;
+        })
+        .catch((error) => {
+            console.error("doUpdateInqCnt error:", error);
+        });
+}
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+
+    return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
 }

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="_csrf" th:content="${_csrf.token}">
+<meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+<title>AI 여행 코스 추천</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<link rel="stylesheet" th:href="@{/css/header.css}" />
+<link rel="stylesheet" th:href="@{/css/footer.css}" />
+<link rel="stylesheet" th:href="@{/css/ai_course.css}" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
+</head>
+
+<body>
+
+<div th:replace="~{main/header :: header}"></div>
+
+<main class="max-w-5xl mx-auto px-4 py-8">
+
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-slate-900 mb-3">AI 여행 코스 추천</h1>
+
+        <p class="text-sm text-gray-500">
+            <span th:text="${regionName}">지역</span>
+            <span th:if="${gunguName != null and gunguName != ''}">
+                / <span th:text="${gunguName}">군구</span>
+            </span>
+            · <span th:text="${days}">1</span>일
+        </p>
+    </div>
+
+    <div class="mb-8">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <span class="w-1.5 h-5 bg-pink-500 rounded-full"></span>
+            AI 추천 코스
+        </h3>
+
+        <div class="bg-white rounded-2xl shadow-sm p-6 text-gray-700 whitespace-pre-wrap leading-relaxed"
+             th:text="${aiRes}">
+        </div>
+    </div>
+
+    <div class="course-navigation">
+
+        <div class="step-indicators" id="stepIndicators"></div>
+
+        <div class="course-swiper-wrap">
+            <div class="swiper courseSwiper">
+
+			    <div class="swiper-wrapper" id="courseSwiperWrapper"></div>
+			
+			    <!-- 화살표 -->
+			    <div class="swiper-button-prev course-prev"></div>
+			    <div class="swiper-button-next course-next"></div>
+			
+			</div>
+        </div>
+    </div>
+
+    <div class="detail-panel" id="courseDetailPanel">
+        <div class="flex items-center gap-3 mb-6">
+
+		    <div class="detail-step-badge" id="detailStep">1</div>
+		
+		    <h2 class="text-2xl font-bold text-slate-900" id="detailTitle">여행지 이름</h2>
+		
+		    <div class="flex items-center gap-2 text-gray-500 ml-4">
+		        <i data-lucide="map-pin" class="w-4 h-4"></i>
+		        <span id="detailAddr">주소</span>
+		    </div>
+		
+		</div>
+
+        <div class="swiper detailImageSwiper">
+
+		    <div class="swiper-wrapper" id="detailGallery"></div>
+		
+		    <!-- 화살표 -->
+		    <div class="swiper-button-prev detail-prev"></div>
+		    <div class="swiper-button-next detail-next"></div>
+		
+		</div>
+        
+
+        <p class="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap" id="detailInfo">설명</p>
+
+   
+
+        <div class="food-box hidden" id="detailFoodBox">
+
+		    <p class="font-semibold text-orange-600 mb-2">
+		        🍽 추천 음식점
+		    </p>
+		
+		    <p class="font-semibold text-slate-900 text-lg" id="foodName"></p>
+		
+		    <p class="text-sm text-gray-500" id="foodAddr"></p>
+		
+		    <p class="text-sm text-orange-500 mt-1" id="foodDist"></p>
+		
+		</div>
+    </div>
+
+    <div class="mt-12">
+        <h3 class="text-lg font-bold mb-6">
+            후기 및 댓글
+            <span id="comment-count" class="text-orange-500 ml-1 text-sm">0</span>
+        </h3>
+
+        <div class="bg-gray-50 border rounded-2xl p-8 mb-10">
+            <textarea id="comment-input"
+                      class="w-full p-4 border rounded-xl h-28 outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="코스 후기를 남겨주세요."></textarea>
+
+            <div class="flex justify-end mt-4">
+                <button onclick="submitComment()"
+                        class="bg-orange-500 text-white px-8 py-2 rounded-lg font-bold hover:bg-orange-600">
+                    등록
+                </button>
+            </div>
+        </div>
+
+        <div id="comment-list" class="divide-y"></div>
+    </div>
+
+</main>
+
+<div th:replace="~{main/footer :: footer}"></div>
+
+<script th:src="@{/javascript/course.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+const courseItems = /*[[${courseItems}]]*/ [];
+/*]]>*/
+</script>
+
+<script>
+let activeIndex = 0;
+let courseSwiper = null;
+let detailSwiper = null;
+
+function safeText(value, fallback = '') {
+    return value === null || value === undefined || value === '' ? fallback : value;
+}
+
+function createImageHtml(src, altText) {
+    if (!src) {
+        return `
+            <div class="detail-image-box">
+                <div class="no-image-box">이미지 없음</div>
+            </div>
+        `;
+    }
+    return `
+        <div class="detail-image-box">
+            <img src="${src}" alt="${altText}">
+        </div>
+    `;
+}
+
+function renderStepIndicators() {
+    const container = document.getElementById('stepIndicators');
+    container.innerHTML = '';
+
+    courseItems.forEach((item, index) => {
+        const stepItem = document.createElement('div');
+        stepItem.className = 'step-item';
+
+        const circle = document.createElement('div');
+        circle.className = 'step-circle';
+
+        if (index === activeIndex) {
+            circle.classList.add('active');
+        } else if (index < activeIndex) {
+            circle.classList.add('completed');
+        }
+
+        circle.textContent = index + 1;
+        circle.addEventListener('click', () => selectCourse(index));
+
+        stepItem.appendChild(circle);
+
+        if (index < courseItems.length - 1) {
+            const line = document.createElement('div');
+            line.className = 'step-line';
+            if (index < activeIndex) {
+                line.classList.add('completed');
+            }
+            stepItem.appendChild(line);
+        }
+
+        container.appendChild(stepItem);
+    });
+}
+
+function renderCourseCards() {
+
+	const slides = document.querySelectorAll('.courseSwiper .swiper-slide');
+    slides.forEach((slide, index) => {
+
+        const card = slide.querySelector('.course-card');
+
+        if(index === activeIndex){
+            card.classList.add('active');
+        }else{
+            card.classList.remove('active');
+        }
+
+    });
+
+}
+
+    
+
+
+function renderCourseDetail() {
+    const trip = courseItems[activeIndex];
+    if (!trip) return;
+    
+    
+    document.getElementById('detailStep').textContent = activeIndex + 1;
+    document.getElementById('detailTitle').innerHTML =
+        `<a href="/trip/trip_view?tripContsId=${trip.tripContsId}" class="hover:text-orange-500">
+            ${safeText(trip.tripNm,'여행지 이름')}
+         </a>`;
+    document.getElementById('detailAddr').textContent = safeText(trip.tripAddr, '주소 정보 없음');
+    document.getElementById('detailInfo').textContent = safeText(trip.tripdtlInfo, '상세 설명이 없습니다.');
+    
+    const gallery = document.getElementById('detailGallery');
+    const title = safeText(trip.tripNm, '여행지');
+
+    gallery.innerHTML = `
+        <div class="swiper-slide">
+            <div class="detail-image-box">
+                <div class="no-image-box">이미지 불러오는 중...</div>
+            </div>
+        </div>
+    `;
+    fetch(`/course/trip/images?boardId=${trip.tripContsId}`)
+        .then(res => res.json())
+        .then(images => {
+
+        	if(images.length === 0){
+
+        	    gallery.innerHTML = `
+        	        <div class="swiper-slide">
+        	            <div class="detail-image-box">
+        	                <div class="no-image-box">이미지 없음</div>
+        	            </div>
+        	        </div>
+
+        	        <div class="swiper-slide">
+        	            <div class="detail-image-box">
+        	                <div class="no-image-box">이미지 없음</div>
+        	            </div>
+        	        </div>
+
+        	        <div class="swiper-slide">
+        	            <div class="detail-image-box">
+        	                <div class="no-image-box">이미지 없음</div>
+        	            </div>
+        	        </div>
+        	    `;
+
+        	} else {
+
+        	    let html = '';
+
+        	    images.forEach((img, i) => {
+        	        html += `
+        	            <div class="swiper-slide">
+        	                ${createImageHtml(img, `${title} 이미지 ${i+1}`)}
+        	            </div>
+        	        `;
+        	    });
+
+        	    gallery.innerHTML = html;
+        	}
+
+        	/* 여기서 swiper 항상 생성 */
+
+        	if(detailSwiper){
+        	    detailSwiper.destroy(true,true);
+        	}
+
+        	detailSwiper = new Swiper('.detailImageSwiper', {
+        	    slidesPerView: 3,
+        	    spaceBetween: 16,
+
+        	    navigation: {
+        	        nextEl: '.detail-next',
+        	        prevEl: '.detail-prev'
+        	    },
+
+        	    loop: false,
+        	    watchOverflow: true,
+        	    resistanceRatio: 0
+        	});
+            
+        });
+
+    const foodBox = document.getElementById('detailFoodBox');
+    const selectedFood = trip.selectedFood;
+
+    if (selectedFood) {
+
+        foodBox.classList.remove('hidden');
+
+        const foodName = safeText(selectedFood.trip_nm, '');
+        const foodId = selectedFood.trip_conts_id;
+
+        document.getElementById('foodName').innerHTML =
+            `<a href="/trip/trip_view?tripContsId=${foodId}" 
+               class="hover:text-orange-500 hover:underline">
+                ${foodName}
+             </a>`;
+
+        document.getElementById('foodAddr').textContent =
+            safeText(selectedFood.trip_addr, '');
+
+        const foodDistance =
+            selectedFood.distance !== null && selectedFood.distance !== undefined
+            ? `거리 ${selectedFood.distance} km`
+            : '거리 정보 없음';
+
+        document.getElementById('foodDist').textContent = foodDistance;
+
+    } else {
+
+        foodBox.classList.add('hidden');
+
+    }
+}
+
+function selectCourse(index){
+
+    activeIndex=index;
+
+    renderStepIndicators();
+    renderCourseCards();   // class만 변경
+    renderCourseDetail();
+
+    if(courseSwiper){
+        courseSwiper.slideTo(index);
+    }
+
+}
+
+function initCourseCards(){
+
+    const wrapper = document.getElementById('courseSwiperWrapper');
+    wrapper.innerHTML = '';
+
+    courseItems.forEach((trip,index)=>{
+
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+
+        const title = safeText(trip.tripNm,'여행지');
+        const image = safeText(trip.tripPathNm,'');
+
+        slide.innerHTML = `
+        <div class="course-card ${index===0?'active':''}">
+            ${
+                image
+                ? `<img src="${image}" alt="${title}">`
+                : `<div class="no-image-box">이미지 없음</div>`
+            }
+            <div class="course-card-overlay">
+                <span class="course-card-title">${title}</span>
+            </div>
+        </div>
+        `;
+
+        slide.addEventListener('click',()=>selectCourse(index));
+
+        wrapper.appendChild(slide);
+
+    });
+
+}
+
+
+window.addEventListener('load', () => {
+
+    initCourseCards();   // ← 처음 한번만 생성
+    renderStepIndicators();
+    renderCourseDetail();
+
+    courseSwiper = new Swiper('.courseSwiper', {
+        slidesPerView: 4,
+        spaceBetween: 16,
+        slideToClickedSlide: true,
+        speed: 400,
+
+        navigation: {
+            nextEl: '.course-next',
+            prevEl: '.course-prev'
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>

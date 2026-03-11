@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>해봄트립 - 여행 코스</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/footer.css}"/>
+    <link rel="stylesheet" th:href="@{/css/trip.css}">
+</head>
+<body>
+<!-- Header -->
+<div th:replace="~{main/header :: header}"></div>
+
+<div id="main-wrapper">
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10" id="home-view">
+
+            <!-- ── 왼쪽: 코스 목록 ── -->
+            <div class="lg:col-span-8 order-2 lg:order-1">
+                <div class="flex justify-between items-end mb-6 pb-4 border-b-2 border-gray-900">
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-3xl font-bold">#<span id="view-title">전체</span></h2>
+                    </div>
+                    <div class="flex gap-4 text-sm text-gray-400 font-medium">
+                        <span class="text-blue-600 font-bold">총 <span id="total-count">0</span>건</span>
+                        <button class="text-gray-900 font-bold underline" onclick="setOrderType('new')">최신순</button>
+                        <span>|</span>
+                        <button class="hover:text-gray-900" onclick="setOrderType('pop')">인기순</button>
+                    </div>
+                </div>
+
+                <!-- 코스 카드 그리드 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5" id="dest-list"></div>
+
+                <!-- 페이징 -->
+                <div id="pagination"></div>
+            </div>
+
+            <!-- ── 오른쪽: 검색 사이드바 ── -->
+            <aside class="lg:col-span-4 order-1 lg:order-2">
+                <div class="space-y-5 sticky top-10">
+                    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <!-- 검색 -->
+                        <div class="flex items-center bg-white border rounded-lg px-3 py-2 mb-6 shadow-sm">
+                            <input class="w-full text-sm outline-none" id="search-input"
+                                   oninput="handleSearch(this.value)"
+                                   placeholder="코스 이름 검색" type="text">
+                            <button onclick="resetFilters()">
+                                <i class="text-gray-400" data-lucide="refresh-cw" size="18"></i>
+                            </button>
+                        </div>
+
+                        <!-- 안내 카드 -->
+                        <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
+                            <i class="text-blue-500 shrink-0" data-lucide="map-pin" size="20"></i>
+                            <div>
+                                <h5 class="text-blue-700 font-bold text-sm">코스 안내</h5>
+                                <p class="text-blue-600 text-xs mt-1">코스를 클릭하면 지도와 함께 여행지 순서를 확인할 수 있어요.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{main/footer :: footer}"></div>
+
+<!-- JS -->
+<script th:src="@{/javascript/header.js}"></script>
+<script th:src="@{/javascript/trip_course.js}"></script>
+</body>
+</html>

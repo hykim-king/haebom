@@ -21,4 +21,6 @@ public interface CommentService {
     List<CommentVO> getCommentsByTarget(CommentVO param);
 
     int getCountByTarget(CommentVO param);
+
+    boolean hasUserCommented(CommentVO param);
 }

@@ -95,6 +95,11 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.getCountByTarget(param);
     }
 
+    @Override
+    public boolean hasUserCommented(CommentVO param) {
+        return commentMapper.getCountByUserAndTarget(param) > 0;
+    }
+
     private void saveAttachFile(MultipartFile file, int cmtNo) {
         File uploadDir = new File(UPLOAD_PATH);
         if (!uploadDir.exists()) uploadDir.mkdirs();

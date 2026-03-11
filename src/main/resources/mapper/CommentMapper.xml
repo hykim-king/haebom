@@ -126,6 +126,7 @@
             c.CMT_HIDE_YN,
             c.TRIP_COURSE_NO,
             c.CMT_REG,
+            c.CMT_REG_HM,
             c.CMT_MOD,
             c.REG_NO,
             c.MOD_NO,
@@ -139,6 +140,15 @@
           AND c.CMT_CLSF = #{cmtClsf}
           AND (c.CMT_HIDE_YN IS NULL OR c.CMT_HIDE_YN = 'N')
         ORDER BY c.CMT_NO DESC
+    </select>
+
+    <!-- 유저 중복 댓글 체크 -->
+    <select id="getCountByUserAndTarget" parameterType="CommentVO" resultType="int">
+        SELECT COUNT(*)
+        FROM cmt
+        WHERE TRIP_COURSE_NO = #{tripCourseNo}
+          AND CMT_CLSF = #{cmtClsf}
+          AND REG_NO = #{regNo}
     </select>
 
     <!-- 여행지/코스별 댓글 건수 -->

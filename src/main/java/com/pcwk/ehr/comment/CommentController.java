@@ -62,6 +62,12 @@ public class CommentController {
         inVO.setRegNo(user.getUserNo());
         inVO.setCmtHideYn("N");
 
+        if (commentService.hasUserCommented(inVO)) {
+            result.put("status", -2);
+            result.put("message", "이미 후기를 등록하셨습니다.");
+            return result;
+        }
+
         int flag = commentService.doSave(inVO, files);
         result.put("status", flag);
         result.put("message", flag == 1 ? "등록 성공" : "등록 실패");

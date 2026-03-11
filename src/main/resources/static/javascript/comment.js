@@ -2,6 +2,25 @@
 document.addEventListener("DOMContentLoaded", () => {
     loadComments();
 
+    // 비로그인 시 별점, 파일, 입력란, 등록버튼 비활성화
+    const { userNo } = getCurrentUser();
+    if (!userNo) {
+        document.querySelectorAll('.star-rating-input input, .star-rating-input label').forEach(el => {
+            el.style.pointerEvents = 'none';
+            el.style.opacity = '0.4';
+        });
+        const commentInput = document.getElementById('comment-input');
+        if (commentInput) {
+            commentInput.disabled = true;
+            commentInput.placeholder = '로그인 후 후기를 남길 수 있습니다.';
+        }
+        const fileLabel = document.querySelector('label[for="comment-file"]');
+        if (fileLabel) {
+            fileLabel.style.pointerEvents = 'none';
+            fileLabel.style.opacity = '0.4';
+        }
+    }
+
     // 파일 선택 이벤트 (최대 5개)
     document.getElementById('comment-file')?.addEventListener('change', function (e) {
         const files = e.target.files;
@@ -77,15 +96,23 @@ function loadComments() {
     fetch(`/comment/getList.do?tripCourseNo=${targetNo}&cmtClsf=${cmtClsf}`)
         .then(res => res.json())
         .then(data => {
-            renderComments(data.list || []);
+            const list = data.list || [];
+            renderComments(list);
             const countEl = document.getElementById('comment-count');
             if (countEl) countEl.textContent = data.count || 0;
+            updateAvgStar(list);
         })
         .catch(err => console.error("댓글 조회 실패:", err));
 }
 
 // 댓글 등록 (FormData로 파일 포함 전송)
 function submitComment() {
+    const { userNo } = getCurrentUser();
+    if (!userNo) {
+        alert("로그인이 필요합니다.");
+        return;
+    }
+
     const { cmtClsf, targetNo } = getCommentParams();
     const ratingEl = document.querySelector('input[name="rating"]:checked');
     const contentEl = document.getElementById('comment-input');
@@ -124,6 +151,10 @@ function submitComment() {
         .then(data => {
             if (data.status === -1) {
                 alert("로그인이 필요합니다.");
+                return;
+            }
+            if (data.status === -2) {
+                alert("이미 후기를 등록하셨습니다.");
                 return;
             }
             if (data.status === 1) {
@@ -271,6 +302,24 @@ function openReport(cmtNo) {
     );
 }
 
+// 평균 별점 업데이트
+function updateAvgStar(list) {
+    const ratedList = list.filter(c => c.cmtStarng > 0);
+    const count = ratedList.length;
+    const avg = count > 0 ? (ratedList.reduce((sum, c) => sum + c.cmtStarng, 0) / count) : 0;
+
+    const displayEl = document.getElementById('avg-star-display');
+    const scoreEl = document.getElementById('avg-star-score');
+    const countEl = document.getElementById('avg-star-count');
+
+    if (displayEl) {
+        const full = Math.round(avg);
+        displayEl.textContent = '★'.repeat(full) + '☆'.repeat(5 - full);
+    }
+    if (scoreEl) scoreEl.textContent = avg.toFixed(1);
+    if (countEl) countEl.textContent = count;
+}
+
 // 댓글 목록 렌더링
 function renderComments(list) {
     const container = document.getElementById('comment-list');
@@ -285,8 +334,12 @@ function renderComments(list) {
 
     container.innerHTML = list.map(c => {
         const stars = '★'.repeat(c.cmtStarng) + '☆'.repeat(5 - c.cmtStarng);
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
         const date = c.cmtReg
-            ? `${c.cmtReg.substring(0, 4)}.${c.cmtReg.substring(4, 6)}.${c.cmtReg.substring(6, 8)}`
+            ? (c.cmtReg === todayStr && c.cmtRegHm
+                ? `${c.cmtRegHm.substring(0,2)}:${c.cmtRegHm.substring(2,4)}`
+                : `${c.cmtReg.substring(0,4)}.${c.cmtReg.substring(4,6)}.${c.cmtReg.substring(6,8)}`)
             : '';
 
         const isOwner = userNo > 0 && userNo === c.regNo;

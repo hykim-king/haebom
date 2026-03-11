@@ -45,7 +45,7 @@ public class WeatherServiceImpl implements WeatherService {
             // 프로젝트 설정에 따라 한글이 깨질 수 있으므로 확인이 필요합니다.
             String rawData = restTemplate.getForObject(apiUrl, String.class);
 
-            log.debug("[WEATHER] Raw Data 수신 성공: \n{}", rawData);
+            log.debug("[WEATHER] Raw Data 수신 성공 (길이: {})", rawData != null ? rawData.length() : 0);
 
             if (rawData != null && rawData.contains("#")) {
                 log.debug("[WEATHER] 데이터 호출 성공!");

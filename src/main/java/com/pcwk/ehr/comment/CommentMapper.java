@@ -17,4 +17,6 @@ public interface CommentMapper extends WorkDiv<CommentVO> {
     List<CommentVO> getCommentsByTarget(CommentVO param);
 
     int getCountByTarget(CommentVO param);
+
+    int getCountByUserAndTarget(CommentVO param);
 }

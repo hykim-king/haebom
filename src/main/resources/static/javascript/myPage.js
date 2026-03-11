@@ -16,7 +16,7 @@ const THEMES = [
 ];
 
 let wishListData = [];
-let completedListData = []; // 완료 리스트 저장용 추가
+let finishedListData = [];
 const pageSize = 6;
 
 
@@ -57,8 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderListPage(1, 10);
             } else if (target === 'completed') {
                 // 여행 완료(20) 데이터 새로 불러오고 렌더링
-                await loadRelationData(20);
-                renderListPage(1, 20);
+                await loadFinishedData();    
+                renderFinishedListPage(1);
             }
 
             lucide.createIcons(); // 동적 생성된 아이콘 재생성
@@ -351,9 +351,9 @@ document.getElementById('btn-pw-save')?.addEventListener('click', async () => {
         return;
     }
 
-    // 4. (추가 제안) 비밀번호 최소 길이 검증 (예: 8자 이상)
-    if (nPw.length < 8) {
-        alert("새 비밀번호는 최소 8자 이상이어야 합니다.");
+    // 4. (추가 제안) 비밀번호 최소 길이 검증 
+    if (8<=nPw.length<=16 ) {
+        alert("새 비밀번호는 최소 8자 이상 16자 이하이어야 합니다.");
         return;
     }
 
@@ -368,9 +368,9 @@ document.getElementById('btn-pw-save')?.addEventListener('click', async () => {
 
         if (result > 0) {
             alert("비밀번호가 성공적으로 변경되었습니다.");
-            location.reload(); 
+            location.reload();
         } else if (result === -1) {
-             // 서버에서 현재 비밀번호 불일치를 -1 등으로 보낼 경우 예시
+            // 서버에서 현재 비밀번호 불일치를 -1 등으로 보낼 경우 예시
             alert("현재 비밀번호가 일치하지 않습니다.");
         } else {
             alert("비밀번호 변경에 실패했습니다. 다시 시도해 주세요.");
@@ -402,7 +402,7 @@ function togglePassword(inputId, iconElement) {
 /* ===================================
     8. 비밀번호 표시 토글 기능 
 =================================== */
-window.togglePassword = function(inputId) {
+window.togglePassword = function (inputId) {
     const pwInput = document.getElementById(inputId);
     if (!pwInput) return;
 
@@ -416,7 +416,7 @@ window.togglePassword = function(inputId) {
         pwInput.type = 'password';
         if (icon) icon.setAttribute('data-lucide', 'eye');
     }
-    
+
     // Lucide 아이콘 재생성
     if (window.lucide) {
         lucide.createIcons();
@@ -455,7 +455,8 @@ async function loadRelationData(relClsf) {
 }
 
 function renderListPage(page, relClsf) {
-    const dataList = (relClsf === 10) ? wishListData : completedListData;
+    // 1. 데이터 및 ID 세팅
+    const dataList = (relClsf === 10) ? wishListData : finishedListData; // 'completedListData'를 'finishedListData'로 확인 필요
     const rowId = (relClsf === 10) ? 'wish-items-row' : 'complete-items-row';
     const pagiId = (relClsf === 10) ? 'wish-pagination' : 'complete-pagination';
 
@@ -468,24 +469,55 @@ function renderListPage(page, relClsf) {
     if (!pagedList || pagedList.length === 0) {
         row.innerHTML = '<div class="col-12 text-center py-5 text-muted">항목이 없습니다.</div>';
     } else {
-        row.innerHTML = pagedList.map(item => `
+        row.innerHTML = pagedList.map(item => {
+            // 디자인 분기 처리
+            const isWish = (relClsf === 10);
+            const rate = item.cmtStarng || 0;
+            
+            // 삭제 함수 호출 분기 (여행 완료는 cmtNo가 필요할 수 있음)
+            const deleteTag = isWish 
+                ? `deleteRelationItem('${item.tripContsId}', 10)` 
+                : `deleteFinishedItem(${item.cmtNo}, ${item.tripContsId})`;
+
+            return `
             <div class="col-md-4 mb-3">
                 <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:15px;">
                     <div style="position:relative;">
-                        <img src="${item.tripPathNm || '/images/common/no-image.png'}" class="card-img-top" style="height:120px; object-fit:cover;">
-                        <button onclick="deleteRelationItem('${item.tripContsId}', ${relClsf})" style="position:absolute; top:8px; right:8px; border:none; background:white; border-radius:50%; width:24px; height:24px; box-shadow:0 2px 4px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;">
-                            <i data-lucide="trash-2" size="12" style="color:red;"></i>
+                        <img src="${item.tripPathNm || '/images/common/no-image.png'}" 
+                             class="card-img-top" 
+                             style="height:140px; object-fit:cover; cursor:pointer;"
+                             onclick="location.href='/trip/trip_view?tripContsId=${item.tripContsId}'">
+                        
+                        <button onclick="${deleteTag}" 
+                                style="position:absolute; top:8px; right:8px; border:none; background:rgba(255,255,255,0.9); border-radius:50%; width:28px; height:28px; box-shadow:0 2px 4px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; z-index:10;">
+                            <i data-lucide="trash-2" size="14" style="color:#ff4d4f;"></i>
                         </button>
+
+                        <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; border-radius:20px; font-size:0.75rem; display:flex; align-items:center; gap:3px;">
+                            ${isWish 
+                                ? `<i data-lucide="heart" size="12" style="fill:#ff4d4f; color:#ff4d4f;"></i><span class="fw-bold"></span>`
+                                : `<i data-lucide="star" size="12" style="fill:#ffc107; color:#ffc107;"></i><span class="fw-bold">${rate}</span>`
+                            }
+                        </div>
                     </div>
-                    <div class="card-body p-2 text-center">
-                        <p class="fw-bold text-truncate small mb-0">${item.tripNm}</p>
+
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold text-truncate mb-1" title="${item.tripNm}">${item.tripNm}</h6>
+                        <p class="text-muted small mb-0 text-truncate" style="font-size:0.75rem;">
+                            <i data-lucide="map-pin" size="10" class="me-1"></i>${item.tripAddr || '주소 정보 없음'}
+                        </p>
                     </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
+    
+    // 페이지네이션 및 아이콘 렌더링
     renderPagination(dataList.length, page, pagiId, relClsf);
-    lucide.createIcons();
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 }
 
 function renderPagination(totalCount, currentPage, containerId, relClsf) {
@@ -559,6 +591,144 @@ async function saveTags() {
         alert("서버 통신 오류가 발생했습니다.");
     }
 }
+/* ===================================
+   여행 완료(댓글 기반) 통합 관리 로직
+=================================== */
 
+/**
+ * 1. 데이터 로드 함수: 서버에서 내가 댓글(후기)을 남긴 여행지 목록을 가져옵니다.
+ */
+async function loadFinishedData() {
+    try {
+        const res = await fetch('/mypage/selectTripFinishedList.do');
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+        const data = await res.json();
+        // 전역 변수 finishedListData에 저장
+        finishedListData = Array.isArray(data) ? data : [];
+
+        // 사이드바와 본문 헤더 숫자를 동시에 업데이트
+        const sidebarCount = document.getElementById('sidebar-completed-count'); // 사이드바용
+        const badgeCount = document.getElementById('complete-count-badge');     // 본문 헤더용
+
+        const totalCount = finishedListData.length;
+
+        if (sidebarCount) sidebarCount.innerText = totalCount;
+        if (badgeCount) badgeCount.innerText = totalCount;
+
+    } catch (e) {
+        console.error("완료 목록 로드 실패:", e);
+    }
+}
+
+/**
+ * 2. 리스트 렌더링 함수: 데이터를 6개씩 끊어서 카드 형태로 화면에 출력합니다.
+ * @param {number} page - 현재 페이지 번호
+ */
+function renderFinishedListPage(page) {
+    const row = document.getElementById('complete-items-row');
+    const pagiId = 'complete-pagination';
+    if (!row) return;
+
+    // 페이징 처리 (pageSize = 6)
+    const start = (page - 1) * pageSize;
+    const pagedList = finishedListData.slice(start, start + pageSize);
+
+    if (pagedList.length === 0) {
+        row.innerHTML = '<div class="col-12 text-center py-5 text-muted">완료한 여행 기록이 없습니다.</div>';
+    } else {
+        row.innerHTML = pagedList.map(item => {
+            // 별점(cmt_starng) 처리: null일 경우 0으로 표시
+            const rate = item.cmtStarng || 0;
+
+            return `
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:15px;">
+                    <div style="position:relative;">
+                        <img src="${item.tripPathNm || '/images/common/no-image.png'}" 
+                             class="card-img-top" 
+                             style="height:140px; object-fit:cover; cursor:pointer;"
+                             onclick="location.href='/trip/trip_view?tripContsId=${item.tripContsId}'">
+                        
+                        <button onclick="deleteFinishedItem(${item.event},${item.cmtNo}, ${item.tripContsId})" 
+                                style="position:absolute; top:8px; right:8px; border:none; background:rgba(255,255,255,0.9); border-radius:50%; width:28px; height:28px; box-shadow:0 2px 4px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; z-index:10;">
+                            <i data-lucide="trash-2" size="14" style="color:#ff4d4f;"></i>
+                        </button>
+
+                        <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; border-radius:20px; font-size:0.75rem; display:flex; align-items:center; gap:3px;">
+                            <i data-lucide="star" size="12" style="fill:#ffc107; color:#ffc107;"></i>
+                            <span class="fw-bold">${rate}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold text-truncate mb-1" title="${item.tripNm}">${item.tripNm}</h6>
+                        <p class="text-muted small mb-0 text-truncate" style="font-size:0.75rem;">
+                            <i data-lucide="map-pin" size="10" class="me-1"></i>${item.tripAddr || '주소 정보 없음'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        }).join('');
+    }
+
+    // 공통 페이징 함수 호출 (999는 완료 목록 구분자)
+    renderPagination(finishedListData.length, page, pagiId, 999);
+    if (window.lucide) lucide.createIcons();
+}
+/**
+ * 3. 삭제 함수: 후기(댓글)와 여행지 완료 상태를 동시에 삭제합니다.
+ */
+async function deleteFinishedItem(event, cmtNo, tripContsId) {
+    if (event) event.stopPropagation(); // 카드 클릭 이벤트 전파 차단
+
+    // 데이터 누락 여부 확인용 로그
+    console.log("전송 데이터:", { cmtNo, tripContsId });
+
+    if (!cmtNo || !tripContsId) {
+        alert("삭제에 필요한 정보가 누락되었습니다.");
+        return;
+    }
+
+    if (!confirm('삭제 시, 여행지 리뷰도 함께 삭제됩니다. 삭제하시겠습니까?')) return;
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+    const params = new URLSearchParams();
+    // [중요] 컨트롤러의 @RequestParam 명칭과 토씨 하나 안 틀리고 맞춰야 합니다.
+    params.append('cmtNo', cmtNo);           
+    params.append('tripContsId', tripContsId); // 💡 tripId가 아니라 'tripContsId'여야 합니다!
+
+    try {
+        const res = await fetch('/mypage/deleteFinishedTrip.do', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                ...(csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {})
+            },
+            body: params
+        });
+
+        if (res.ok) {
+            const result = await res.json();
+            if (result > 0) {
+                alert('삭제되었습니다.');
+                await loadFinishedData();      // 서버에서 최신 목록 다시 가져오기
+                renderFinishedListPage(1);     // 1페이지 다시 그리기
+            } else {
+                alert('삭제 처리에 실패했습니다. (결과값 0)');
+            }
+        } else {
+            // 여기서 400 에러가 난다면 파라미터 이름이 여전히 안 맞는 것입니다.
+            const errorText = await res.text();
+            console.error("서버 응답 에러:", res.status, errorText);
+            alert(`잘못된 요청입니다. (${res.status})`);
+        }
+    } catch (e) {
+        console.error('삭제 에러:', e);
+    }
+}
 
 

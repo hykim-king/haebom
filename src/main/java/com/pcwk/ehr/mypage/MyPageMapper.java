@@ -1,11 +1,13 @@
 package com.pcwk.ehr.mypage;
 
+import com.pcwk.ehr.domain.CommentVO;
 import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.cmn.WorkDiv;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
 
 
 @Mapper
@@ -50,4 +52,12 @@ public interface MyPageMapper extends WorkDiv<UserVO> {
 
     // 닉네임 중복 체크
     int nickCheck(String userNick);
+
+    // 여행 완료 목록
+    List<TripVO> selectTripFinishedList(CommentVO vo);
+    
+    // 여행 완료 개수
+    int selectTripFinishedCount(CommentVO vo);
+
+    int deleteCmt(CommentVO vo);
 }

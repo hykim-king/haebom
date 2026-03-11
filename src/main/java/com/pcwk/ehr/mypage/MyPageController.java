@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.pcwk.ehr.domain.UserVO;
+import com.pcwk.ehr.domain.CommentVO;
 import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.user.UserEntity; // 💡 반드시 추가되어야 함
 import lombok.extern.slf4j.Slf4j;
@@ -171,5 +172,78 @@ public class MyPageController {
         // 서비스 호출 (ID가 없으면 null로 넘어감 -> MyBatis <if>문에서 처리됨)
         return myPageService.deleteRelation(sessionUser.getUserNo(), relClsf, tripContsId);
     }
+
+    /**
+     * 9. 여행 완료 목록 조회
+     */
+    @GetMapping("/selectTripFinishedList.do")
+    @ResponseBody
+    public List<TripVO> selectTripFinishedList(HttpSession session) {
+        UserEntity sessionUser = (UserEntity) session.getAttribute("user");
+        if (sessionUser == null) return null;
+
+        CommentVO inVO = new CommentVO();
+        inVO.setRegNo(sessionUser.getUserNo()); // 사용자 번호를 CommentVO에 담음
+
+        return myPageService.selectTripFinishedList(inVO);
+    }
+
+    /**
+     * 10. 여행 완료 개수 조회
+     */
+    @GetMapping("/selectTripFinishedCount.do")
+    @ResponseBody
+    public int selectTripFinishedCount(HttpSession session) {
+        UserEntity sessionUser = (UserEntity) session.getAttribute("user");
+        if (sessionUser == null) return 0;
+
+        CommentVO inVO = new CommentVO();
+        inVO.setRegNo(sessionUser.getUserNo());
+
+        return myPageService.selectTripFinishedCount(inVO);
+    }
+
+    /**
+     * 11. 여행 완료 통합 삭제
+     */
+    @PostMapping("/deleteFinishedTrip.do")
+    @ResponseBody
+    public int deleteFinishedTrip(
+            @RequestParam("cmtNo") int cmtNo,
+            @RequestParam("tripContsId") int tripContsId,
+            HttpSession session) {
+        
+        UserEntity sessionUser = (UserEntity) session.getAttribute("user");
+        if (sessionUser == null) return 0;
+
+        // 댓글 삭제용 정보
+        CommentVO commentVO = new CommentVO();
+        commentVO.setCmtNo(cmtNo);
+        commentVO.setRegNo(sessionUser.getUserNo());
+
+        // 관계 삭제용 정보 (TripVO에 userNo가 없다면, 
+        // 서비스/매퍼에서 파라미터를 유동적으로 조절해야 합니다. 
+        // 여기서는 파라미터로 넘긴 tripId와 세션 userNo를 직접 활용하도록 구성)
+        TripVO tripVO = new TripVO();
+        tripVO.setTripContsId(tripContsId);
+        
+        return myPageService.deleteFinishedTrip(commentVO, tripVO);
+    }
+
+
+/*/@PostMapping("/deleteFinishedTrip.do")
+@ResponseBody
+public int deleteFinishedTrip(@RequestParam("cmtNo") int cmtNo, HttpSession session) {
+    // tripContsId 파라미터 삭제
+    UserEntity sessionUser = (UserEntity) session.getAttribute("user");
+    
+    CommentVO commentVO = new CommentVO();
+    commentVO.setCmtNo(cmtNo);
+    commentVO.setRegNo(sessionUser.getUserNo());
+
+    // 서비스에서도 cmtNo만 사용하도록 수정하거나, 
+    // 기존 서비스에 tripVO 대신 null이나 0을 던져야 함
+    return myPageService.deleteCmt(commentVO); 
+}*/
 
 }

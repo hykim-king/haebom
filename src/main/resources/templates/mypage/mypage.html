@@ -44,12 +44,14 @@
                         <i data-lucide="chevron-right"></i>
                     </div>
                     <div class="menu-item" data-menu="wish">
-                        <span><i data-lucide="heart" class="me-2"></i> 찜 목록 (<span
-                                id="sidebar-wish-count">0</span>)</span>
+                        <span><i data-lucide="heart" class="me-2"></i> 찜 목록 </span>
                         <i data-lucide="chevron-right"></i>
                     </div>
                     <div class="menu-item" data-menu="completed">
-                        <span><i data-lucide="map-pin" class="me-2"></i> 여행 완료</span>
+                        <span>
+                            <i data-lucide="check-circle" class="me-2"></i>
+                            여행 완료
+                        </span>
                         <i data-lucide="chevron-right"></i>
                     </div>
                 </div>
@@ -164,13 +166,18 @@
                 </div>
 
                 <div id="content-completed" class="content-pane">
-                    <div class="content-header bg-success text-white p-3" style="border-radius: 15px 15px 0 0;">
-                        <span><i data-lucide="check-circle"></i> 여행 완료 목록</span>
+                    <div class="content-header bg-primary text-white p-3" style="border-radius: 15px 15px 0 0;">
+                        <span>
+                            <i data-lucide="check-circle"></i>
+                            여행 완료 목록 (<span id="complete-count-badge">0</span>)
+                        </span>
                     </div>
                     <div class="content-body shadow-sm p-4 bg-white border border-top-0"
                         style="border-radius: 0 0 15px 15px;">
-                        <div class="row" id="complete-items-row"></div>
-                        <div id="complete-pagination" class="d-flex justify-content-center mt-4"></div>
+                        <div class="row" id="complete-items-row">
+                        </div>
+                        <div id="complete-pagination" class="d-flex justify-content-center mt-4">
+                        </div>
                     </div>
                 </div>
 

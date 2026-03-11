@@ -427,8 +427,8 @@ function handleLike() {
             }
 
             if (status === 1) {
-                if (isAdding && userTotal > 10) {
-                    alert("찜 목록이 가득 찼습니다! (최대 10개)");
+                if (isAdding && userTotal > 30) {
+                    alert("찜 목록이 가득 찼습니다! (최대 30개)");
                     fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`);
                     return;
                 }

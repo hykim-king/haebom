@@ -36,7 +36,7 @@ public class CourseDaoTest {
             course01.setCourseNo(1);
             course01.setCourseNm("서울 여행코스");
             course01.setCourseInfo("서울의 주요 관광지를 포함한 여행코스입니다.");
-            course01.setCoursePathNm(1);
+            //course01.setCoursePathNm(1);
             course01.setCourseDstnc("10km");
             course01.setCourseReqTm("4시간");
     }

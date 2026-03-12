@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // fetch("http://192.168.100.195:8000/api/v1/chat", {
             // fetch("http://localhost:8000/api/v1/chat", {
-			fetch("http://16.16.36.57:8000/api/v1/chat", {
+			fetch("http://3.38.29.80:8000/api/v1/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: userMessage, userCode: userCode }) // userCode는 실제로는 로그인한 사용자 ID 등으로 대체

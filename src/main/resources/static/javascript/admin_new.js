@@ -66,6 +66,16 @@ document.addEventListener('DOMContentLoaded', function () {
   yearSelect();
   statisticsAjax();
 
+  const currentPath = window.location.pathname;
+  console.log(currentPath);
+
+  if (currentPath.includes("statisticChart")) {
+    const statisticsMenu = document.querySelector('[data-section="statistics"]');
+    if (statisticsMenu) {
+      statisticsMenu.classList.add("active");
+    }
+  }
+
   statisticType.addEventListener('change', function () {
     if(this.value === 'day'){
       statisticMonth.classList.remove('hidden');
@@ -73,6 +83,8 @@ document.addEventListener('DOMContentLoaded', function () {
       statisticMonth.classList.add('hidden');
     }
   });
+
+
 
   nowMonth.addEventListener('click', function () {
     const today = new Date();

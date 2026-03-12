@@ -8,6 +8,8 @@ import java.util.List;
 @Mapper
 public interface AttachFileMapper extends WorkDiv<AttachFileVO> {
 
+	List<String> findImagesByBoardId(Long boardId);
+	
     int getCount();
 
     // XML: getFileList - 게시판별 파일 목록 조회 (BOARD_CLSF + BOARD_ID)

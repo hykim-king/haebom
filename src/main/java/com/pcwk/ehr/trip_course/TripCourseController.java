@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pcwk.ehr.domain.TripCourseVO;
 
 import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import jakarta.servlet.http.HttpSession;
+
+import com.pcwk.ehr.domain.RelationVO;
+import com.pcwk.ehr.relation.RelationService;
+import com.pcwk.ehr.user.UserEntity;
 
 @Controller
 @RequestMapping("/trip_course")
@@ -22,6 +28,7 @@ public class TripCourseController {
     final Logger log = LogManager.getLogger(getClass());
 
     private final TripCourseService tripCourseService;
+    private final RelationService relationService;
 
     /**
      * 여행코스 화면 진입
@@ -115,5 +122,69 @@ public class TripCourseController {
         model.addAttribute("course", outVO);
 
         return "trip/trip_course_detail";
+    }
+
+    /**
+     * 여행코스 찜 여부 확인 API
+     */
+    @GetMapping("/favoriteStatus.do")
+    @ResponseBody
+    public int favoriteStatus(int courseNo, HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("user");
+        if (user == null) {
+            return 0;
+        }
+
+        RelationVO vo = new RelationVO();
+        vo.setUserNo(user.getUserNo());
+        vo.setCourseNo(courseNo);
+        vo.setRelClsf(10);
+
+        return relationService.existsCourseFavorite(vo);
+    }
+
+    /**
+     * 해당 여행코스의 총 찜 수 조회 API
+     */
+    @GetMapping("/getFavoriteCount.do")
+    @ResponseBody
+    public int getFavoriteCount(int courseNo) {
+        return relationService.getCourseCount(courseNo);
+    }
+
+    /**
+     * 여행코스 찜 토글 API
+     */
+    @GetMapping("/toggleFavorite.do")
+    @ResponseBody
+    public List<Integer> toggleFavorite(int courseNo, HttpSession session) {
+        List<Integer> resultList = new ArrayList<>();
+
+        UserEntity user = (UserEntity) session.getAttribute("user");
+        if (user == null) {
+            resultList.add(-1); // 로그인 필요
+            return resultList;
+        }
+
+        RelationVO vo = new RelationVO();
+        vo.setUserNo(user.getUserNo());
+        vo.setCourseNo(courseNo);
+        vo.setRelClsf(10);
+
+        try {
+            relationService.toggleCourseFavorite(vo);
+
+            int userTotalCount = relationService.getCountByUser(vo);
+            int courseTotalCount = relationService.getCourseCount(courseNo);
+
+            resultList.add(1); // 성공
+            resultList.add(userTotalCount); // 사용자의 총 찜 수
+            resultList.add(courseTotalCount);// 이 코스의 총 찜 수
+        } catch (Exception e) {
+            log.error("toggleFavorite error: {}", e.getMessage());
+            resultList.add(0); // 실패
+        }
+
+        return resultList;
     }
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,129 +11,159 @@
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
-    <link rel="stylesheet" href="../css/trip_course_detail.css" />
-
-    
+    <link rel="stylesheet" th:href="@{/css/trip_course_detail.css}">
 </head>
+
 <body>
 
-<div th:replace="~{main/header :: header}"></div>
+    <div th:replace="~{main/header :: header}"></div>
 
-<main class="page-wrap">
-    <div class="top-actions">
-        <a th:href="@{/trip_course/trip_course}" class="back-btn">목록으로 돌아가기</a>
-    </div>
-
-    <section class="detail-container">
-
-        <!-- 상단 카테고리 -->
-        <div class="course-top-label">
-            <span style="display:inline-flex; width:26px; height:26px; border:1px solid #bbb; border-radius:50%; align-items:center; justify-content:center; font-size:11px; color:#666;">
-                Easy
-            </span>
-            <span>코스</span>
+    <main class="page-wrap">
+        <div class="top-actions">
+            <a th:href="@{/trip_course/trip_course}" class="back-btn">목록으로 돌아가기</a>
         </div>
 
-        <!-- 제목 -->
-        <div class="course-title-row">
-            <span class="course-badge"
-                  th:text="${course != null and course.courseNo != null ? course.courseNo + '코스' : '코스'}">
-                1코스
-            </span>
+        <section class="detail-container">
 
-            <h1 class="course-title"
-                th:text="${course != null and course.courseNm != null and course.courseNm != '' ? course.courseNm : '여행코스명 없음'}">
-                여행코스명
-            </h1>
-        </div>
+            <!-- courseNo를 JS에서 읽기 위한 hidden -->
+            <input type="hidden" id="courseNo" th:value="${course != null ? course.courseNo : ''}">
 
-        <!-- 부가 정보 -->
-        <div class="course-meta-line">
-            <span>부산 기장군</span>
-            <span class="divider">|</span>
-            <span>
-                코스 총거리 :
-                <strong th:text="${course != null and course.courseDstnc != null and course.courseDstnc != '' ? '약 ' + course.courseDstnc + 'km' : '정보 없음'}">
-                    약 12km
-                </strong>
-            </span>
-        </div>
-
-        <!-- 아이콘 영역 -->
-        <div class="icon-stats-bar">
-            <div class="stats-left">
-                <div class="icon-item">
-                    <i data-lucide="heart"></i>
-                    <span>6</span>
-                </div>
-
-                <div class="icon-item">
-                    <i data-lucide="eye"></i>
-                    <span th:text="${course != null and course.courseInqCnt != null ? course.courseInqCnt : 0}">0</span>
-                </div>
+            <!-- 상단 카테고리 -->
+            <div class="course-top-label">
+                <span
+                    style="display:inline-flex; width:26px; height:26px; border:1px solid #bbb; border-radius:50%; align-items:center; justify-content:center; font-size:11px; color:#666;">
+                    Easy
+                </span>
+                <span>코스</span>
             </div>
 
-            <div class="stats-right">
-                <div class="icon-item"><i data-lucide="bookmark"></i></div>
-                <div class="icon-item"><i data-lucide="printer"></i></div>
-                <div class="icon-item"><i data-lucide="map-pinned"></i></div>
-                <div class="icon-item">
-                    <i data-lucide="share-2"></i>
-                    <span>58</span>
-                </div>
-            </div>
-        </div>
+            <!-- 제목 -->
+            <div class="course-title-row">
+                <span class="course-badge"
+                    th:text="${course != null and course.courseNo != null ? course.courseNo + '코스' : '코스'}">
+                    1코스
+                </span>
 
-        <!-- 일정 / 태그 -->
-        <div class="info-blocks">
-            <div class="info-row">
-                <div class="info-icon-box">
-                    <div class="info-icon-circle">
-                        <i data-lucide="calendar-days"></i>
+                <h1 class="course-title"
+                    th:text="${course != null and course.courseNm != null and course.courseNm != '' ? course.courseNm : '여행코스명 없음'}">
+                    여행코스명
+                </h1>
+            </div>
+
+            <!-- 부가 정보 -->
+            <div class="course-meta-line">
+                <span>
+                    코스 총거리 :
+                    <strong
+                        th:text="${course != null and course.courseDstnc != null and course.courseDstnc != '' ? '약 ' + course.courseDstnc + 'km' : '정보 없음'}">
+                        약 12km
+                    </strong>
+                </span>
+            </div>
+
+            <!-- 아이콘 영역 -->
+            <div class="icon-stats-bar">
+                <div class="stats-left">
+                    <div class="icon-item like-button" onclick="handleLike()" style="cursor:pointer;">
+                        <i id="like-icon" data-lucide="heart"></i>
+                        <span id="like-count">0</span>
+                    </div>
+
+                    <div class="icon-item">
+                        <i data-lucide="eye"></i>
+                        <span
+                            th:text="${course != null and course.courseInqCnt != null ? course.courseInqCnt : 0}">0</span>
                     </div>
                 </div>
-                <div class="info-content">
-                    <div class="info-label">일정</div>
-                    <div class="info-value">당일여행</div>
+
+                
+            </div>
+
+            
+
+            <!-- 본문 설명 -->
+            <div class="course-desc-section">
+                <div class="course-desc"
+                    th:text="${course != null and course.courseInfo != null and course.courseInfo != '' ? course.courseInfo : '등록된 여행코스 소개가 없습니다.'}">
+                    여행코스 설명
                 </div>
             </div>
 
-            <div class="info-row">
-                <div class="info-icon-box">
-                    <div class="info-icon-circle">
-                        <i data-lucide="tags"></i>
+            <!-- 지도 영역 placeholder -->
+            <section class="course-map-section">
+                <div class="section-divider"></div>
+                <div class="map-placeholder-wrap">
+                    <div class="map-placeholder" id="mapPlaceholder">
+                        <div class="map-placeholder-inner">
+                            <div class="map-placeholder-title">지도 영역</div>
+                            <div class="map-placeholder-desc">다음 단계에서 지도 기능이 연동될 예정입니다.</div>
+                        </div>
                     </div>
                 </div>
-                <div class="info-content">
-                    <div class="info-label">태그</div>
-                    <div class="tag-list">
-                        <span class="tag-item">#드라이브코스</span>
-                        <span class="tag-item">#차타고</span>
-                        <span class="tag-item">#추천코스</span>
-                        <span class="tag-item">#해안도로</span>
+            </section>
+
+            <!-- STEP UI 영역 -->
+            <section class="course-step-section">
+                <div class="step-section-header">
+                    <h2 class="step-section-title">코스 여행지 순서</h2>
+                    <p class="step-section-desc">이 코스에 포함된 여행지를 순서대로 확인할 수 있습니다.</p>
+                </div>
+
+                <!-- STEP 번호 라인 -->
+                <div class="step-line-area">
+                    <div class="step-line" id="stepLine"></div>
+                    <div class="step-number-list" id="stepNumberList">
+                        <!-- JS 동적 출력 -->
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- 본문 설명 -->
-        <div class="course-desc-section">
-            <div class="course-desc"
-                 th:text="${course != null and course.courseInfo != null and course.courseInfo != '' ? course.courseInfo : '등록된 여행코스 소개가 없습니다.'}">
-                여행코스 설명
-            </div>
-        </div>
+                <!-- STEP 카드 리스트 -->
+                <div class="step-card-scroll-wrap">
+                    <button type="button" class="step-nav-btn prev" id="stepPrevBtn" aria-label="이전">‹</button>
 
-    </section>
-</main>
+                    <div class="step-card-list" id="stepCardList">
+                        <!-- JS 동적 출력 -->
+                    </div>
 
-<div th:replace="~{main/footer :: footer}"></div>
+                    <button type="button" class="step-nav-btn next" id="stepNextBtn" aria-label="다음">›</button>
+                </div>
 
-<script>
-    if (window.lucide) {
-        lucide.createIcons();
-    }
-</script>
+                <!-- 빈 데이터 안내 -->
+                <div class="step-empty" id="stepEmpty" style="display:none;">
+                    등록된 여행지 STEP 정보가 없습니다.
+                </div>
+            </section>
+            <!-- 하단 선택 여행지 상세카드 -->
+            <section class="trip-detail-section">
+                <div class="trip-detail-header">
+                    <h2 class="trip-detail-title">선택된 여행지 정보</h2>
+                    <p class="trip-detail-desc">STEP에서 선택한 여행지의 이름, 주소, 사진을 확인할 수 있습니다.</p>
+                </div>
+
+                <div class="trip-detail-card" id="tripDetailCard">
+                    <div class="trip-detail-info">
+                        <div class="trip-detail-name" id="tripDetailName">여행지를 선택해주세요.</div>
+                        <div class="trip-detail-address" id="tripDetailAddr">주소 정보가 여기에 표시됩니다.</div>
+                    </div>
+
+                    <div class="trip-detail-image-list" id="tripDetailImageList">
+                        <div class="trip-detail-empty-image">선택된 여행지의 이미지가 여기에 표시됩니다.</div>
+                    </div>
+                </div>
+            </section>
+
+        </section>
+    </main>
+
+    <div th:replace="~{main/footer :: footer}"></div>
+
+    <script>
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    </script>
+    <script th:src="@{/javascript/trip_course_detail.js}"></script>
 
 </body>
+
 </html>

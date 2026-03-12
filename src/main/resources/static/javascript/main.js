@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
  // initHeroButton();
   initHeroSlider();
   initRegionSlider();
-  initPopularSpots(); // 가독성을 위해 인기 관광지 로직도 함수화 권장
-  initWeather();      // 날씨 로직도 함수화 권장
+  //initPopularSpots(); // 가독성을 위해 인기 관광지 로직도 함수화 권장
+  //initWeather();      // 날씨 로직도 함수화 권장
 });
 
 /* ============================

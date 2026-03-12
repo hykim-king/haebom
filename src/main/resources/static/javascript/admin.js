@@ -184,122 +184,199 @@ function deleteUser(userNo) {
 // ===================================
 // 댓글 관리 - 목록 조회 및 페이징
 // ===================================
-let currentCommentsPage = 1;       // 현재 페이지 번호
-const commentsPerPage = 20;        // 페이지당 표시할 댓글 수
+let currentCommentsPage = 1;
+const commentsPerPage = 10;
+let currentCommentSearchDiv = '';
+let currentCommentSearchWord = '';
+let currentCommentsTotalCnt = 0;
 
 /**
- * 댓글 목록 로드 함수
- * @param {number} page - 표시할 페이지 번호
+ * 댓글 목록 조회
  */
 function loadComments(page = 1) {
   currentCommentsPage = page;
-  
-  // 페이지네이션을 위한 시작/끝 인덱스 계산
-  const start = (page - 1) * commentsPerPage;
-  const end = start + commentsPerPage;
-  const paginatedComments = commentsData.slice(start, end);
-  
-  // 테이블 바디 요소 가져오기
-  const tbody = document.getElementById('comments-table-body');
-  
-  // 댓글 데이터를 HTML 테이블 행으로 변환
-  tbody.innerHTML = paginatedComments.map(comment => `
-    <tr>
-      <td>${comment.id}</td>
-      <td>${comment.author}</td>
-      <td class="text-truncate" style="max-width: 300px;">${comment.content}</td>
-      <td>${comment.post}</td>
-      <td>${comment.date}</td>
-      <td>
-        <button class="btn btn-sm btn-danger" onclick="deleteComment(${comment.id})">
-          <i data-lucide="trash-2"></i> 삭제
-        </button>
-      </td>
-    </tr>
-  `).join('');
-  
-  // 페이지네이션 버튼 렌더링
-  renderCommentsPagination();
-  
-  // Lucide 아이콘 재초기화
-  if (window.lucide) lucide.createIcons();
+
+  const params = new URLSearchParams({
+    pageNo: currentCommentsPage,
+    pageSize: commentsPerPage,
+    searchDiv: currentCommentSearchDiv,
+    searchWord: currentCommentSearchWord
+  });
+
+  fetch(`/admin/comments/api?${params.toString()}`)
+      .then(response => {
+        if (!response.ok) throw new Error('댓글 목록 조회 실패');
+        return response.json();
+      })
+      .then(data => {
+        const list = data.list || [];
+        currentCommentsTotalCnt = data.totalCnt || 0;
+
+        renderCommentsTable(list);
+        renderCommentsPagination(currentCommentsTotalCnt, currentCommentsPage, commentsPerPage);
+      })
+      .catch(error => {
+        console.error('댓글 목록 조회 오류:', error);
+        document.getElementById('comments-table-body').innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center text-danger">
+            댓글 데이터를 불러오는 중 오류가 발생했습니다.
+          </td>
+        </tr>
+      `;
+        document.getElementById('comments-pagination').innerHTML = '';
+      });
 }
 
 /**
- * 댓글 작성자로 검색
+ * 댓글 테이블 렌더링
  */
-function searchComments() {
-  const searchTerm = document.getElementById('comment-author-search').value.toLowerCase();
-  
-  // 검색어가 없으면 전체 목록 표시
-  if (!searchTerm) {
-    loadComments();
+function renderCommentsTable(list) {
+  const tbody = document.getElementById('comments-table-body');
+
+  if (!list || list.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="text-center">조회된 댓글이 없습니다.</td>
+      </tr>
+    `;
     return;
   }
-  
-  // 작성자로 필터링
-  const filtered = commentsData.filter(comment => 
-    comment.author.toLowerCase().includes(searchTerm)
-  );
-  
-  // 검색 결과 테이블에 표시
-  const tbody = document.getElementById('comments-table-body');
-  tbody.innerHTML = filtered.map(comment => `
-    <tr>
-      <td>${comment.id}</td>
-      <td>${comment.author}</td>
-      <td class="text-truncate" style="max-width: 300px;">${comment.content}</td>
-      <td>${comment.post}</td>
-      <td>${comment.date}</td>
-      <td>
-        <button class="btn btn-sm btn-danger" onclick="deleteComment(${comment.id})">
-          <i data-lucide="trash-2"></i> 삭제
-        </button>
-      </td>
-    </tr>
-  `).join('');
-  
-  // 검색 결과에서는 페이지네이션 숨김
-  document.getElementById('comments-pagination').innerHTML = '';
-  
-  // Lucide 아이콘 재초기화
+
+  tbody.innerHTML = list.map(comment => {
+    const cmtNo = comment.cmtNo ?? comment.CMTNO;
+    const cmtCn = comment.cmtCn ?? comment.CMTCN;
+    const cmtStarng = comment.cmtStarng ?? comment.CMTSTARNG;
+    const cmtClsf = comment.cmtClsf ?? comment.CMTCLSF;
+    const cmtHideYn = comment.cmtHideYn ?? comment.CMTHIDEYN ?? 'N';
+    const tripCourseNo = comment.tripCourseNo ?? comment.TRIPCOURSENO;
+    const cmtReg = comment.cmtReg ?? comment.CMTREG;
+    const tripContsId =
+        comment.tripContsId ??
+        comment.TRIPCONTSID ??
+        comment.tripcontsid;
+
+    const clsfText =
+        cmtClsf == 10 ? '여행지' :
+            cmtClsf == 20 ? '여행코스' :
+                '';
+
+    const detailUrl =
+        cmtClsf == 10
+            ? `/trip/trip_view?tripContsId=${tripCourseNo}`
+            : cmtClsf == 20
+                ? `/course/trip_course_view?courseNo=${tripCourseNo}`
+                : '#';
+
+    const tripCourseCell = tripCourseNo
+        ? `<a href="${detailUrl}">${tripCourseNo}</a>`
+        : '';
+
+    return `
+      <tr>
+        <td class="text-truncate" style="max-width: 250px;">${cmtCn ?? ''}</td>
+        <td>${cmtStarng ?? ''}</td>
+        <td>${clsfText}</td>
+        <td>
+          <span class="badge ${cmtHideYn === 'Y' ? 'bg-secondary' : 'bg-success'}">
+            ${cmtHideYn === 'Y' ? '숨김' : '노출'}
+          </span>
+        </td>
+        <td>${tripCourseCell}</td>
+        <td>${cmtReg ?? ''}</td>
+        <td>
+          <button
+            class="btn btn-sm ${cmtHideYn === 'Y' ? 'btn-success' : 'btn-warning'}"
+            onclick="toggleCommentHide(${cmtNo}, '${cmtHideYn}')">
+            <i data-lucide="${cmtHideYn === 'Y' ? 'eye' : 'eye-off'}"></i>
+            ${cmtHideYn === 'Y' ? '노출' : '숨김'}
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
   if (window.lucide) lucide.createIcons();
 }
 
 /**
- * 댓글 삭제
- * @param {number} id - 삭제할 댓글 ID
+ * 댓글 검색
  */
-function deleteComment(id) {
-  if (confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
-    // 배열에서 해당 댓글 제거
-    commentsData = commentsData.filter(c => c.id !== id);
-    
-    // 테이블 새로고침
-    loadComments(currentCommentsPage);
-    
-    alert('댓글이 삭제되었습니다.');
+function searchComments(page = 1) {
+  currentCommentSearchDiv = document.getElementById('comment-search-div').value;
+  currentCommentSearchWord = document.getElementById('comment-search-word').value.trim();
+  loadComments(page);
+}
+
+/**
+ * 댓글 검색 초기화
+ */
+function resetCommentSearch() {
+  document.getElementById('comment-search-div').value = '';
+  document.getElementById('comment-search-word').value = '';
+  currentCommentSearchDiv = '';
+  currentCommentSearchWord = '';
+  loadComments(1);
+}
+
+/**
+ * 댓글 숨김 / 노출 처리
+ */
+function toggleCommentHide(cmtNo, currentHideYn) {
+  const nextHideYn = currentHideYn === 'Y' ? 'N' : 'Y';
+  const actionText = nextHideYn === 'Y' ? '숨김 처리' : '노출 처리';
+
+  if (!confirm(`댓글을 ${actionText} 하시겠습니까?`)) return;
+
+  const tokenMeta = document.querySelector('meta[name="_csrf"]');
+  const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+
+  const headers = {};
+
+  if (tokenMeta && headerMeta) {
+    headers[headerMeta.content] = tokenMeta.content;
   }
+
+  fetch(`/admin/comments/${cmtNo}/hide?cmtHideYn=${nextHideYn}`, {
+    method: 'PATCH',
+    headers: headers
+  })
+      .then(response => {
+        if (!response.ok) throw new Error(`${actionText} 실패`);
+        return response.text();
+      })
+      .then(() => {
+        alert(`${actionText}되었습니다.`);
+        loadComments(currentCommentsPage);
+      })
+      .catch(error => {
+        console.error('숨김 상태 변경 오류:', error);
+        alert(`${actionText} 중 오류가 발생했습니다.`);
+      });
 }
 
 /**
  * 댓글 페이지네이션 렌더링
  */
-function renderCommentsPagination() {
-  const totalPages = Math.ceil(commentsData.length / commentsPerPage);
+function renderCommentsPagination(totalCnt, pageNo, pageSize) {
+  const totalPages = Math.ceil(totalCnt / pageSize);
   const pagination = document.getElementById('comments-pagination');
-  
+
+  if (totalPages <= 0) {
+    pagination.innerHTML = '';
+    return;
+  }
+
   let html = '';
-  
-  // 페이지 번호 버튼 생성
+
   for (let i = 1; i <= totalPages; i++) {
     html += `
-      <li class="page-item ${i === currentCommentsPage ? 'active' : ''}">
+      <li class="page-item ${i === pageNo ? 'active' : ''}">
         <a class="page-link" href="#" onclick="loadComments(${i}); return false;">${i}</a>
       </li>
     `;
   }
-  
+
   pagination.innerHTML = html;
 }
 

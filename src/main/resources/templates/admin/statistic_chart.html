@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="kr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/header :: headerLayout"></head>
+
+<style>
+.hidden {display:none;}
+</style>
+    <!-- 상단 헤더 바 -->
+    <header class="admin-header">
+        <!-- 현재 페이지 타이틀 -->
+        <h1 id="page-title">데이터 통계</h1>
+    </header>
+
+    <!-- ===================================
+        콘텐츠 영역 (섹션별로 표시됨)
+    =================================== -->
+    <div class="admin-content">
+
+        <!-- ===================================
+                5. 데이터 통계 섹션
+        =================================== -->
+        <section id="statistics-section" class="content-section active">
+            <!-- 섹션 헤더 -->
+          <!-- 섹션 헤더 (제목 + 필터 영역) -->
+<div class="section-header">
+  <div class="header-controls d-flex align-items-center gap-2">
+    
+    <select class="form-select w-auto" id="statistic-type">
+      <option value="month">월별</option>
+      <option value="day">일별</option>
+    </select>
+
+    <select class="form-select w-auto" id="statistic-year"></select>
+
+    <select class="form-select w-auto hidden" id="statistic-month">
+      <option value="1">1 월</option>
+      <option value="2">2 월</option>
+      <option value="3">3 월</option>
+      <option value="4">4 월</option>
+      <option value="5">5 월</option>
+      <option value="6">6 월</option>
+      <option value="7">7 월</option>
+      <option value="8">8 월</option>
+      <option value="9">9 월</option>
+      <option value="10">10 월</option>
+      <option value="11">11 월</option>
+      <option value="12">12 월</option>
+    </select>
+
+    <button class="btn btn-primary" onclick="statisticsSearch()">
+      <i data-lucide="search"></i> 검색
+    </button>
+    <button class="btn" id="nowMonth">
+      <i data-lucide="calendar"></i> 당월
+    </button>
+
+  </div>
+</div>
+            
+            <!-- 회원가입자 수 차트 -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5></h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="signupChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 하단 차트 2개 (활동 통계, 신고 유형) -->
+            <div class="row mt-4 hidden">
+                <!-- 월별 활동 통계 차트 -->
+                <div class="col-md-6">
+                    <div class="card">
+                    <div class="card-header">
+                        <h5>월별 활동 통계</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                    </div>
+                </div>
+                <!-- 신고 유형 분포 차트 -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>신고 유형 분포</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="reportTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+<footer th:replace="admin/footer :: footerLayout"></footer>

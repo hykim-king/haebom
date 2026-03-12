@@ -35,6 +35,7 @@ public class UserService {
         entity.setUserNm(vo.getUserNm());
         entity.setUserBrdt(vo.getUserBrdt());
         entity.setUserTelno(vo.getUserTelno());
+        entity.setUserTag(vo.getUserTag());
         entity.setUserZip(vo.getUserZip());
         entity.setUserAddr(vo.getUserAddr());
         entity.setUserDaddr(vo.getUserDaddr());

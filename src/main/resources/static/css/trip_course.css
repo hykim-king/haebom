@@ -1,54 +1,178 @@
-@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+ .course-top-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            font-size: 10px;
+            color: #6b7280;
+            background: #fff;
+        }
 
-html, body { height: 100%; margin: 0; padding: 0; }
-body { display: flex; flex-direction: column; font-family: 'Pretendard', sans-serif; overflow-x: hidden; background-color: #fff; }
+        /* trip.html의 리스트 간격과 맞춤 */
+        .course-list-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
 
-#main-wrapper { flex: 1 0 auto; width: 100%; }
-.iframe-container { width: 100%; border: none; display: block; }
-#header-iframe { height: 80px; flex-shrink: 0; }
-#footer-iframe { min-height: 350px; width: 100%; flex-shrink: 0; }
+        /* trip.js 카드 느낌과 맞춤 */
+        .course-list-item {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: #ffffff;
+            border: 1px solid #f3f4f6;
+            border-radius: 1.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
 
-/* 공통 액티브 스타일 */
-.tag-active { background-color: #4b5563 !important; color: white !important; border-radius: 9999px; }
-.sub-tag-active { border: 2px solid #ef4444 !important; color: #111827 !important; font-weight: 700; border-radius: 9999px; }
-.theme-active { color: #ef4444 !important; font-weight: 700; text-decoration: underline; }
+        .course-list-item:hover {
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+        }
 
-.info-table th { background-color: #f9fafb; width: 140px; text-align: left; padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; color: #666; }
-.info-table td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
-.temp-focus { background-color: #eff6ff; border: 1px solid #3b82f6; transform: scale(1.02); transition: all 0.2s; }
+        @media (min-width: 768px) {
+            .course-list-item {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
 
-/* 별점 스타일 */
-.star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; }
-.star-rating input { display: none; }
-.star-rating label { cursor: pointer; color: #e5e7eb; transition: color 0.2s; }
-.star-rating input:checked ~ label,
-.star-rating label:hover,
-.star-rating label:hover ~ label { color: #fbbf24; }
+        .course-thumb-wrap {
+            flex-shrink: 0;
+            overflow: hidden;
+            border-radius: 1rem;
+            width: 100%;
+            height: 11rem;
+            background: #f9fafb;
+        }
 
+        @media (min-width: 768px) {
+            .course-thumb-wrap {
+                width: 16rem;
+            }
+        }
 
-/* 별점: 마우스 호버 및 선택 시 노란색 처리 */
-.star-rating-input { 
-    display: flex; 
-    flex-direction: row-reverse; /* 별을 역순으로 배치해야 색칠 로직이 작동합니다 */
-    justify-content: flex-end; 
-    gap: 4px; 
-}
+        .course-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
 
-/* 체크된 라디오 버튼과 그 앞의 별들을 노란색으로 */
-.star-rating-input input:checked ~ label,
-.star-rating-input label:hover,
-.star-rating-input label:hover ~ label { 
-    color: #facc15 !important; 
-    fill: #facc15; 
-}
+        .course-list-item:hover .course-thumb {
+            transform: scale(1.08);
+        }
 
-/* 기본 별 색상 (회색) */
-.star-rating-input label { 
-    color: #d1d5db; 
-    cursor: pointer; 
-    transition: 0.2s; 
-}
+        .course-body {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
+        .course-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
 
-/* 코스 타임라인 스타일 */
-.course-dot { position: absolute; left: -31px; top: 0; width: 22px; height: 22px; background: #3b82f6; border: 4px solid #fff; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .course-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.35;
+            word-break: keep-all;
+        }
+
+        .course-region {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #9ca3af;
+            white-space: nowrap;
+            margin-top: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        .course-tag-badge {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            padding: 0.25rem 0.75rem;
+            background: #fff7ed;
+            color: #ea580c;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid #fed7aa;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .course-tags {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            line-height: 1.6;
+            word-break: keep-all;
+        }
+
+        .course-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .course-distance {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: #6b7280;
+        }
+
+        .course-more {
+            color: #6b7280;
+            flex-shrink: 0;
+            align-self: flex-start;
+            margin-top: 0.25rem;
+        }
+
+        .course-sort-btn.active {
+            color: #111827;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        @media (max-width: 767px) {
+            .course-head {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .course-title {
+                font-size: 1.2rem;
+            }
+
+            .course-region {
+                white-space: normal;
+            }
+
+            .course-more {
+                align-self: flex-end;
+                margin-top: -0.5rem;
+            }
+
+            .course-tag-badge {
+                margin-top: 6px;
+            }
+        }

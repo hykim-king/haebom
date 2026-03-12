@@ -1,6 +1,3 @@
-/**
- * 해봄트립 통합 JavaScript
- */
 const tripState = {
     pageNo: 1,
     pageSize: 10,
@@ -11,7 +8,13 @@ const tripState = {
     orderType: "new"
 };
 
-let searchTimer;
+//추가
+const disasterState = {
+    ctpvNm: "전체",
+    gunguNm: "전체"
+};
+
+//let searchTimer;
 
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Lucide 아이콘 초기화 (공통)
@@ -40,6 +43,8 @@ function initListPage() {
     fetchAreaTags();     // 1. 시도 목록 로드
     renderThemeTags();   // 2. 테마 목록 로드
     fetchList();         // 3. 첫 화면 리스트 로드
+    //추가
+    setDisasterEmptyMessage("지역을 선택하면 실시간 특보를 불러옵니다.");
 
     // 검색어 실시간 입력 (기존 로직)
     const searchInput = document.getElementById("search-input");
@@ -57,6 +62,10 @@ function initListPage() {
     const clearBtn = document.getElementById("clear-btn");
 
     clearBtn?.addEventListener("click", () => {
+        //disaster추가
+        disasterState.ctpvNm = "전체";
+        disasterState.gunguNm = "전체";
+        setDisasterEmptyMessage("지역을 선택하면 실시간 특보를 불러옵니다.");
         // 1. 입력창 텍스트 비우기
         const searchInput = document.getElementById("search-input");
         if (searchInput) searchInput.value = "";
@@ -71,6 +80,7 @@ function initListPage() {
         // 3. UI 텍스트 복구
         document.getElementById("view-title").innerText = "전체";
         document.getElementById("sub-region-tags").classList.add("hidden"); // 군구 목록 숨기기
+        document.getElementById("sub-region-tags").innerHTML = "";
 
         // 4. 모든 버튼의 활성화(주황색/굵게) 스타일 제거
         // 지역 버튼, 테마 버튼, 군구 버튼 모두 찾아서 회색으로 변경
@@ -184,6 +194,7 @@ function fetchAreaTags() {
 }
 
 // [기능] 시도 클릭 -> 군구 로드 및 필터 적용
+//disaster기능 추가, 군구 목록과 함께 재난 조회 가능
 function handleCityClick(ctpvCode, ctpvNm, btnElem) {
     document.querySelectorAll(".area-tag").forEach(b => {
         b.classList.remove("text-orange-500", "font-bold", "border-b-2", "border-orange-500");
@@ -195,42 +206,66 @@ function handleCityClick(ctpvCode, ctpvNm, btnElem) {
     tripState.tripCtpv = parseInt(ctpvCode);
     tripState.tripGungu = 0;
     tripState.pageNo = 1;
+
+    disasterState.ctpvNm = ctpvNm;
+    disasterState.gunguNm = "전체";
+
     document.getElementById("view-title").innerText = ctpvNm;
 
     const subContainer = document.getElementById("sub-region-tags");
+
     if (tripState.tripCtpv === 0) {
         subContainer.classList.add("hidden");
+        subContainer.innerHTML = "";
+        setDisasterEmptyMessage("지역을 선택하면 실시간 특보를 불러옵니다.");
         fetchList();
         return;
     }
 
-    // 군구(GNGU) 데이터 fetch (AreaVO 필드명 사용)
     fetch(`/trip/getGnguList.do?tripCtpv=${tripState.tripCtpv}`)
         .then(res => res.json())
         .then(gngus => {
             if (gngus && gngus.length > 0) {
                 subContainer.classList.remove("hidden");
-                let html = `<button onclick="handleGnguClick(0, this)" class="gngu-btn font-bold text-gray-900 cursor-pointer">전체</button>`;
+
+                let html = `<button onclick="handleGnguClick(0, '전체', this)" class="gngu-btn font-bold text-gray-900 cursor-pointer">전체</button>`;
                 html += gngus.map(g => `
-                    <button onclick="handleGnguClick(${g.tripGungu}, this)" class="gngu-btn hover:text-gray-900 cursor-pointer">
+                    <button onclick="handleGnguClick(${g.tripGungu}, '${g.tripGunguNm}', this)" class="gngu-btn hover:text-gray-900 cursor-pointer">
                         ${g.tripGunguNm}
                     </button>
                 `).join("");
+
                 subContainer.innerHTML = html;
+
+                // 시도 클릭 직후에는 '시도 전체' 기준 재난 조회
+                loadDisasterInfo(disasterState.ctpvNm, disasterState.gunguNm);
             } else {
                 subContainer.classList.add("hidden");
+                subContainer.innerHTML = "";
+                loadDisasterInfo(disasterState.ctpvNm, "전체");
             }
+
             fetchList();
+        })
+        .catch(err => {
+            console.error("군구 로딩 실패:", err);
+            fetchList();
+            setDisasterEmptyMessage("재난 정보를 불러오는 중 오류가 발생했습니다.");
         });
 }
 
 // [기능] 군구 클릭
-function handleGnguClick(gnguCode, btnElem) {
+function handleGnguClick(gnguCode, gnguNm, btnElem) {
     document.querySelectorAll(".gngu-btn").forEach(b => b.classList.remove("font-bold", "text-gray-900"));
     btnElem.classList.add("font-bold", "text-gray-900");
+
     tripState.tripGungu = parseInt(gnguCode);
     tripState.pageNo = 1;
+
+    disasterState.gunguNm = gnguNm || "전체";
+
     fetchList();
+    loadDisasterInfo(disasterState.ctpvNm, disasterState.gunguNm);
 }
 
 // [기능] 테마 클릭 (TripVO tripTag 연동)
@@ -349,100 +384,7 @@ function movePage(num) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ✅ (1) 페이지 로딩 시: 내가 찜했는지 확인해서 하트 스타일 반영
-function initFavorite(tripContsId) {
-    const icon = document.getElementById("like-icon");
-    if (!icon) return;
-
-    fetch(`/trip/favoriteStatus.do?tripContsId=${encodeURIComponent(tripContsId)}`)
-        .then(res => res.text())
-        .then(txt => {
-            const exists = parseInt(txt, 10);
-
-            // 찜한 상태면 빨간색(또는 fill 느낌)
-            if (exists > 0) {
-                icon.classList.add("text-red-500");
-            } else {
-                icon.classList.remove("text-red-500");
-            }
-            // lucide 아이콘 다시 렌더(필요시)
-            if (window.lucide) lucide.createIcons();
-        })
-        .catch(() => {
-            // 실패해도 페이지는 계속 사용 가능하게 조용히 무시
-        });
-}
-
-function handleLike() {
-    // 1. ID 가져오기
-    const tripContsId =
-        document.getElementById("tripContsId")?.value ||
-        new URLSearchParams(window.location.search).get("tripContsId");
-
-    if (!tripContsId) return;
-
-    // [추가] 현재 하트 상태 확인 (이미 빨간색이면 '취소', 아니면 '추가')
-    const icon = document.getElementById("like-icon");
-    const isAdding = icon ? !icon.classList.contains("text-red-500") : true;
-    
-    // [추가] 사용자 확인 문구
-    const confirmMsg = isAdding 
-        ? "해당 여행지를 찜 목록에 추가하시겠습니까?" 
-        : "찜을 취소하시겠습니까?";
-
-    if (!confirm(confirmMsg)) return;
-
-    // 2. GET 방식으로 호출
-    fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`, {
-        method: "GET",
-        credentials: "same-origin"
-    })
-    .then(res => {
-        if (!res.ok) throw new Error("서버 응답 오류"); 
-        return res.json(); 
-    })
-    .then(data => {
-        const status = data[0]; // 1: 성공, -1: 로그인 필요
-        const totalCountByUser = data[1]; // [중요] 사용자의 '총' 찜 개수 (서버에서 넘겨줘야 함)
-
-        if (status === -1) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
-
-        if (status === 1) {
-            // [추가] 10개 제한 체크 로직
-            // 서버에서 "추가" 처리가 되었는데 총 개수가 10개를 넘었다면 알림 후 원상복구
-            if (isAdding && totalCountByUser > 10) {
-                alert("찜 목록이 가득 찼습니다! (최대 10개)\n기존의 찜 목록을 정리해 주세요.");
-                
-                // 11개째 저장된 것을 다시 삭제하기 위해 서버를 한 번 더 호출하거나,
-                // 애초에 서버에서 10개 넘으면 저장을 안 하고 다른 상태값을 주는 것이 좋습니다.
-                // 일단은 사용자에게 알리고 다시 toggle을 호출해 취소시킵니다.
-                handleLike(); 
-                return;
-            }
-
-            // 하트 옆 숫자 업데이트 (해당 여행지의 총 찜수)
-            // ※ 주의: data[2] 등에 해당 여행지 전체 찜수를 따로 받아온다면 그걸 쓰세요.
-            // 현재 컨트롤러가 어떻게 주느냐에 따라 수정이 필요할 수 있습니다.
-
-            // 하트 색깔 토글
-            if (icon) {
-                icon.classList.toggle("text-red-500");
-                alert(isAdding ? "찜 목록에 추가되었습니다." : "찜이 취소되었습니다.");
-            }
-
-            if (window.lucide) lucide.createIcons();
-        }
-    })
-    .catch((err) => {
-        console.error("찜 처리 에러:", err);
-        alert("처리에 실패했습니다.");
-    });
-}
-
-
+//disaster수정
 function renderThemeTags() {
     fetch('/trip/getTripTags.do')
         .then(res => res.json())
@@ -457,8 +399,162 @@ function renderThemeTags() {
                 </button>
             `).join("");
         })
+        .catch(err => console.error("테마 태그 로딩 실패:", err));
+}
 
+// ✅ UI 업데이트 공통 함수 (숫자 반영 로직 포함)
+function updateLikeUI(isLiked, count) {
+    const icon = document.getElementById("like-icon");
+    const countSpan = document.getElementById("like-count");
 
+    if (icon) {
+        if (isLiked) {
+            icon.classList.add("text-red-500", "fill-current");
+        } else {
+            icon.classList.remove("text-red-500", "fill-current");
+        }
+        // Lucide 아이콘 다시 렌더링
+        if (window.lucide) lucide.createIcons();
+    }
 
+    // 💡 이 부분이 핵심입니다: 서버에서 받은 전체 찜수를 화면에 반영
+    if (countSpan && count !== undefined) {
+        countSpan.innerText = count;
+    }
+}
 
+function initFavorite(tripContsId) {
+
+    // 1. 찜 상태(하트 색상) 가져오기
+    fetch(`/trip/favoriteStatus.do?tripContsId=${encodeURIComponent(tripContsId)}`)
+        .then(res => res.text())
+        .then(txt => {
+            const exists = parseInt(txt, 10) > 0;
+            updateLikeUI(exists); // 초기 로딩 시 상태 반영
+        });
+
+    // 2. 총 찜수(숫자) 가져오기
+    fetch(`/trip/getCount.do?tripContsId=${encodeURIComponent(tripContsId)}`)
+        .then(res => res.text())
+        .then(count => {
+            const countSpan = document.getElementById("like-count");
+            if (countSpan) {
+                countSpan.innerText = count; // 0으로 되어있던 숫자를 실제 데이터로 변경
+            }
+        });
+}
+
+function handleLike() {
+    const tripContsId = new URLSearchParams(window.location.search).get("tripContsId");
+    if (!tripContsId) return;
+
+    const icon = document.getElementById("like-icon");
+    const isAdding = !icon.classList.contains("text-red-500");
+
+    if (!confirm(isAdding ? "찜 목록에 추가하시겠습니까?" : "찜을 취소하시겠습니까?")) return;
+
+    fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`)
+        .then(res => res.json())
+        .then(data => {
+            const status = data[0];
+            const userTotal = data[1];
+            const tripTotal = data[2]; // 서버에서 보낸 해당 여행지의 전체 찜수
+
+            if (status === -1) {
+                alert("로그인이 필요합니다.");
+                return;
+            }
+
+            if (status === 1) {
+                if (isAdding && userTotal > 10) {
+                    alert("찜 목록이 가득 찼습니다! (최대 10개)");
+                    fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`);
+                    return;
+                }
+
+                // ✅ 성공 시 하트 상태와 'tripTotal(전체 찜수)'을 함께 전달
+                updateLikeUI(isAdding, tripTotal);
+                alert(isAdding ? "찜 목록에 추가되었습니다." : "찜이 취소되었습니다.");
+            }
+        })
+        .catch(err => alert("처리에 실패했습니다."));
+
+}
+
+async function loadDisasterInfo(ctpvNm, gunguNm) {
+    const summaryEl = document.getElementById("disaster-summary");
+    const listEl = document.getElementById("disaster-list");
+
+    if (!summaryEl || !listEl) return;
+
+    if (!ctpvNm || ctpvNm === "전체") {
+        setDisasterEmptyMessage("지역을 선택하면 실시간 특보를 불러옵니다.");
+        return;
+    }
+
+    summaryEl.innerHTML = `<p class="text-red-600 text-xs">불러오는 중입니다...</p>`;
+    listEl.innerHTML = "";
+
+    try {
+        const response = await fetch(
+            `/trip/disaster/current.do?ctpvNm=${encodeURIComponent(ctpvNm)}&sggNm=${encodeURIComponent(gunguNm || "전체")}`
+        );
+        const data = await response.json();
+
+        if (!data.success) {
+            summaryEl.innerHTML = `<p class="text-red-600 text-xs">${escapeHtml(data.summary || "특보 정보를 불러오지 못했습니다.")}</p>`;
+            listEl.innerHTML = "";
+            return;
+        }
+
+        summaryEl.innerHTML = `<p class="text-red-700 text-xs font-semibold">${escapeHtml(data.summary || "")}</p>`;
+
+        if (!data.items || data.items.length === 0) {
+            listEl.innerHTML = `
+                <div class="bg-white border border-red-100 rounded-lg p-3">
+                    <p class="text-xs text-gray-600">현재 발령된 재난 문자가 없습니다.</p>
+                </div>
+            `;
+            return;
+        }
+
+        listEl.innerHTML = data.items.map(item => `
+            <div class="bg-white border border-red-100 rounded-lg p-3">
+                <p class="text-sm font-bold text-red-700">${escapeHtml(item.title || "재난안전문자")}</p>
+                <p class="text-xs text-gray-700 mt-1 whitespace-pre-line">${escapeHtml(item.message || "-")}</p>
+                <div class="mt-2 text-[11px] text-gray-500 space-y-1">
+                    ${item.regionName ? `<p>수신지역: ${escapeHtml(item.regionName)}</p>` : ""}
+                    ${item.createdAt ? `<p>생성일시: ${escapeHtml(item.createdAt)}</p>` : ""}
+                    ${item.disasterType ? `<p>재해구분: ${escapeHtml(item.disasterType)}</p>` : ""}
+                    ${item.emergencyStep ? `<p>긴급단계: ${escapeHtml(item.emergencyStep)}</p>` : ""}
+                </div>
+            </div>
+        `).join("");
+
+        if (window.lucide) lucide.createIcons();
+    } catch (e) {
+        console.error("재난 정보 로딩 실패", e);
+        setDisasterEmptyMessage("특보 정보를 불러오는 중 오류가 발생했습니다.");
+    }
+}
+
+function setDisasterEmptyMessage(message) {
+    const summaryEl = document.getElementById("disaster-summary");
+    const listEl = document.getElementById("disaster-list");
+
+    if (summaryEl) {
+        summaryEl.innerHTML = `<p class="text-red-600 text-xs">${escapeHtml(message)}</p>`;
+    }
+    if (listEl) {
+        listEl.innerHTML = "";
+    }
+}
+
+function escapeHtml(str) {
+    return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
 }

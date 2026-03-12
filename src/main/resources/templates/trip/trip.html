@@ -33,45 +33,7 @@
                 <div id="pagination" class="flex justify-center gap-2 mt-12"></div>
             </div>
 
-            <aside class="lg:col-span-4 order-1 lg:order-2">
-                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 sticky top-10 shadow-sm">
-                    
-                    <div class="flex items-center bg-white border rounded-lg px-3 py-2 mb-6 shadow-sm">
-                        <input type="text" id="search-input" placeholder="여행지명, 주소 검색" class="w-full text-sm outline-none">
-                        <button type="button" id="clear-btn" class="text-gray-400 hover:text-blue-500 hover:rotate-[-45deg] transition-all duration-200">
-                            <i data-lucide="rotate-ccw" size="18"></i>
-                        </button>
-                    </div>
-
-                    <h4 class="font-bold text-sm mb-3 text-gray-900">지역 선택</h4>
-                    <div id="main-region-tags" class="flex flex-wrap gap-x-3 gap-y-2 mb-4 border-b pb-4">
-                        </div>
-
-                    <div id="sub-region-tags" class="hidden flex flex-wrap gap-x-4 gap-y-3 mb-6 text-sm text-gray-500 border-b pb-6">
-                        </div>
-                    
-                    <h4 class="font-bold text-sm mb-4 text-gray-900">테마별 선택</h4>
-                    <div id="theme-tags" class="flex flex-wrap gap-x-3 gap-y-2 text-sm text-gray-400 border-b pb-6 mb-6">
-                        </div>
-                    
-                    <div class="bg-red-50 border border-red-100 p-4 rounded-xl mb-4">
-                        <h5 class="text-red-700 font-bold text-sm flex items-center gap-2">
-                            <i data-lucide="alert-triangle" size="16"></i> 기상/재난 특보
-                        </h5>
-                        <p class="text-red-600 text-xs mt-1">현재 발령된 특보가 없습니다.</p>
-                    </div>
-                    <div class="bg-white border border-gray-100 p-4 rounded-xl shadow-sm text-sm">
-                        <div class="flex justify-between items-center mb-2">
-                            <p class="font-bold" id="weather-city">전국 날씨</p>
-                            <i data-lucide="sun" class="text-orange-400"></i>
-                        </div>
-                        <div class="flex justify-between text-gray-500">
-                            <span>현재 기온</span>
-                            <span class="font-bold text-gray-900">24°C</span>
-                        </div>
-                    </div>
-                </div>
-            </aside>
+            <div th:replace="~{fragment/disaster :: tripSidebar}"></div>
         </div>
     </main>
 

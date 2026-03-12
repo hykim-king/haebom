@@ -11,7 +11,7 @@
             WHEN TRIP_TAG = 'A01010400' THEN '산'
             WHEN TRIP_TAG = 'A01010800' THEN '폭포'
             WHEN TRIP_TAG = 'A01010900' THEN '계곡'
-            WHEN TRIP_TAG IN ('A01010900', 'A01011200', 'A01011400', 'A01011600') THEN '바다'
+            WHEN TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') THEN '바다'
             WHEN TRIP_TAG = 'A01011700' THEN '호수'
             WHEN TRIP_TAG = 'A01011800' THEN '강'
             WHEN TRIP_TAG = 'A01011900' THEN '동굴'
@@ -70,44 +70,54 @@
         WHERE TRIP_CONTS_ID = #{tripContsId}
     </delete>
 
-    <select id="doSelectOne" parameterType="TripVO" resultType="TripVO">
-        SELECT
-            TRIP_CONTS_ID, 
-            TRIP_NM, 
-            NVL(T.TRIP_PATH_NM, AF.FILE_PATH_NM) AS TRIP_PATH_NM, 
-            TRIP_ADDR,
-            TRIP_LAT, 
-            TRIP_LOT, 
-            TRIP_TAG, 
-            TRIP_CLSF,
-            TRIP_CTPV, 
-            TRIP_GUNGU, 
-            TRIP_INQ_CNT,
-            CASE 
-            WHEN TRIP_TAG = 'A01010400' THEN '산'
-            WHEN TRIP_TAG = 'A01010800' THEN '폭포'
-            WHEN TRIP_TAG = 'A01010900' THEN '계곡'
-            WHEN TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') THEN '바다'
-            WHEN TRIP_TAG = 'A01011700' THEN '호수'
-            WHEN TRIP_TAG = 'A01011800' THEN '강'
-            WHEN TRIP_TAG = 'A01011900' THEN '동굴'
-            WHEN TRIP_TAG IN ('A02010100', 'A02010200', 'A02010300', 'A02010600', 'A02010700') THEN '역사 관광지'
-            WHEN TRIP_TAG = 'A02010800' THEN '사찰'
-            WHEN TRIP_TAG = 'A02020300' THEN '온천/욕장/스파'
-            WHEN TRIP_TAG = 'A02020600' THEN '테마공원'
-            WHEN TRIP_TAG IN ('A02030100', 'A02030200', 'A02030300') THEN '체험'
-            WHEN TRIP_TAG = 'A02050200' THEN '기념/전망'
-            WHEN TRIP_TAG IN ('A02060100', 'A02060200', 'A02060300', 'A02060500', 'A02061200') THEN '문화시설'
-            WHEN TRIP_TAG LIKE 'A03%' THEN '레포츠'
+<select id="doSelectOne" parameterType="TripVO" resultType="TripVO">
+    SELECT
+        T.TRIP_CONTS_ID, 
+        T.TRIP_NM, 
+        /* TRIP_PATH_NM이 NULL이면 첨부파일의 경로를 사용 */
+        NVL(T.TRIP_PATH_NM, AF.FILE_PATH_NM) AS TRIP_PATH_NM, 
+        T.TRIP_ADDR,
+        T.TRIP_LAT, 
+        T.TRIP_LOT, 
+        T.TRIP_TAG, 
+        T.TRIP_CLSF,
+        T.TRIP_CTPV, 
+        T.TRIP_GUNGU, 
+        T.TRIP_INQ_CNT,
+        CASE 
+            WHEN T.TRIP_TAG = 'A01010400' THEN '산'
+            WHEN T.TRIP_TAG = 'A01010800' THEN '폭포'
+            WHEN T.TRIP_TAG = 'A01010900' THEN '계곡'
+            WHEN T.TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') THEN '바다'
+            WHEN T.TRIP_TAG = 'A01011700' THEN '호수'
+            WHEN T.TRIP_TAG = 'A01011800' THEN '강'
+            WHEN T.TRIP_TAG = 'A01011900' THEN '동굴'
+            WHEN T.TRIP_TAG IN ('A02010100', 'A02010200', 'A02010300', 'A02010600', 'A02010700') THEN '역사 관광지'
+            WHEN T.TRIP_TAG = 'A02010800' THEN '사찰'
+            WHEN T.TRIP_TAG = 'A02020300' THEN '온천/욕장/스파'
+            WHEN T.TRIP_TAG = 'A02020600' THEN '테마공원'
+            WHEN T.TRIP_TAG IN ('A02030100', 'A02030200', 'A02030300') THEN '체험'
+            WHEN T.TRIP_TAG = 'A02050200' THEN '기념/전망'
+            WHEN T.TRIP_TAG IN ('A02060100', 'A02060200', 'A02060300', 'A02060500', 'A02061200') THEN '문화시설'
+            WHEN T.TRIP_TAG LIKE 'A03%' THEN '레포츠'
             ELSE '기타'
-          END AS tripTagNm
-        FROM TRIP T
-        LEFT OUTER JOIN ATTACH_FILE AF
-        ON T.TRIP_CONTS_ID = AF.BOARD_ID
-        AND AF.BOARD_CLSF = 'trip'
-        WHERE TRIP_CONTS_ID = #{tripContsId}
-          AND ROWNUM = 1
-    </select>
+        END AS tripTagNm
+    FROM TRIP T
+    LEFT OUTER JOIN (
+        /* board_id별로 가장 첫 번째 파일(rn=1)만 미리 추출 */
+        SELECT board_id, file_path_nm
+        FROM (
+            SELECT 
+                board_id, 
+                file_path_nm,
+                ROW_NUMBER() OVER(PARTITION BY board_id ORDER BY BOARD_ID ASC) as rn
+            FROM ATTACH_FILE
+            WHERE board_clsf = 'trip'  /* 게시판 구분값 확인 필요 */
+        )
+        WHERE rn = 1
+    ) AF ON T.TRIP_CONTS_ID = AF.board_id
+    WHERE T.TRIP_CONTS_ID = #{tripContsId}
+</select>
 
     <select id="getCount" resultType="int">
         SELECT COUNT(*) FROM trip
@@ -123,7 +133,9 @@
             FROM (
                 SELECT 
                     T.*,
-                    /* [출력 매핑] DB의 코드를 화면에 표시할 한글명(tripTagNm)으로 변환 */
+                    /* [수정] 기존 경로가 없으면 첨부파일 테이블의 경로를 사용 */
+                    COALESCE(T.TRIP_PATH_NM, AF.FILE_PATH_NM) AS tripPathNm,
+                    /* [출력 매핑] DB의 코드를 화면에 표시할 한글명으로 변환 */
                     CASE 
                         WHEN TRIP_TAG = 'A01010400' THEN '산'
                         WHEN TRIP_TAG = 'A01010800' THEN '폭포'
@@ -143,9 +155,21 @@
                         ELSE '기타' 
                     END AS tripTagNm
                 FROM TRIP T
-                WHERE 1=1
+                LEFT OUTER JOIN (
+                SELECT board_id, file_path_nm
+                  FROM (
+                        SELECT 
+                                board_id, 
+                                file_path_nm,
+                                ROW_NUMBER() OVER(PARTITION BY board_id ORDER BY ROWID ASC) as rn
+                          FROM ATTACH_FILE
+                         WHERE board_clsf = 'trip'
+                          )
+                    WHERE rn = 1 /* 각 게시물당 1번 파일만 선택 */
+                        ) AF ON T.TRIP_CONTS_ID = AF.board_id
+                    WHERE 1=1
                 <if test="searchWord != null and searchWord != ''">
-                    AND (TRIP_NM LIKE '%' || #{searchWord} || '%')
+                    AND (T.TRIP_NM LIKE '%' || #{searchWord} || '%')
                 </if>
                 
                 <if test="tripTag != null and tripTag != ''">
@@ -194,12 +218,13 @@
         <if test="searchWord != null and searchWord != ''">
             AND (TRIP_NM LIKE '%' || #{searchWord} || '%')
         </if>
+        /* [중요] 아래 카테고리 검색 조건들은 상단과 동일하게 유지해야 카운트가 정확합니다 */
         <if test="tripTag != null and tripTag != ''">
             <choose>
                 <when test='tripTag == "산"'> AND TRIP_TAG = 'A01010400' </when>
                 <when test='tripTag == "폭포"'> AND TRIP_TAG = 'A01010800' </when>
                 <when test='tripTag == "계곡"'> AND TRIP_TAG = 'A01010900' </when>
-                <when test='tripTag == "바다"'> AND TRIP_TAG IN ('A01010900','A01011200', 'A01011400', 'A01011600') </when>
+                <when test='tripTag == "바다"'> AND TRIP_TAG IN ('A01011200', 'A01011400', 'A01011600') </when>
                 <when test='tripTag == "호수"'> AND TRIP_TAG = 'A01011700' </when>
                 <when test='tripTag == "강"'> AND TRIP_TAG = 'A01011800' </when>
                 <when test='tripTag == "동굴"'> AND TRIP_TAG = 'A01011900' </when>
@@ -224,7 +249,7 @@
     ) B    
 </select>
 
-        <!--인기관광지 -->
+     <!--인기관광지 -->
     <select id="popularTop3" resultType="TripVO">
         SELECT *
         FROM (
@@ -235,7 +260,6 @@
                      TRIP_ADDR,
                      TRIP_INQ_CNT
                  FROM TRIP
-                 WHERE TRIP_PATH_NM IS NOT NULL  AND TRIP_PATH_NM != ' '
                  ORDER BY TRIP_INQ_CNT DESC
              )
     <![CDATA[ WHERE ROWNUM <= 3 ]]>
@@ -254,7 +278,7 @@
                      TRIP_CTPV,
                      ROW_NUMBER() OVER (PARTITION BY TRIP_CTPV ORDER BY DBMS_RANDOM.VALUE) as rn
                  FROM TRIP
-                 WHERE TRIP_PATH_NM IS NOT NULL AND TRIP_CTPV IN (1, 2, 26, 30, 31, 32, 39, 38) -- 예: 서울(11), 부산(26), 대전(30), 울산(31), 세종(32) 등 필요한 지역코드
+                 WHERE TRIP_CTPV IN (11, 26, 30, 31, 32) -- 예: 서울(11), 부산(26), 대전(30), 울산(31), 세종(32) 등 필요한 지역코드
              )
         WHERE rn = 1
         ORDER BY DBMS_RANDOM.VALUE -- 가져온 지역들 사이에서도 순서를 랜덤하게 섞음

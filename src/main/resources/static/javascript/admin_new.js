@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
   statisticsAjax();
 
   const currentPath = window.location.pathname;
-  console.log(currentPath);
 
   if (currentPath.includes("statisticChart")) {
     const statisticsMenu = document.querySelector('[data-section="statistics"]');

@@ -1,134 +1,55 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>해봄트립 - 마이페이지</title>
-
-    <!-- Bootstrap CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Lucide 아이콘 라이브러리 -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- 다음 우편번호 API -->
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     
-    <!-- 커스텀 CSS -->
-    <link rel="stylesheet" href="../css/mypage.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <link rel="stylesheet" href="../css/header.css" />
     <link rel="stylesheet" href="../css/footer.css" />
-    <link rel="stylesheet" href="../css/ai_widget.css" />
 </head>
-
 <body>
-    <!-- ===================================
-         헤더 영역 (동적 로드)
-    =================================== -->
     <div id="header"></div>
 
-    <!-- ===================================
-         메인 콘텐츠 영역
-    =================================== -->
     <main class="container py-5">
         <div class="row g-4">
-            
-            <!-- ===================================
-                 좌측 사이드바 (프로필 + 마이메뉴)
-            =================================== -->
             <aside class="col-lg-3">
-                <!-- 프로필 카드 -->
-                <div class="glass-card p-4 text-center animate-up mb-4">
-                    <!-- 프로필 이미지 -->
                     <div class="profile-img-container mx-auto">
-                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200"
-                            alt="프로필">
                     </div>
-                    
-                    <!-- 사용자 정보 -->
                     <h4 class="mt-3 fw-bold mb-1" id="sidebar-nickname">여행자123</h4>
                     <p class="text-secondary small mb-4">traveler@example.com</p>
-
-                    <!-- 나의 해시태그 표시 영역 -->
+                    
                     <div class="text-start mb-4">
                         <label class="small fw-bold text-secondary mb-2 d-block">나의 해시태그</label>
                         <div id="hashtag-container" class="d-flex flex-wrap gap-2">
-                            <span class="badge bg-primary-subtle rounded-pill px-3 py-2"></span>
                         </div>
                     </div>
-                    
+
                     <hr class="my-4" style="opacity: 0.1;">
 
-                    <!-- 문의하기 버튼 -->
                     <div class="d-grid">
-                        <button
-                            class="btn btn-outline-warning rounded-pill py-2 d-flex align-items-center justify-content-center gap-2 border-2 fw-bold custom-btn-orange btn-contact"
-                            onclick="location.href='mailto:support@example.com'">
+                                onclick="location.href='mailto:support@example.com'">
                             <i data-lucide="message-circle" size="18"></i> 문의하기
                         </button>
                     </div>
                 </div>
 
-                <!-- ===================================
-                     마이메뉴 카드 (새로 추가)
-                =================================== -->
-                <div class="glass-card p-3 animate-up">
-                    <h6 class="fw-bold mb-3 px-2">마이 메뉴</h6>
-                    <ul class="menu-list">
-                        <!-- 내 정보 메뉴 -->
-                        <li class="menu-item active" data-menu="info">
-                            <i data-lucide="user" size="18"></i>
-                            <span>내 정보</span>
-                            <i data-lucide="chevron-right" size="16" class="ms-auto"></i>
-                        </li>
-                        <!-- 찜 목록 메뉴 -->
-                        <li class="menu-item" data-menu="wish">
-                            <i data-lucide="heart" size="18"></i>
-                            <span>찜 목록</span>
-                            <i data-lucide="chevron-right" size="16" class="ms-auto"></i>
-                        </li>
-                        <!-- 여행완료 메뉴 -->
-                        <li class="menu-item" data-menu="completed">
-                            <i data-lucide="map-pin-check" size="18"></i>
-                            <span>여행완료</span>
-                            <i data-lucide="chevron-right" size="16" class="ms-auto"></i>
-                        </li>
-                    </ul>
-                </div>
-            </aside>
+                            </li>
+                            </li>
+                        </ul>
+                    </div>
 
-            <!-- ===================================
-                 우측 메인 콘텐츠 영역
-            =================================== -->
-            <section class="col-lg-9">
-                <div class="content-container animate-up">
-                    
-                    <!-- ===================================
-                         [콘텐츠 1] 내 정보 관리 영역
-                    =================================== -->
-                    <div class="content-pane active" id="content-info">
-                        <div class="content-header">
-                            <h5 class="fw-bold mb-0">
-                                <i data-lucide="user" size="22" class="me-2"></i>내 정보 관리
-                            </h5>
-                        </div>
-                        <div class="content-body">
                             <div class="row g-4">
-                                
-                                <!-- 이름 (읽기 전용) -->
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold text-secondary">이름</label>
-                                    <input type="text" class="form-control rounded-3 p-3 bg-light border-0" value="김여행"
-                                        readonly>
                                 </div>
-                                
-                                <!-- 연락처 (읽기 전용) -->
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold text-secondary">연락처</label>
-                                    <input type="text" class="form-control rounded-3 p-3 bg-light border-0"
-                                        value="010-1234-5678" readonly>
                                 </div>
 
-                                <!-- 닉네임 변경 영역 -->
                                 <div class="col-12">
                                     <div class="p-3 rounded-4 border bg-light shadow-sm">
                                         <div class="d-flex justify-content-between align-items-center">
@@ -136,429 +57,91 @@
                                                 <label class="form-label small fw-bold text-secondary mb-0">닉네임</label>
                                                 <p class="small text-muted mb-0" id="display-nickname">여행자123</p>
                                             </div>
-                                            <button class="btn btn-sm btn-dark rounded-pill px-3"
-                                                id="btn-nick-edit-toggle">변경하기</button>
                                         </div>
-                                        <!-- 닉네임 수정 입력창 (기본 숨김) -->
-                                        <div id="nick-edit-fields"
-                                            class="mt-3 d-none animate-up p-3 bg-white rounded-3 border">
                                             <div class="d-flex gap-2">
-                                                <input type="text" id="new-nickname"
-                                                    class="form-control rounded-3 p-2 bg-light border-0"
-                                                    placeholder="새 닉네임 입력">
-                                                <button class="btn btn-primary px-4 rounded-pill btn-orange-bg btn-save-uniform"
-                                                    id="btn-nick-save">저장</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 비밀번호 변경 영역 -->
                                 <div class="col-12">
                                     <div class="p-3 rounded-4 border bg-light shadow-sm">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <label class="form-label small fw-bold text-secondary mb-0">비밀번호
-                                                    관리</label>
                                                 <p class="small text-muted mb-0">안전을 위해 정기적으로 변경해 주세요.</p>
                                             </div>
-                                            <button class="btn btn-sm btn-dark rounded-pill px-3"
-                                                id="btn-pw-edit-toggle">변경하기</button>
                                         </div>
-                                        <!-- 비밀번호 수정 입력창 (기본 숨김) -->
-                                        <div id="pw-edit-fields"
-                                            class="mt-3 d-none animate-up p-3 bg-white rounded-3 border">
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label class="small text-secondary mb-1">변경할 비밀번호</label>
-                                                    <input type="password" id="new-pw"
-                                                        class="form-control rounded-3 p-2 bg-light border-0"
-                                                        placeholder="새 비밀번호">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="d-flex justify-content-between">
                                                         <label class="small text-secondary mb-1">비밀번호 확인</label>
                                                         <span id="pw-match-feedback" class="small fw-bold"></span>
                                                     </div>
-                                                    <input type="password" id="confirm-pw"
-                                                        class="form-control rounded-3 p-2 bg-light border-0"
-                                                        placeholder="비밀번호 확인">
                                                 </div>
                                                 <div class="col-12 text-end">
-                                                    <button class="btn btn-primary px-4 rounded-pill btn-orange-bg btn-save-uniform"
-                                                        id="btn-pw-save">저장</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 주소지 관리 영역 -->
                                 <div class="col-12">
                                     <div class="p-3 rounded-4 border bg-light shadow-sm">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <label class="form-label small fw-bold text-secondary mb-0">주소지
-                                                    관리</label>
-                                                <p class="small text-muted mb-0" id="current-addr-text">등록된 주소지로 배송 및
-                                                    서비스가 제공됩니다.</p>
                                             </div>
-                                            <button class="btn btn-sm btn-dark rounded-pill px-3"
-                                                id="btn-addr-edit-toggle">수정하기</button>
                                         </div>
-                                        <!-- 주소 수정 입력창 (기본 숨김) -->
-                                        <div id="addr-edit-fields"
-                                            class="mt-3 d-none animate-up p-3 bg-white rounded-3 border">
                                             <div class="row g-3">
                                                 <div class="col-7 col-md-4">
                                                     <label class="small text-secondary mb-1">우편번호</label>
-                                                    <input type="text" id="postcode"
-                                                        class="form-control rounded-3 p-2 bg-light border-0"
-                                                        placeholder="우편번호" readonly>
                                                 </div>
                                                 <div class="col-5 col-md-3 d-flex align-items-end">
-                                                    <button
-                                                        class="btn btn-outline-warning btn-sm w-100 py-2 fw-bold custom-btn-orange"
-                                                        onclick="execPostCode()">번호 검색</button>
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="small text-secondary mb-1">기본 주소</label>
-                                                    <input type="text" id="address-base"
-                                                        class="form-control rounded-3 p-2 bg-light border-0"
-                                                        placeholder="주소 검색 시 자동 입력됩니다" readonly>
                                                 </div>
                                                 <div class="col-12">
                                                     <label class="small text-secondary mb-1">상세 주소</label>
-                                                    <input type="text" id="address-detail"
-                                                        class="form-control rounded-3 p-2 bg-white border"
-                                                        placeholder="예: 101동 222호">
                                                 </div>
                                                 <div class="col-12 text-end">
-                                                    <button class="btn btn-primary px-4 rounded-pill btn-orange-bg btn-save-uniform"
-                                                        id="btn-addr-save">주소 저장</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 관심 해시태그 영역 -->
                                 <div class="col-12">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="form-label small fw-bold text-secondary mb-0">관심 해시태그</label>
-                                        <button class="btn btn-sm text-primary p-0" data-bs-toggle="modal"
-                                            data-bs-target="#hashtagModal">
                                             <i data-lucide="edit-3" size="16"></i> 수정하기
                                         </button>
                                     </div>
-                                    <!-- 선택된 해시태그 표시 영역 -->
-                                    <div id="selected-hashtags-display"
-                                        class="p-3 bg-light rounded-4 d-flex flex-wrap gap-2 border-0">
                                         <span class="text-muted small">수정하기 버튼을 눌러 관심 키워드를 선택해주세요.</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- ===================================
-                         [콘텐츠 2] 찜 목록 영역
-                    =================================== -->
-                    <div class="content-pane" id="content-wish">
-                        <div class="content-header">
-                            <h5 class="fw-bold mb-0">
-                                <i data-lucide="heart" size="22" class="me-2"></i>찜 목록
-                                <span class="text-primary fs-6" id="wish-count-display">1</span>
-                            </h5>
-                            <div class="d-flex gap-2 align-items-center">
-                                <!-- 선택 삭제 버튼 (선택 모드에서만 표시) -->
-                                <button class="btn btn-danger btn-sm rounded-pill px-3 d-none" id="btn-delete-selected">
-                                    <i data-lucide="trash-2" size="14"></i> 선택 삭제
-                                </button>
-                                <!-- 선택 모드 토글 버튼 -->
-                                <button class="btn btn-outline-orange btn-sm rounded-pill px-3" id="btn-toggle-select">
-                                    <i data-lucide="check-square" size="14"></i> 선택 모드
-                                </button>
                             </div>
-                        </div>
-
-                        <div class="content-body">
-                            <!-- 찜 목록 카드 컨테이너 -->
-                            <div id="wish-list-container">
-                                <div class="row g-4" id="wish-items-row">
-                                    <!-- 찜 목록 카드 아이템 1 -->
-                                    <div class="col-md-4 col-sm-6 wish-item-card" data-wish-id="1">
-                                        <div class="card wish-card border-0 shadow-sm overflow-hidden rounded-4">
-                                            <div class="position-relative">
-                                                <!-- 선택 체크박스 (숨김 처리) -->
-                                                <input type="checkbox" class="wish-checkbox d-none" data-card-id="1">
-                                                <!-- 카드 이미지 -->
-                                                <img src="https://images.unsplash.com/photo-1571767454026-0677e112c300?auto=format&fit=crop&q=80&w=400"
-                                                    class="card-img-top">
-                                                <!-- 찜 해제 버튼 (하트 아이콘) -->
-                                                <button
-                                                    class="btn btn-white btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm btn-heart"
-                                                    onclick="removeWishItem(this, '제주 함덕 서우봉')">
-                                                    <i data-lucide="heart" class="text-danger" style="fill:#ef4444"
-                                                        size="16"></i>
-                                                </button>
-                                            </div>
-                                            <!-- 카드 정보 -->
-                                            <div class="card-body p-3">
-                                                <h6 class="fw-bold mb-1">제주 함덕 서우봉</h6>
-                                                <p class="text-secondary small mb-0"><i data-lucide="map-pin"
-                                                        size="12"></i> 제주 제주시</p>
-                                            </div>
+                                    <div class="card wish-card border-0 shadow-sm overflow-hidden rounded-4">
+                                        <div class="position-relative">
+                                            </button>
                                         </div>
-                                    </div>
-
-                                    <!-- 찜 목록 카드 아이템 2 (테스트용) -->
-                                    <div class="col-md-4 col-sm-6 wish-item-card" data-wish-id="2">
-                                        <div class="card wish-card border-0 shadow-sm overflow-hidden rounded-4">
-                                            <div class="position-relative">
-                                                <input type="checkbox" class="wish-checkbox d-none" data-card-id="2">
-                                                <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&q=80&w=400"
-                                                    class="card-img-top">
-                                                <button
-                                                    class="btn btn-white btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm btn-heart"
-                                                    onclick="removeWishItem(this, '부산 해운대')">
-                                                    <i data-lucide="heart" class="text-danger" style="fill:#ef4444"
-                                                        size="16"></i>
-                                                </button>
-                                            </div>
-                                            <div class="card-body p-3">
-                                                <h6 class="fw-bold mb-1">부산 해운대</h6>
-                                                <p class="text-secondary small mb-0"><i data-lucide="map-pin"
-                                                        size="12"></i> 부산 해운대구</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 찜 목록 카드 아이템 3 (테스트용) -->
-                                    <div class="col-md-4 col-sm-6 wish-item-card" data-wish-id="3">
-                                        <div class="card wish-card border-0 shadow-sm overflow-hidden rounded-4">
-                                            <div class="position-relative">
-                                                <input type="checkbox" class="wish-checkbox d-none" data-card-id="3">
-                                                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=400"
-                                                    class="card-img-top">
-                                                <button
-                                                    class="btn btn-white btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm btn-heart"
-                                                    onclick="removeWishItem(this, '설악산 국립공원')">
-                                                    <i data-lucide="heart" class="text-danger" style="fill:#ef4444"
-                                                        size="16"></i>
-                                                </button>
-                                            </div>
-                                            <div class="card-body p-3">
-                                                <h6 class="fw-bold mb-1">설악산 국립공원</h6>
-                                                <p class="text-secondary small mb-0"><i data-lucide="map-pin"
-                                                        size="12"></i> 강원 속초시</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 찜 목록 카드 아이템 4 (테스트용) -->
-                                    <div class="col-md-4 col-sm-6 wish-item-card" data-wish-id="4">
-                                        <div class="card wish-card border-0 shadow-sm overflow-hidden rounded-4">
-                                            <div class="position-relative">
-                                                <input type="checkbox" class="wish-checkbox d-none" data-card-id="4">
-                                                <img src="https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&q=80&w=400"
-                                                    class="card-img-top">
-                                                <button
-                                                    class="btn btn-white btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm btn-heart"
-                                                    onclick="removeWishItem(this, '경주 불국사')">
-                                                    <i data-lucide="heart" class="text-danger" style="fill:#ef4444"
-                                                        size="16"></i>
-                                                </button>
-                                            </div>
-                                            <div class="card-body p-3">
-                                                <h6 class="fw-bold mb-1">경주 불국사</h6>
-                                                <p class="text-secondary small mb-0"><i data-lucide="map-pin"
-                                                        size="12"></i> 경북 경주시</p>
-                                            </div>
+                                        <div class="card-body p-3">
+                                            <h6 class="fw-bold mb-1">제주 함덕 서우봉</h6>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- 페이지네이션 -->
-                            <nav aria-label="Page navigation" class="mt-5" id="wish-pagination-nav">
-                                <ul class="pagination justify-content-center custom-pagination mb-0">
-                                    <li class="page-item">
-                                        <a class="page-link border-0 rounded-circle mx-1 text-dark" href="#"
-                                            aria-label="First">
-                                            <i data-lucide="chevrons-left" size="16"></i>
-                                        </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link border-0 rounded-circle mx-1 text-dark" href="#"
-                                            aria-label="Previous">
-                                            <i data-lucide="chevron-left" size="16"></i>
-                                        </a>
-                                    </li>
-
-                                    <li class="page-item active"><a class="page-link border-0 rounded-circle mx-1"
-                                            href="#">1</a></li>
-                                    <li class="page-item"><a
-                                            class="page-link border-0 rounded-circle mx-1 text-dark" href="#">2</a>
-                                    </li>
-                                    <li class="page-item"><a
-                                            class="page-link border-0 rounded-circle mx-1 text-dark" href="#">3</a>
-                                    </li>
-
-                                    <li class="page-item">
-                                        <a class="page-link border-0 rounded-circle mx-1 text-dark" href="#"
-                                            aria-label="Next">
-                                            <i data-lucide="chevron-right" size="16"></i>
-                                        </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link border-0 rounded-circle mx-1 text-dark" href="#"
-                                            aria-label="Last">
-                                            <i data-lucide="chevrons-right" size="16"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
                         </div>
                     </div>
-
-                    <!-- ===================================
-                         [콘텐츠 3] 여행완료 영역 (새로 추가)
-                    =================================== -->
-                    <div class="content-pane" id="content-completed">
-                        <div class="content-header">
-                            <h5 class="fw-bold mb-0">
-                                <i data-lucide="map-pin-check" size="22" class="me-2"></i>여행완료
-                            </h5>
-                            <div class="d-flex gap-2 align-items-center">
-                                <!-- 선택 삭제 버튼 (선택 모드에서만 표시) -->
-                                <button class="btn btn-danger btn-sm rounded-pill px-3 d-none" id="btn-delete-completed-selected">
-                                    <i data-lucide="trash-2" size="14"></i> 선택 삭제
-                                </button>
-                                <!-- 선택 모드 토글 버튼 -->
-                                <button class="btn btn-outline-success btn-sm rounded-pill px-3" id="btn-toggle-completed-select">
-                                    <i data-lucide="check-square" size="14"></i> 선택 모드
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="content-body">
-                            <!-- 여행완료 카드 컨테이너 -->
-                            <div id="completed-list-container">
-                                <div class="row g-4" id="completed-items-row">
-                                    <!-- 여행완료 카드 아이템 1 (테스트용) -->
-                                    <div class="col-md-4 col-sm-6 completed-item-card" data-completed-id="1">
-                                        <div class="card completed-card border-0 shadow-sm overflow-hidden rounded-4">
-                                            <div class="position-relative">
-                                                <!-- 완료 배지 -->
-                                                <span class="completed-badge">완료 ✓</span>
-                                                
-                                                <!-- 카드 이미지 -->
-                                                <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=400"
-                                                    class="card-img-top">
-                                            </div>
-                                            
-                                            <!-- 카드 정보 -->
-                                            <div class="card-body p-3">
-                                                <h6 class="fw-bold mb-1">남해 독일마을</h6>
-                                                <p class="text-secondary small mb-0">
-                                                    <i data-lucide="map-pin" size="12"></i> 경남 남해군
-                                                </p>
-                                                <p class="text-muted small mb-0 mt-1">
-                                                    <i data-lucide="calendar" size="12"></i> 2024.01.15
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 여행완료 카드 아이템 2 (테스트용) -->
-                                    <div class="col-md-4 col-sm-6 completed-item-card" data-completed-id="2">
-                                        <div class="card completed-card border-0 shadow-sm overflow-hidden rounded-4">
-                                            <div class="position-relative">
-                                                <span class="completed-badge">완료 ✓</span>
-                                                <img src="https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=400"
-                                                    class="card-img-top">
-                                            </div>
-                                            <div class="card-body p-3">
-                                                <h6 class="fw-bold mb-1">전주 한옥마을</h6>
-                                                <p class="text-secondary small mb-0">
-                                                    <i data-lucide="map-pin" size="12"></i> 전북 전주시
-                                                </p>
-                                                <p class="text-muted small mb-0 mt-1">
-                                                    <i data-lucide="calendar" size="12"></i> 2024.02.20
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 여행완료 카드 아이템 3 (테스트용) -->
-                                    <div class="col-md-4 col-sm-6 completed-item-card" data-completed-id="3">
-                                        <div class="card completed-card border-0 shadow-sm overflow-hidden rounded-4">
-                                            <div class="position-relative">
-                                                <span class="completed-badge">완료 ✓</span>
-                                                <img src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&q=80&w=400"
-                                                    class="card-img-top">
-                                            </div>
-                                            <div class="card-body p-3">
-                                                <h6 class="fw-bold mb-1">여수 오동도</h6>
-                                                <p class="text-secondary small mb-0">
-                                                    <i data-lucide="map-pin" size="12"></i> 전남 여수시
-                                                </p>
-                                                <p class="text-muted small mb-0 mt-1">
-                                                    <i data-lucide="calendar" size="12"></i> 2024.03.10
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 페이지네이션 -->
-                            <nav aria-label="Page navigation" class="mt-5 d-none" id="completed-pagination-nav">
-                                <ul class="pagination justify-content-center custom-pagination mb-0">
-                                    <li class="page-item">
-                                        <a class="page-link border-0 rounded-circle mx-1 text-dark" href="#"
-                                            aria-label="First">
-                                            <i data-lucide="chevrons-left" size="16"></i>
-                                        </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link border-0 rounded-circle mx-1 text-dark" href="#"
-                                            aria-label="Previous">
-                                            <i data-lucide="chevron-left" size="16"></i>
-                                        </a>
-                                    </li>
-
-                                    <li class="page-item active"><a class="page-link border-0 rounded-circle mx-1"
-                                            href="#">1</a></li>
-
-                                    <li class="page-item">
-                                        <a class="page-link border-0 rounded-circle mx-1 text-dark" href="#"
-                                            aria-label="Next">
-                                            <i data-lucide="chevron-right" size="16"></i>
-                                        </a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link border-0 rounded-circle mx-1 text-dark" href="#"
-                                            aria-label="Last">
-                                            <i data-lucide="chevrons-right" size="16"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-
                 </div>
             </section>
         </div>
     </main>
-    
-    <!-- ===================================
-         해시태그 선택 모달
-    =================================== -->
     <div class="modal fade" id="hashtagModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md">
             <div class="modal-content border-0 shadow-lg rounded-4">
                 <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title fw-bold">취향 키워드 선택</h5>
@@ -566,50 +149,22 @@
                 </div>
                 <div class="modal-body pt-3" style="max-height: 60vh; overflow-y: auto;">
                     <p class="small text-secondary mb-4">선호하는 여행 키워드를 모두 선택해 주세요.</p>
-                    <!-- 해시태그 선택 그룹 (JavaScript로 동적 생성) -->
                     <div id="hashtag-selection-groups"></div>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">취소</button>
-                    <button type="button" class="btn btn-primary rounded-pill px-4 btn-orange-bg"
-                        id="btn-save-hashtags">저장하기</button>
                 </div>
             </div>
         </div>
     </div>
+    
 
-    <!-- Footer -->
-    <div id="footer"></div>
-
-    <!-- ===================================
-         헤더/푸터 동적 로드 스크립트
-    =================================== -->
     <script>
       fetch("header.html")
         .then((res) => res.text())
         .then((html) => {
-          document.getElementById("header").innerHTML = html;
-          // 헤더 HTML이 들어간 다음, 강제로 로그인 상태를 체크함
-          if (typeof window.checkLoginStatus === "function") {
-            window.checkLoginStatus();
-          }
+            document.getElementById("header").innerHTML = html;
         });
-
-      fetch("footer.html")
-        .then((res) => res.text())
-        .then((html) => (document.getElementById("footer").innerHTML = html));
     </script>
-
-    <!-- ===================================
-         JavaScript 라이브러리 로드
-    =================================== -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../javascript/header.js"></script>
-    <script src="../javascript/mypage.js"></script>
-
-    <!-- AI Widget Script -->
-    <script src="../javascript/ai_widget.js"></script>
-
 </body>
-
 </html>

@@ -1,324 +1,442 @@
+/**
+ * 해봄트립 메인 스크립트
+ * 통합 초기화 및 섹션별 로직 관리
+ */
 document.addEventListener("DOMContentLoaded", () => {
+<<<<<<< HEAD
  // initHeroButton();
   initHeroSlider();
   initRegionSlider();
   //initPopularSpots(); // 가독성을 위해 인기 관광지 로직도 함수화 권장
   //initWeather();      // 날씨 로직도 함수화 권장
+=======
+    initHeroSlider();      // 1. 메인 배너 슬라이더
+    initRegionSlider();    // 2. 지역별 추천 슬라이더 (Swiper)
+    initPopularSpots();    // 3. 인기 관광지 아이콘 초기화
+    initWeather();         // 4. 날씨 기반 BEST 추천 시스템
+>>>>>>> 6b42e8f5a0cab4098e44b88272c2983c679bf0ff
 });
 
-/* ============================
-   1. 인기 관광지
-============================ */
-  const popularSpots = [
-    {
-      name: "남산 서울타워",
-      location: "서울 용산구",
-      views: "1.2M",
-      image:
-        "https://images.unsplash.com/photo-1552568165-02cfdb51bc7d?q=80&w=1080",
-    },
-    {
-      name: "해운대 해수욕장",
-      location: "부산 해운대구",
-      views: "980K",
-      image:
-        "https://images.unsplash.com/photo-1762440752251-5ce203a63048?q=80&w=1080",
-    },
-    {
-      name: "불국사",
-      location: "경북 경주시",
-      views: "850K",
-      image:
-        "https://images.unsplash.com/photo-1653632445017-0da95027672c?q=80&w=1080",
-    },
-  ];
+/* ==========================================
+   1. 인기 관광지 (Lucide 아이콘 초기화)
+========================================== */
+function initPopularSpots() {
+    if (typeof lucide !== "undefined") {
+        lucide.createIcons();
+    }
+}
 
-  /* 조회수 문자열을 숫자로 변환 */
-  function parseViews(viewStr) {
-    if (viewStr.includes("M")) return parseFloat(viewStr) * 1000000;
-    if (viewStr.includes("K")) return parseFloat(viewStr) * 1000;
-    return parseFloat(viewStr);
-  }
-
-  /* 조회수 기준 내림차순 정렬 */
-  popularSpots.sort((a, b) => parseViews(b.views) - parseViews(a.views));
-
-  /*순위 메달*/
-  const medalIcons  = ["🥇", "🥈", "🥉"];
-
-  const popularList = document.getElementById("popularList");
-
-popularSpots.forEach((s, i) => {
-  popularList.innerHTML += `
-    <a href="#" class="list-group-item popular-item d-flex align-items-center shadow-sm rounded mb-4">
-      <div class="me-4">
-        <span class="rank-badge">
-          ${medalIcons [i] || (i + 1)}
-        </span>
-      </div>
-
-      <div class="thumb me-4">
-        <img src="${s.image}">
-      </div>
-
-      <div class="flex-grow-1">
-        <h4 class="fw-bold mb-1">${s.name}</h4>
-        <p class="text-muted mb-0">${s.location}</p>
-      </div>
-
-      <div class="views-box">
-        <i data-lucide="eye"></i>
-        <span>${s.views}</span>
-      </div>
-    </a>
-  `;
-  });
-
-/* ============================
-   2. 메인 배너 이미지
-============================ */
-  function initHeroSlider() {
+/* ==========================================
+   2. 메인 히어로 배너 슬라이더
+========================================== */
+function initHeroSlider() {
     const slider = document.getElementById("hero-slider");
     if (!slider) return;
 
     const heroImages = [
-      "/static/img/korea_trip1.jpg",
-      "/static/img/korea_trip2.jpg",
-      "/static/img/korea_trip3.jpg",
-      "/static/img/korea_trip4.jpg",
-      "/static/img/korea_trip5.jpg",
-      "/static/img/korea_trip6.jpg",
-      "/static/img/korea_trip7.jpg",
-      "/static/img/korea_trip8.jpg",
-      "/static/img/korea_trip9.jpg",
-      "/static/img/korea_trip10.jpg",
-      "/static/img/korea_trip11.jpg",
+        "/img/korea_trip1.jpg", "/img/korea_trip2.jpg", "/img/korea_trip3.jpg",
+        "/img/korea_trip4.jpg", "/img/korea_trip5.jpg", "/img/korea_trip6.jpg",
+        "/img/korea_trip7.jpg", "/img/korea_trip8.jpg", "/img/korea_trip9.jpg",
+        "/img/korea_trip10.jpg", "/img/korea_trip11.jpg",
     ];
 
+    // 슬라이드 DOM 요소 동적 생성
+    const fragment = document.createDocumentFragment();
     heroImages.forEach((img, i) => {
-      const slide = document.createElement("div");
-      slide.className = "slide" + (i === 0 ? " active" : "");
-      slide.style.backgroundImage = `url(${img})`;
-      slider.appendChild(slide);
+        const slide = document.createElement("div");
+        slide.className = `slide ${i === 0 ? "active" : ""}`;
+        slide.style.backgroundImage = `url(${img})`;
+        fragment.appendChild(slide);
     });
+    slider.appendChild(fragment);
 
     const slides = slider.querySelectorAll(".slide");
+    if (slides.length === 0) return;
+
     let current = 0;
-
     setInterval(() => {
-      slides[current].classList.remove("active");
-      current = (current + 1) % slides.length;
-      slides[current].classList.add("active");
+        slides[current].classList.remove("active");
+        current = (current + 1) % slides.length;
+        slides[current].classList.add("active");
     }, 4000);
-  }
+}
 
-  const slider = document.querySelector(".region-slider");
-
-  if (slider) {
-    regions.forEach((r) => {
-      slider.innerHTML += `
-      <div class="px-3 py-3">
-        <div class="card region-card shadow-lg rounded-5 overflow-hidden position-relative"
-             data-region="${r.name}"
-             style="height:450px; cursor:pointer;">
-          <img src="${r.image}" 
-               class="w-100 h-100 position-absolute top-0 start-0"
-               style="object-fit:cover;" />
-
-          <div class="card-img-overlay bg-gradient-dark d-flex flex-column justify-content-end">
-            <h3 class="text-white fw-bold mb-0">${r.name}</h3>
-            <p class="text-light mb-2">${r.description}</p>
-          </div>
-        </div>
-      </div>
-    `;
-    });
-
-    $(".region-slider").slick({
-      centerMode: true,
-      slidesToShow: 3,
-      autoplay: true,
-      responsive: [{ breakpoint: 992, settings: { slidesToShow: 1 } }],
-    });
-  }
-
-  document.addEventListener("click", (e) => {
-    const card = e.target.closest(".region-card");
-    if (!card) return;
-
-    const region = card.dataset.region;
-    console.log("선택한 지역:", region);
-
-    // 실제 사용 시
-    // location.href = `/travel/list.html?region=${encodeURIComponent(region)}`;
-  });
-
-/* ============================
-   3. 지역별 추천 섹션
-============================ */
+/* ==========================================
+   3. 지역별 추천 섹션 (Swiper.js)
+========================================== */
 function initRegionSlider() {
-    const sliderWrapper = document.getElementById('regionSliderWrapper');
-    if (!sliderWrapper) return;
-
-    // api/travel-data.js (나중에 이 부분만 fetch API로 바뀝니다)
-    const regions = [
-        {
-            title: "바다에 스며든 낭만",
-            desc: "제주 동쪽&서쪽 일몰 명소",
-            img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-        },
-        {
-            title: "가을빛 머금은 산사",
-            desc: "경주 불국사의 고즈넉한 풍경",
-            img: "https://images.unsplash.com/photo-1596472412854-464972e2764b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-        },
-        {
-            title: "밤바다의 황홀함",
-            desc: "부산 광안대교 야경 투어",
-            img: "https://images.unsplash.com/photo-1574169208507-84376144848b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-        },
-        {
-            title: "커피 향 가득한 거리",
-            desc: "강릉 안목해변 카페거리",
-            img: "https://images.unsplash.com/photo-1629166921272-36c174623725?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-        },
-        {
-            title: "도심 속 힐링",
-            desc: "서울 한강공원 피크닉",
-            img: "https://images.unsplash.com/photo-1538485399081-7191377e8241?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-        },
-        {
-            title: "전통과 현대의 조화",
-            desc: "전주 한옥마을 산책",
-            img: "https://images.unsplash.com/photo-1598921868476-80db268c7835?q=80&w=1080"
-        }
-    ];
-
-    sliderWrapper.innerHTML = "";
-    regions.forEach((region, index) => {
-        const slide = document.createElement('div');
-        slide.className = 'swiper-slide';
-        // Set background image directly on the slide for the 'cover' effect
-        slide.style.backgroundImage = `url('${region.img}')`;
-        
-        slide.innerHTML = `
-            <div class="slide-content-overlay">
-                <h3 class="slide-title">${region.title}</h3>
-                <p class="slide-desc">${region.desc}</p>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <a href="#" class="slide-btn">
-                        자세히 보기 <i data-lucide="chevron-right" size="16"></i>
-                    </a>
-                    <span class="slide-number">
-                        ${index + 1} / ${regions.length} <span style="opacity:0.5; margin-left:5px;">||</span>
-                    </span>
-                </div>
-            </div>
-        `;
-        sliderWrapper.appendChild(slide);
-    });
-
-    // Initialize Swiper
-
-new Swiper('.region-swiper', {
-    effect: 'slide',
-    grabCursor: true,
-    centeredSlides: false, // 중앙 정렬
-    slidesPerView: 10, //카드 간격
-    coverflowEffect: {
-        rotate: 0,
-        stretch: 0,
-        depth: 100,
-        modifier: 1,
-        slideShadows: false, // 그림자가 너무 어두우면 false
-    },
-   loop: true,
+    // Swiper 인스턴스 생성
+    new Swiper('.regionSwiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: true,
         autoplay: {
             delay: 3000,
-            disableOnInteraction: false,
+            disableOnInteraction: false
         },
+        // 1. 페이지네이션 (하단 점) 설정
         pagination: {
             el: '.swiper-pagination',
             clickable: true,
         },
+        // 2. 네비게이션 (좌우 화살표) 설정 추가
         navigation: {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
         },
-        spaceBetween: 20, 
+        // 3. 반응형 브레이크포인트
         breakpoints: {
-            320: { slidesPerView: 1, spaceBetween: 10 },
-        768: { slidesPerView: 2, spaceBetween: 20 },
-        1024: { slidesPerView: 3, spaceBetween: 30 }
+            768: {
+                slidesPerView: 2,
+                spaceBetween: 30
+            },
+            1024: {
+                slidesPerView: 3,
+                spaceBetween: 30
+            }
         }
     });
 }
-  
-/* ============================
-   4. 날씨 BEST 세션
-============================ */
-const weatherList = document.getElementById("weatherList");
-// 샘플 데이터를 API 구조와 유사하게 구성 (나중에 실제 API 연동 시 이 객체만 교체하면 됩니다)
-const weatherData = [
-  { region: "강릉", temp: "15", pop: "10", wind: "2.5", sky: "DB01" }, // DB01: 맑음
-  { region: "여수", temp: "18", pop: "20", wind: "3.1", sky: "DB02" }, // DB02: 구름조금
-  { region: "전주", temp: "16", pop: "0", wind: "1.8", sky: "DB01" }
-];
 
-weatherList.innerHTML = ""; // 기존 내용 초기화
+/* ==========================================
+   4. 날씨 BEST 추천 시스템 (API 연동 및 알고리즘)
+========================================== */
 
-weatherData.forEach((data) => {
-  // 1. SKY 코드에 따른 아이콘 및 색상 매핑
-  let iconName = "sun"; 
-  let iconColor = "text-warning"; // 노란색 (맑음)
+// 지역 코드 매핑 테이블 (필요한 주요 도시 위주 관리)
+const regionMap = {
+    // 기본 및 전국
+    "108": "전국",
 
-  if (data.sky === "DB03") {
-    iconName = "cloud-sun"; 
-    iconColor = "text-secondary"; // 회색빛 (구름많음)
-  } else if (data.sky === "DB04") {
-    iconName = "cloud"; 
-    iconColor = "text-muted";    // 어두운 회색 (흐림)
-  }
+    // 서울, 인천, 경기도 (11B)    // 강원도 (11D, 11E)
+    "11B10101": "서울",           "11D10101": "철원",
+    "11B10102": "과천",           "11D10102": "화천",
+    "11B10103": "광명",           "11D10201": "인제",
+    "11B20101": "강화",           "11D10202": "양구",
+    "11B20102": "김포",           "11D10301": "춘천",
+    "11B20201": "인천",           "11D10302": "홍천",
+    "11B20202": "시흥",           "11D10401": "원주",
+    "11B20203": "안산",           "11D10402": "횡성",
+    "11B20204": "부천",           "11D10501": "영월",
+    "11B20301": "의정부",         "11D10502": "정선",
+    "11B20302": "고양",           "11D10503": "평창",
+    "11B20304": "양주",           "11D20201": "대관령",
+    "11B20305": "파주",           "11D20301": "태백",
+    "11B20401": "동두천",         "11D20401": "속초",
+    "11B20402": "연천",           "11D20402": "고성",
+    "11B20403": "포천",           "11D20403": "양양",
+    "11B20404": "가평",           "11D20501": "강릉",
+    "11B20501": "구리",           "11D20601": "동해",
+    "11B20502": "남양주",         "11D20602": "삼척",
+    "11B20503": "양평",           "11E00101": "울릉도",
+    "11B20504": "하남",           "11E00102": "독도",
+    "11B20601": "수원",
+    "11B20602": "안양",           // 충청북도 (11C1)
+    "11B20603": "오산",           "11C10101": "충주",
+    "11B20604": "화성",           "11C10102": "진천",
+    "11B20605": "성남",           "11C10103": "음성",
+    "11B20606": "평택",           "11C10201": "제천",
+    "11B20609": "의왕",           "11C10202": "단양",
+    "11B20610": "군포",           "11C10301": "청주",
+    "11B20611": "안성",           "11C10302": "보은",
+    "11B20612": "용인",           "11C10303": "괴산",
+    "11B20701": "이천",           "11C10304": "증평",
+    "11B20702": "광주",           "11C10401": "추풍령",
+    "11B20703": "여주",           "11C10402": "영동",
+    "11A00101": "백령도",          "11C10403": "옥천",
+    "11A00102": "연평도",
+    "11A00103": "소청도",
 
-/*
-weatherData.forEach((data) => {
-  // 하늘상태코드(SKY)에 따른 아이콘 설정
-  let iconName = "sun"; // 기본값
-  if (data.sky === "DB03" || data.sky === "DB04") iconName = "cloud";
-  if (data.sky === "snow") iconName = "snowflake"; // 예시
-  */
+    // 충청남도, 대전, 세종 (11C2) // 전북자치도 (11F1, 21F1)
+    "11C20101": "서산",          "11F10201": "전주",
+    "11C20102": "태안",          "11F10202": "익산",
+    "11C20103": "당진",          "11F10203": "정읍",
+    "11C20104": "홍성",          "11F10204": "완주",
+    "11C20201": "보령",          "11F10301": "장수",
+    "11C20202": "서천",          "11F10302": "무주",
+    "11C20301": "천안",          "11F10303": "진안",
+    "11C20302": "아산",          "11F10401": "남원",
+    "11C20303": "예산",          "11F10402": "임실",
+    "11C20401": "대전",          "11F10403": "순창",
+    "11C20402": "공주",          "21F10501": "군산",
+    "11C20403": "계룡",          "21F10502": "김제",
+    "11C20404": "세종",          "21F10601": "고창",
+    "11C20501": "부여",          "21F10602": "부안",
+    "11C20502": "청양",
+    "11C20601": "금산",
+    "11C20602": "논산",
 
- weatherList.innerHTML += `
-    <div class="col-md-4">
-      <div class="card shadow-lg border-0 rounded-4 hover-lift">
-        <div class="card-body text-center">
-          <h3 class="fw-bold mb-2" style="font-size: 22px;">${data.region}</h3>
-          
-          <div class="weather-icon-box my-3">
-            <i data-lucide="${iconName}" class="weather-main-icon"></i>
-          </div>
+    // 광주, 전라남도 (11F2, 21F2)  // 대구, 경상북도 (11H1)
+    "11F20501": "광주",            "11H10701": "대구",
+    "11F20502": "장성",            "11H10702": "영천",
+    "11F20503": "나주",            "11H10703": "경산",
+    "11F20504": "담양",            "11H10704": "청도",
+    "11F20505": "화순",            "11H10705": "칠곡",
+    "11F20601": "구례",            "11H10707": "군위",
+    "11F20602": "곡성",            "11H10101": "울진",
+    "11F20603": "순천",            "11H10102": "영덕",
+    "11F20301": "완도",            "11H10201": "포항",
+    "11F20302": "해남",            "11H10202": "경주",
+    "11F20303": "강진",            "11H10301": "문경",
+    "11F20304": "장흥",            "11H10302": "상주",
+    "11F20401": "여수",            "11H10303": "예천",
+    "11F20402": "광양",            "11H10401": "영주",
+    "11F20403": "고흥",            "11H10402": "봉화",
+    "11F20404": "보성",            "11H10403": "영양",
+    "11F20405": "순천",            "11H10501": "안동",
+    "11F20701": "흑산도",          "11H10502": "의성",
+    "21F20101": "함평",            "11H10503": "청송",
+    "21F20102": "영광",            "11H10601": "김천",
+    "21F20201": "진도",            "11H10602": "구미",
+    "21F20202": "해남(화원)",       "11H10604": "고령",
+    "21F20801": "목포",            "11H10605": "성주",
+    "21F20802": "영암",
+    "21F20803": "신안",
+    "21F20804": "무안",
 
-          <div class="weather-info-grid">
-            <div class="info-item">
-              <span class="label">기온</span>
-              <span class="value">${data.temp}°C</span>
-            </div>
-            <div class="info-item">
-              <span class="label">강수</span>
-              <span class="value">${data.pop}%</span>
-            </div>
-            <div class="info-item">
-              <span class="label">풍량</span>
-              <span class="value">${data.wind}m/s</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-});
-  if (typeof lucide !== "undefined") {
-    lucide.createIcons();
-  }
+    // 부산, 울산, 경상남도 (11H2) // 제주도 (11G)
+    "11H20201": "부산",          "11G00201": "제주",
+    "11H20101": "울산",          "11G00401": "서귀포",
+    "11H20102": "양산",          "11G00800": "추자도",
+    "11H20301": "창원",          "11G00000": "제주도",
+    "11H20304": "김해",
+    "11H20401": "통영",          // 주요 산악 지역 (필요시 사용)
+    "11H20402": "사천",          "11B101P0": "북한산",
+    "11H20403": "거제",          "11D001P0": "설악산",
+    "11H20404": "고성",          "11D002P0": "오대산",
+    "11H20405": "남해",          "11D003P0": "치악산",
+    "11H20501": "함양",          "11C001P0": "계룡산",
+    "11H20502": "거창",          "11F002P0": "지리산",
+    "11H20503": "합천",          "11F004P0": "덕유산",
+    "11H20601": "밀양",          "11F003P0": "내장산",
+    "11H20602": "의령",          "11G001P1": "한라산(정상)",
+    "11H20603": "함안",
+    "11H20604": "창녕",
+    "11H20701": "진주",
+    "11H20702": "하동",
+    "11H20703": "산청",
 
+};
+
+
+
+async function initWeather() {
+    try {
+        const response = await fetch('/main/weather/api');
+        const rawData = await response.text();
+        if (rawData && rawData.includes("#START")) {
+            processWeatherLogic(rawData);
+        }
+    } catch (error) {
+        console.error("날씨 데이터를 가져오는 중 오류 발생:", error);
+    }
+}
+
+function processWeatherLogic(rawData) {
+    const lines = rawData.split("\n");
+    const parsedData = [];
+    const addedRegions = new Set();
+
+    // 1차 파싱: 일단 데이터를 모두 수집
+    lines.forEach((line) => {
+        const row = line.trim();
+        if (!row || row.startsWith("#")) return;
+        const f = row.split(",");
+        if (f.length >= 16) {
+            const regionName = regionMap[f[0].trim()];
+            if (regionName && !addedRegions.has(regionName) && f[4].trim() === "1") {
+                parsedData.push({
+                    region: regionName,
+                    TA: parseFloat(f[12] || 0),
+                    ST: parseInt(f[13] || 0),
+                    SKY: f[14]?.trim() || "DB01",
+                    PREP: f[15]?.trim() || "0",
+                    WIND: parseFloat(f[10] || 0),
+                    WIND_DIR: f[11]?.trim() || ""
+                });
+                addedRegions.add(regionName);
+            }
+        }
+    });
+
+    if (parsedData.length === 0) return;
+
+    /// 1. 전국 평균값 산출
+    const avg = {
+        TA: parsedData.reduce((s, x) => s + x.TA, 0) / parsedData.length,
+        ST: parsedData.reduce((s, x) => s + x.ST, 0) / parsedData.length,
+        WIND: parsedData.reduce((s, x) => s + x.WIND, 0) / parsedData.length
+    };
+
+    // 2. 점수 계산 (중요: 객체로 반환받음)
+    const scoredList = parsedData.map(item => {
+        const result = calculateRelativeScore(item, avg);
+        return {
+            ...item,
+            score: result.finalScore, // 렌더링용 점수 저장
+            debug: result.debugInfo   // 로그용 데이터 저장
+        };
+    });
+
+    // 3. 점수 순 정렬
+    scoredList.sort((a, b) => b.score - a.score);
+
+    // 4. [콘솔 출력] 상위 10위 상세 분석
+    console.log("%c🏆 [해봄트립] 기상 데이터 기반 추천 순위 TOP 10 상세분석", "color: #f97316; font-weight: bold; font-size: 16px;");
+
+    scoredList.slice(0, 10).forEach((item, index) => {
+        const d = item.debug;
+        console.group(`[${index + 1}위] ${item.region} (총점: ${item.score.toFixed(0)}점)`);
+
+        // 상세 항목을 한눈에 볼 수 있도록 객체 구성
+        console.table({
+            "항목": {
+                "기본점수": d.base,
+                "계절특화": d.seasonal.toFixed(1),
+                "하늘상태": d.sky,
+                "강풍/섬": (d.wind + d.island).toFixed(1),
+                "강수확률페널티": d.rainPenalty ? d.rainPenalty.toFixed(1) : 0,
+                "강수필터(비/눈)": d.finalFilter
+            }
+        });
+
+        // 계산식 가시화
+        console.log(`%c👉 계산식: ${d.base} + ${d.seasonal.toFixed(1)}(계절) + ${d.sky}(하늘) + ${(d.wind + d.island).toFixed(1)}(풍속/섬) + ${d.rainPenalty ? d.rainPenalty.toFixed(1) : 0}(강수) + ${d.finalFilter}(필터) = ${item.score.toFixed(0)}점`, "color: #64748b; font-style: italic;");
+        console.groupEnd();
+    });
+
+    // 5. 화면 렌더링 실행
+    renderBestWeather(scoredList);
+}
+
+/**
+ * [해봄트립 초정밀 계절 맞춤형 알고리즘]
+ * 개별 지역의 점수와 계산 근거(logs)를 함께 반환합니다.
+ */
+function calculateRelativeScore(item, avg) {
+    let score = 1000;
+    const now = new Date();
+    const month = now.getMonth() + 1;
+
+    const temp = item.TA;
+    const wind = item.WIND;
+    const rainProb = item.ST;
+    const region = item.region || "알 수 없는 지역";
+
+    let logs = {
+        region: region,
+        base: 1000,
+        seasonal: 0,
+        sky: 0,
+        wind: 0,
+        island: 0,
+        finalFilter: 0
+    };
+
+    // ① 체감 온도 계산
+    let sensibleTemp = temp;
+    if (temp <= 10) {
+        sensibleTemp = 13.12 + 0.6215 * temp - 11.37 * Math.pow(wind, 0.16) + 0.3965 * temp * Math.pow(wind, 0.16);
+    }
+
+    // ② 계절별 특화 로직
+    if (month >= 3 && month <= 5) {
+        const springOpt = 20;
+        logs.seasonal = (300 - Math.abs(sensibleTemp - springOpt) * 50);
+        if (item.SKY === "DB01") logs.seasonal += 200;
+    }
+    else if (month >= 6 && month <= 8) {
+        if (temp > 30) logs.seasonal -= (temp - 30) * 150;
+        logs.seasonal += (avg.TA - temp) * 100;
+        if (rainProb > 60) logs.seasonal -= 500;
+    }
+    else if (month >= 9 && month <= 11) {
+        const fallOpt = 18;
+        logs.seasonal = (300 - Math.abs(sensibleTemp - fallOpt) * 40);
+        if (item.SKY === "DB01") logs.seasonal += 400;
+    }
+    else {
+        logs.seasonal += (temp - avg.TA) * 80;
+        if (item.PREP === "2" || item.PREP === "3") logs.seasonal += 500;
+        if (sensibleTemp < -10) logs.seasonal -= 1000;
+    }
+    score += logs.seasonal;
+
+    // ③ 하늘 상태 및 활동성
+    const skyMap = { "DB01": 200, "DB03": 50, "DB04": -150 };
+    logs.sky = (skyMap[item.SKY] || 0);
+    score += logs.sky;
+
+    // ④ 강풍 및 섬 지역 로직
+    if (wind >= 7) {
+        logs.wind = -1000;
+        score += logs.wind;
+    }
+    const islandKeywords = ["제주", "독도", "백령", "울릉", "흑산", "추자"];
+    if (islandKeywords.some(key => region.includes(key)) && wind >= 4 && wind < 7) {
+        logs.island = 300;
+        score += logs.island;
+    }
+
+    // ③ 강수 확률에 따른 페널티 계산 (새로 추가/보강)
+    // 강수 확률이 높을수록 기하급수적으로 점수 차감 (0~100%)
+    let rainPenalty = 0;
+    if (rainProb > 0) {
+        // 30% 이하에서는 약한 페널티, 30% 초과 시 강한 페널티 적용
+        if (rainProb <= 30) {
+            rainPenalty = rainProb * 5;
+        } else {
+            rainPenalty = 150 + (rainProb - 30) * 20;
+        }
+    }
+    logs.rainPenalty = -rainPenalty;
+    score -= rainPenalty;
+
+    // ⑤ 최종 필터
+    if (item.PREP === "1") {
+        logs.finalFilter = -4000;
+        score += logs.finalFilter;
+    }
+
+    return { finalScore: score, debugInfo: logs };
+}
+
+// [렌더링] Template 기반 화면 출력
+function renderBestWeather(allRegions) {
+    const weatherList = document.getElementById("weatherList");
+    const template = document.getElementById("weather-card-template");
+    if (!weatherList || !template) return;
+
+    weatherList.innerHTML = ""; // 기존 내용 초기화
+
+    const windDirMap = {"N":"북풍","NE":"북동풍","E":"동풍","SE":"남동풍","S":"남풍","SW":"남서풍","W":"서풍","NW":"북서풍"};
+    const medals = ["🥇", "🥈", "🥉"];
+
+    // 점수 높은 순으로 정렬 후 상위 3개 선정
+    const best3 = allRegions.sort((a, b) => b.score - a.score).slice(0, 3);
+
+    best3.forEach((data, index) => {
+        const clone = template.content.cloneNode(true);
+
+        // 데이터 채우기
+        clone.querySelector(".medal-slot").textContent = medals[index];
+        clone.querySelector(".region-name").textContent = data.region;
+        clone.querySelector(".temp-val").textContent = `${data.TA}°C`;
+        clone.querySelector(".rain-val").textContent = `${data.ST}%`;
+
+        const windDir = windDirMap[data.WIND_DIR.trim()] || data.WIND_DIR;
+        clone.querySelector(".wind-val").textContent = `${windDir} ${data.WIND}m/s`;
+
+        // 날씨 상태에 따른 아이콘 결정
+        let iconName = "sun";
+        if (data.PREP !== "0") iconName = "cloud-rain";
+        else if (data.SKY === "DB03" || data.SKY === "DB04") iconName = "cloud";
+
+        const iconEl = clone.querySelector(".weather-icon");
+        iconEl.setAttribute("data-lucide", iconName);
+
+        weatherList.appendChild(clone);
+    });
+
+    // 동적 생성된 아이콘 렌더링
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}

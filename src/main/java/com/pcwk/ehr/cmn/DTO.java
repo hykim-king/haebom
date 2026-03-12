@@ -19,4 +19,5 @@ public class DTO {
     private String htmlContent;
     private String searchDiv; // 검색 구분
     private String searchWord; // 검색어
+    private String region; // 지역 필터
 }

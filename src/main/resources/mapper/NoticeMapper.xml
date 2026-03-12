@@ -2,38 +2,83 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.notice.NoticeMapper">
 
-    <select id="doRetrieve" parameterType="DTO" resultType="NoticeVO">
+<select id="getLoginUserInfo" parameterType="string" resultType="UserVO">
+        SELECT USER_NO       as userNo,
+               USER_NM       as userNm,
+               USER_EML_ADDR as userEmlAddr,
+               USER_MNGR_YN  as userMngrYn
+        FROM ss_user
+        WHERE USER_EML_ADDR = #{email}
+    </select>
+
+    <select id="checkAdminAuth" parameterType="string" resultType="string">
+        SELECT TRIM(USER_MNGR_YN)
+        FROM SS_USER
+        WHERE USER_EML_ADDR = #{email}
+    </select>
+
+    <select id="getUserIdByEmail" parameterType="string" resultType="int">
+        SELECT USER_NO
+        FROM SS_USER
+        WHERE USER_EML_ADDR = #{email}
+    </select>
+
+    <select id="doRetrieve" parameterType="NoticeVO" resultType="NoticeVO">
         SELECT *
         FROM (
-            SELECT ROWNUM AS rnum, T1.*
+            SELECT ROWNUM as rnum, T1.*
             FROM (
                 SELECT
                     NTC_NO,
                     NTC_TTL,
                     NTC_CN,
-                    NTC_REG,
+                    TO_CHAR(TO_DATE(NTC_REG, 'YYYYMMDD'), 'YYYY.MM.DD') as ntcReg,
                     NTC_REG_HM,
-                    NTC_MOD,
+                    TO_CHAR(TO_DATE(NTC_MOD, 'YYYYMMDD'), 'YYYY.MM.DD') as ntcMod,
                     NTC_MOD_HM,
                     REG_NO,
-                    MOD_NO
-            FROM NOTICE
-            WHERE 1 = 1
-            <if test="searchWord != null and searchWord != ''">
-                <choose>
-                    <when test="searchDiv == '10'">
-                        AND NTC_TTL LIKE '%' || #{searchWord} || '%'
-                    </when>
-                    <when test="searchDiv == '20'">
-                        AND NTC_CN LIKE '%' || #{searchWord} || '%'
-                    </when>
-                </choose>
-             </if>
-            ORDER BY NTC_NO ASC
-            ) T1
-            <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
-        ) TT1
-        <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+                    MOD_NO,
+                    USER_NM       as "userVO.userNm",
+                    USER_MNGR_YN  as "userVO.userMngrYn"
+                FROM NOTICE
+                LEFT JOIN SS_USER ON NOTICE.REG_NO = SS_USER.USER_NO
+                WHERE 1 = 1
+
+                <if test="searchWord != null and searchWord != ''">
+                    <choose>
+                        <when test="searchDiv == '10'">
+                            AND NTC_TTL LIKE '%' || #{searchWord} || '%'
+                        </when>
+                        <when test="searchDiv == '20'">
+                            AND NTC_CN LIKE '%' || #{searchWord} || '%'
+                        </when>
+                    </choose>
+                </if>
+
+                ORDER BY
+                    CASE
+                        WHEN NTC_TTL LIKE '🚨 [긴급]%' THEN 1  WHEN NTC_TTL LIKE '⭐ [중요]%' THEN 2  ELSE 3                                END ASC,
+                    NTC_NO DESC ) T1
+            <![CDATA[ WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize} ]]>
+        )
+        <![CDATA[ WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1 ]]>
+    </select>
+
+    <select id="doRetrieveCount" parameterType="NoticeVO" resultType="int">
+        SELECT COUNT(*)
+        FROM NOTICE
+        LEFT JOIN SS_USER ON NOTICE.REG_NO = SS_USER.USER_NO
+        WHERE 1 = 1
+        <if test="searchWord != null and searchWord != ''">
+            <choose>
+                <when test="searchDiv == '10'">
+                    AND NTC_TTL LIKE '%' || #{searchWord} || '%'
+                </when>
+                <when test="searchDiv == '20'">
+                    AND NTC_CN LIKE '%' || #{searchWord} || '%'
+                </when>
+            </choose>
+        </if>
     </select>
 
     <insert id="doSave" parameterType="NoticeVO">
@@ -61,9 +106,9 @@
         SELECT NTC_NO,
                NTC_TTL,
                NTC_CN,
-               NTC_REG,
+               TO_CHAR(TO_DATE(NTC_REG, 'YYYYMMDD'), 'YYYY.MM.DD') as ntcReg,
                NTC_REG_HM,
-               NTC_MOD,
+               TO_CHAR(TO_DATE(NTC_MOD, 'YYYYMMDD'), 'YYYY.MM.DD') as ntcMod,
                NTC_MOD_HM,
                REG_NO,
                MOD_NO,
@@ -104,6 +149,11 @@
     <select id="getAll" resultType="NoticeVO">
         SELECT *
         FROM NOTICE
+    </select>
+
+    <select id="getLastNtcNo" resultType="int">
+        SELECT SEQ_NTC_NO.CURRVAL
+        FROM DUAL
     </select>
 
 </mapper>

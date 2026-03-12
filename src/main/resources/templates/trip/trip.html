@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해봄트립 - 여행지 탐색</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/css/header.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/trip.css}">
+</head>
+<body class="bg-white">
+
+    <div th:replace="~{main/header :: header}"></div>
+
+    <main class="max-w-6xl mx-auto px-4 py-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            
+            <div class="lg:col-span-8 order-2 lg:order-1">
+                <div class="flex justify-between items-end mb-6 pb-4 border-b-2 border-gray-900">
+                    <h2 class="text-3xl font-bold">#<span id="view-title">전체</span></h2>
+                    <div class="flex gap-4 text-sm text-gray-400 font-medium">
+                        <span class="text-blue-600 font-bold">총 <span id="total-count">0</span>건</span>
+                        <button class="sort-btn text-gray-900 font-bold underline cursor-pointer" data-sort="new">최신순</button>
+                        <span>|</span> 
+                        <button class="sort-btn hover:text-gray-900 cursor-pointer" data-sort="pop">인기순</button>
+                    </div>
+                </div>
+
+                <div id="dest-list" class="space-y-8"></div>
+                
+                <div id="pagination" class="flex justify-center gap-2 mt-12"></div>
+            </div>
+
+            <aside class="lg:col-span-4 order-1 lg:order-2">
+                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 sticky top-10 shadow-sm">
+                    
+                    <div class="flex items-center bg-white border rounded-lg px-3 py-2 mb-6 shadow-sm">
+                        <input type="text" id="search-input" placeholder="여행지명, 주소 검색" class="w-full text-sm outline-none">
+                        <button type="button" id="clear-btn" class="text-gray-400 hover:text-blue-500 hover:rotate-[-45deg] transition-all duration-200">
+                            <i data-lucide="rotate-ccw" size="18"></i>
+                        </button>
+                    </div>
+
+                    <h4 class="font-bold text-sm mb-3 text-gray-900">지역 선택</h4>
+                    <div id="main-region-tags" class="flex flex-wrap gap-x-3 gap-y-2 mb-4 border-b pb-4">
+                        </div>
+
+                    <div id="sub-region-tags" class="hidden flex flex-wrap gap-x-4 gap-y-3 mb-6 text-sm text-gray-500 border-b pb-6">
+                        </div>
+                    
+                    <h4 class="font-bold text-sm mb-4 text-gray-900">테마별 선택</h4>
+                    <div id="theme-tags" class="flex flex-wrap gap-x-3 gap-y-2 text-sm text-gray-400 border-b pb-6 mb-6">
+                        </div>
+                    
+                    <div class="bg-red-50 border border-red-100 p-4 rounded-xl mb-4">
+                        <h5 class="text-red-700 font-bold text-sm flex items-center gap-2">
+                            <i data-lucide="alert-triangle" size="16"></i> 기상/재난 특보
+                        </h5>
+                        <p class="text-red-600 text-xs mt-1">현재 발령된 특보가 없습니다.</p>
+                    </div>
+                    <div class="bg-white border border-gray-100 p-4 rounded-xl shadow-sm text-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="font-bold" id="weather-city">전국 날씨</p>
+                            <i data-lucide="sun" class="text-orange-400"></i>
+                        </div>
+                        <div class="flex justify-between text-gray-500">
+                            <span>현재 기온</span>
+                            <span class="font-bold text-gray-900">24°C</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <div th:replace="~{main/footer :: footer}"></div>
+
+    <script th:src="@{/javascript/trip.js}"></script>
+</body>
+</html>

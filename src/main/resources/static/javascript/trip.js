@@ -1,359 +1,464 @@
-// 1. 데이터 설정
-const regionGroups = {
-    '서울': ['강남구', '동대문구', '마포구', '종로구'],
-    '부산': ['해운대구', '수영구'],
-    '대구': ['중구', '수성구'],
-    '인천': ['계양구', '부평구'],
-    '광주': [], '대전': [], '울산': [], '세종': [],
-};
-
-const themes = ['레포츠', '문화시설', '자연', '역사', '관광지', '체험', '숙박', '음식', '쇼핑'];
-
-const weatherData = {
-    "전체": { temp: "-", status: "-", wind: "-", dust: "데이터 없음", dustColor: "bg-gray-300" },
-    "서울": { temp: "24", status: "맑음", wind: "2.1", dust: "보통", dustColor: "bg-green-500" },
-    "부산": { temp: "26", status: "흐림", wind: "4.5", dust: "좋음", dustColor: "bg-blue-500" },
-    "광주": { temp: "25", status: "맑음", wind: "1.5", dust: "보통", dustColor: "bg-green-500" },
-    "대전": { temp: "23", status: "구름많음", wind: "2.0", dust: "좋음", dustColor: "bg-blue-500" },
-    "인천": { temp: "22", status: "맑음", wind: "3.2", dust: "나쁨", dustColor: "bg-red-500" },
-    "세종": { temp: "23", status: "맑음", wind: "1.1", dust: "보통", dustColor: "bg-green-500" },
-    "대구": { temp: "28", status: "맑음", wind: "1.2", dust: "보통", dustColor: "bg-green-500" },
-    "울산": { temp: "24", status: "흐림", wind: "5.1", dust: "좋음", dustColor: "bg-blue-500" }
-};
-
-const mockDestinations = [
-    {
-        id: 1, title: "비토해양낚시공원", region: "경남", subRegion: "사천시", theme: "관광지",
-        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
-        summary: "별주부전 전설을 간직한 사천의 명소",
-        description: "비토해양낚시공원은 천혜의 자연경관과 전설이 살아있는 비토섬에 위치하고 있습니다. 낚시 애호가뿐만 아니라 가족 단위 관광객들에게도 인기가 높습니다.",
-        likes: 6, views: '2.4K', address: "경남 사천시 서포면 비토길 49", phone: "055-833-0259"
-    },
-    {
-        id: 2, title: "별마당 도서관", region: "서울", subRegion: "강남구", theme: "문화시설",
-        image: "https://images.unsplash.com/photo-1552568165-02cfdb51bc7d?w=800",
-        summary: "코엑스 몰 중심의 열린 문화 공간",
-        description: "책과 문화가 어우러진 서울의 랜드마크 도서관입니다. 거대한 서가와 아늑한 조명이 만들어내는 분위기가 일품입니다.",
-        likes: 12, views: '1.5K', address: "서울 강남구 영동대로 513", phone: "02-6002-3031"
-    },
-    {
-        id: 3, title: "육전식당 1호점", region: "서울", subRegion: "동대문구", theme: "음식",
-        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
-        summary: "두툼한 목살과 삼겹살 명소",
-        description: "전문적인 그릴러가 직접 고기를 구워줍니다. 고기 본연의 맛을 느낄 수 있는 서울의 줄 서는 맛집입니다.",
-        likes: 45, views: '5.2K', address: "서울 동대문구 난계로30길 16", phone: "02-2253-6373"
-    }
-];
-
-let state = {
-    mainRegion: '전체',
-    subRegion: '전체',
-    theme: '전체',
-    searchQuery: '',
-    comments: JSON.parse(localStorage.getItem('trip_comments')) || {},
-    likedItems: JSON.parse(localStorage.getItem('trip_likes')) || []
-};
-
 /**
- * 2. 초기화 함수
+ * 해봄트립 통합 JavaScript
  */
-function init() {
-    const isDetailPage = document.getElementById('d-image');
+const tripState = {
+    pageNo: 1,
+    pageSize: 10,
+    searchWord: "",
+    tripTag: "",
+    tripCtpv: 0,
+    tripGungu: 0,
+    orderType: "new"
+};
 
-    if (isDetailPage) {
-        initDetailPage();
-    } else {
-        if (document.getElementById('dest-list')) {
-            renderMainTags();
-            renderSubTags();
-            renderThemeTags();
-            renderList();
-            updateWeatherUI('전체');
+let searchTimer;
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Lucide 아이콘 초기화 (공통)
+    if (window.lucide) lucide.createIcons();
+
+    // 2. 리스트 페이지 전용 초기화 (요소가 있을 때만 실행)
+    if (document.getElementById("search-input")) {
+        initListPage();
+    }
+    // 상세 페이지에만 있는 'detail-list' ID를 체크합니다.
+    const detailList = document.getElementById("detail-list");
+    if (detailList) {
+        // Thymeleaf가 렌더링한 hidden input이나 URL 파라미터에서 ID를 가져와야 합니다.
+        // 가장 쉬운 방법은 HTML 어딘가에 ID를 심어두는 것입니다.
+        const tripId = document.querySelector('input[name="tripContsId"]')?.value
+            || new URLSearchParams(window.location.search).get('tripContsId');
+
+        if (tripId) {
+            fetchDetailData(tripId);
+            initFavorite(tripId);
         }
     }
+});
 
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-}
+function initListPage() {
+    fetchAreaTags();     // 1. 시도 목록 로드
+    renderThemeTags();   // 2. 테마 목록 로드
+    fetchList();         // 3. 첫 화면 리스트 로드
 
-/**
- * 3. 목록 페이지 전용 함수들
- */
-function renderMainTags() {
-    const el = document.getElementById('main-region-tags');
-    if (!el) return;
-    el.innerHTML = ['전체', ...Object.keys(regionGroups)].map(reg => `
-        <button onclick="setMainRegion('${reg}')" class="px-2 py-1 text-sm text-gray-400 font-bold ${state.mainRegion === reg ? 'text-orange-600 border-b-2 border-orange-500' : ''}">#${reg}</button>
-    `).join('');
-}
+    // 검색어 실시간 입력 (기존 로직)
+    const searchInput = document.getElementById("search-input");
+    let searchTimer; // 상단에 선언되어 있다고 가정
 
-function renderSubTags() {
-    const container = document.getElementById('sub-region-tags');
-    if (!container) return;
-    if (state.mainRegion === '전체') { container.innerHTML = ''; return; }
-    container.innerHTML = ['전체', ...regionGroups[state.mainRegion]].map(sub => `
-        <button onclick="setSubRegion('${sub}')" class="text-sm ${state.subRegion === sub ? 'font-bold text-gray-900' : 'text-gray-400'}">${sub}</button>
-    `).join('');
-}
+    searchInput?.addEventListener("input", (e) => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            tripState.searchWord = e.target.value.trim();
+            tripState.pageNo = 1;
+            fetchList();
+        }, 300);
+    });
+    // 리셋 버튼 클릭 이벤트 (모든 필터 초기화)
+    const clearBtn = document.getElementById("clear-btn");
 
-function renderThemeTags() {
-    const el = document.getElementById('theme-tags');
-    if (!el) return;
-    el.innerHTML = themes.map(t => `
-        <button onclick="setTheme('${t}')" class="text-sm hover:text-black ${state.theme === t ? 'font-bold text-orange-500' : 'text-gray-400'}">#${t}</button>
-    `).join('');
-}
+    clearBtn?.addEventListener("click", () => {
+        // 1. 입력창 텍스트 비우기
+        const searchInput = document.getElementById("search-input");
+        if (searchInput) searchInput.value = "";
 
-function renderList() {
-    const listEl = document.getElementById('dest-list');
-    if (!listEl) return;
+        // 2. 상태(State) 모두 초기값으로 되돌리기
+        tripState.searchWord = "";
+        tripState.tripTag = ""; // 테마 초기화
+        tripState.tripCtpv = 0;  // 시도 초기화
+        tripState.tripGungu = 0;  // 군구 초기화
+        tripState.pageNo = 1;  // 1페이지로
 
-    const filtered = mockDestinations.filter(d =>
-        (state.mainRegion === '전체' || d.region === state.mainRegion) &&
-        (state.subRegion === '전체' || d.subRegion === state.subRegion) &&
-        (state.theme === '전체' || d.theme === state.theme) &&
-        (d.title.includes(state.searchQuery))
-    );
+        // 3. UI 텍스트 복구
+        document.getElementById("view-title").innerText = "전체";
+        document.getElementById("sub-region-tags").classList.add("hidden"); // 군구 목록 숨기기
 
-    const countEl = document.getElementById('total-count');
-    if (countEl) countEl.innerText = filtered.length;
+        // 4. 모든 버튼의 활성화(주황색/굵게) 스타일 제거
+        // 지역 버튼, 테마 버튼, 군구 버튼 모두 찾아서 회색으로 변경
+        document.querySelectorAll(".area-tag, .theme-btn, .gngu-btn").forEach(btn => {
+            btn.classList.remove("text-orange-500", "text-orange-600", "font-bold", "border-b-2", "border-orange-500", "text-gray-900");
+            btn.classList.add("text-gray-400");
+        });
 
-    listEl.innerHTML = filtered.map(d => `
-        <div class="flex flex-col md:flex-row gap-8 cursor-pointer group border-b pb-8" onclick="location.href='trip_detail.html?id=${d.id}'">
-            <div class="w-full md:w-64 h-44 rounded-xl overflow-hidden shadow-sm bg-gray-100">
-                <img src="${d.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-            </div>
-            <div class="flex-1">
-                <div class="flex justify-between items-start">
-                    <h3 class="text-2xl font-bold mb-1 group-hover:text-orange-600 transition-colors">${d.title}</h3>
-                    <span class="text-xs text-gray-400 mt-2">${d.region} ${d.subRegion}</span>
-                </div>
-                <div class="mb-3">
-                    <span class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded border border-orange-100">${d.theme}</span>
-                </div>
-                <p class="text-gray-600 line-clamp-2 text-sm leading-relaxed">${d.summary}</p>
-            </div>
-        </div>`).join('');
-}
-
-window.setMainRegion = function (reg) {
-    state.mainRegion = reg; state.subRegion = '전체';
-    renderMainTags(); renderSubTags(); renderList(); updateWeatherUI(reg);
-};
-window.setSubRegion = function (sub) { state.subRegion = sub; renderSubTags(); renderList(); };
-window.setTheme = function (t) { state.theme = (state.theme === t) ? '전체' : t; renderThemeTags(); renderList(); };
-
-function updateWeatherUI(regionName) {
-    const data = weatherData[regionName] || weatherData['전체'];
-    const nameEl = document.getElementById("selected-region-name");
-    if (nameEl) nameEl.innerText = regionName === '전체' ? '전국' : regionName;
-    const tempEl = document.getElementById("weather-temp");
-    if (tempEl) tempEl.innerText = data.temp === '-' ? '-' : `${data.temp} ℃`;
-    const dustEl = document.getElementById("weather-dust");
-    if (dustEl) {
-        dustEl.innerText = data.dust;
-        dustEl.className = `px-2 py-0.5 rounded-full text-[10px] text-white ${data.dustColor}`;
-    }
-}
-
-/**
- * 4. 상세 페이지 전용 함수들
- */
-function initDetailPage() {
-    const params = new URLSearchParams(window.location.search);
-    const idParam = params.get('id');
-    const id = idParam ? parseInt(idParam) : 1;
-    const data = mockDestinations.find(d => d.id === id);
-
-    if (!data) return console.error("데이터를 찾을 수 없습니다.");
-
-    // 제목 및 요약 정보 주입
-    const titleEl = document.getElementById('d-title');
-    const regionBadgeEl = document.getElementById('d-region-badge');
-    const summaryEl = document.getElementById('d-summary');
-
-    if (titleEl) titleEl.innerText = data.title;
-    if (regionBadgeEl) regionBadgeEl.innerText = `${data.region} ${data.subRegion}`;
-    if (summaryEl) summaryEl.innerText = data.summary; // 요약 문구 반영
-
-    // 나머지 상세 정보 주입
-    const imgEl = document.getElementById('d-image');
-    const themeEl = document.getElementById('d-theme');
-    const addrEl = document.getElementById('d-address');
-    const phoneEl = document.getElementById('d-phone');
-    const descEl = document.getElementById('d-description');
-    const viewEl = document.getElementById('d-views');
-
-    if (imgEl) imgEl.src = data.image;
-    if (themeEl) themeEl.innerText = `#${data.theme}`;
-    if (addrEl) addrEl.innerText = data.address;
-    if (phoneEl) phoneEl.innerText = data.phone;
-    if (descEl) descEl.innerText = data.description;
-    if (viewEl) viewEl.innerText = data.views;
-
-    updateLikeUI(id);
-    renderComments(id);
-    setupImageHandler();
-}
-
-window.setCommentFilter = function (unused, filterType) { // 첫번째 인자 대신 URL에서 ID 추출
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id') || '1';
-
-    state.commentFilter = filterType;
-
-    const allBtn = document.getElementById('btn-filter-all');
-    const photoBtn = document.getElementById('btn-filter-photo');
-
-    if (filterType === 'all') {
-        allBtn.classList.replace('text-gray-400', 'text-orange-600');
-        allBtn.classList.add('border-orange-500');
-        photoBtn.classList.replace('text-orange-600', 'text-gray-400');
-        photoBtn.classList.remove('border-orange-500');
-    } else {
-        photoBtn.classList.replace('text-gray-400', 'text-orange-600');
-        photoBtn.classList.add('border-orange-500');
-        allBtn.classList.replace('text-orange-600', 'text-gray-400');
-        allBtn.classList.remove('border-orange-500');
-    }
-    renderComments(id);
-};
-
-
-window.handleLike = function () {
-    const id = parseInt(new URLSearchParams(window.location.search).get('id')) || 1;
-    const index = state.likedItems.indexOf(id);
-    if (index > -1) {
-        state.likedItems.splice(index, 1);
-    } else {
-        state.likedItems.push(id);
-    }
-    localStorage.setItem('trip_likes', JSON.stringify(state.likedItems));
-    updateLikeUI(id);
-};
-
-function updateLikeUI(id) {
-    const data = mockDestinations.find(d => d.id === id);
-    const isLiked = state.likedItems.includes(id);
-    const likeCountEl = document.getElementById('d-likes');
-    const icon = document.getElementById('like-icon');
-
-    if (likeCountEl) {
-        likeCountEl.innerText = isLiked ? data.likes + 1 : data.likes;
-    }
-    if (icon) {
-        if (isLiked) {
-            icon.classList.add('fill-red-500', 'text-red-500');
-        } else {
-            icon.classList.remove('fill-red-500', 'text-red-500');
+        // 5. '전체' 지역 버튼만 다시 활성화 상태로 만들기
+        const allBtn = document.querySelector(".area-tag"); // 보통 첫 번째 버튼이 '전체'
+        if (allBtn) {
+            allBtn.classList.replace("text-gray-400", "text-orange-500");
+            allBtn.classList.add("font-bold", "border-b-2", "border-orange-500");
         }
-    }
-}
 
-window.submitComment = function () {
-    const id = new URLSearchParams(window.location.search).get('id') || '1';
-    const text = document.getElementById('comment-input').value;
-    const rating = document.querySelector('input[name="rating"]:checked')?.value;
-    const image = document.getElementById('img-preview').src;
+        // 6. 즉시 목록 갱신 (서버에는 빈 파라미터들이 전달되어 전체 리스트가 옵니다)
+        fetchList();
 
-    if (!rating || !text.trim()) return alert('별점과 내용을 입력해주세요.');
-    if (!state.comments[id]) state.comments[id] = [];
-
-    state.comments[id].unshift({
-        rating: parseInt(rating),
-        text,
-        image: image.startsWith('data:') ? image : null,
-        date: new Date().toLocaleDateString()
+        // 7. 입력창에 다시 포커스
+        searchInput?.focus();
     });
 
-    localStorage.setItem('trip_comments', JSON.stringify(state.comments));
-    renderComments(parseInt(id));
+    // 정렬 버튼 클릭 이벤트
+    document.querySelectorAll(".sort-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            document.querySelectorAll(".sort-btn").forEach(b =>
+                b.classList.remove("text-gray-900", "font-bold", "underline"));
+            this.classList.add("text-gray-900", "font-bold", "underline");
 
-    document.getElementById('comment-input').value = '';
-    clearImage();
-    document.querySelectorAll('input[name="rating"]').forEach(el => el.checked = false);
-};
+            tripState.orderType = this.dataset.sort;
+            tripState.pageNo = 1;
+            fetchList();
+        });
+    });
+}
 
-function renderComments(id) {
-    const container = document.getElementById('comment-list');
-    const countEl = document.getElementById('comment-count');
-    let comments = state.comments[id] || [];
+function fetchDetailData(tripContsId) {
+    if (!tripContsId) return;
 
-    // 1. 개수 업데이트
-    if (countEl) countEl.innerText = comments.length;
+    fetch(`/trip/getTripDetail.do?tripContsId=${tripContsId}`)
+        .then(res => res.json())
+        .then(detail => {
+            console.log("서버 응답 데이터:", detail); // 여기서 데이터가 나오는지 꼭 확인!
 
-    // 2. 필터링 로직 적용 (사진 후기인 경우 이미지가 있는 것만)
-    const currentFilter = state.commentFilter || 'all';
-    if (currentFilter === 'photo') {
-        comments = comments.filter(c => c.image);
-    }
+            const listContainer = document.getElementById("detail-list");
+            if (!listContainer) return;
 
-    if (comments.length === 0) {
-        container.innerHTML = `<p class="text-center py-10 text-gray-400 text-sm">등록된 후기가 없습니다.</p>`;
+            // 오른쪽 소개글 영역 업데이트
+            const infoElem = document.getElementById("detail-info");
+            if (infoElem && detail.tripdtlInfo) {
+                infoElem.innerText = detail.tripdtlInfo;
+            }
+
+            // 출력할 필드와 라벨 매핑 (TripDetailVO 필드명과 정확히 일치)
+            const labelMap = {
+                tripdtlTel: { label: '문의처', icon: 'phone' },
+                tripdtlOperHr: { label: '이용시간', icon: 'clock' },
+                tripdtlDyoffYmd: { label: '휴무일', icon: 'calendar-x' },
+                tripdtlPrkPsblty: { label: '주차여부', icon: 'car' },
+                tripdtlPet: { label: '반려동물', icon: 'dog' },
+                tripdtlCrg: { label: '이용요금', icon: 'credit-card' },
+                tripdtlHmpg: { label: '홈페이지', icon: 'globe' },
+                tripdtlStroller: { label: '유모차 대여', icon: 'baby' }
+            };
+
+            // VO의 모든 필드를 돌면서 값이 있으면 HTML 생성
+            Object.keys(labelMap).forEach(key => {
+                const value = detail[key];
+
+                // 값이 null이 아니고, 'null' 문자열이 아니고, 빈 값이 아닐 때만!
+                if (value && String(value).trim() !== '' && String(value) !== 'null') {
+                    const item = labelMap[key];
+                    const html = `
+                        <div class="flex items-start gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            <div class="p-2 bg-gray-50 rounded-lg">
+                                <i data-lucide="${item.icon}" class="text-gray-400" size="20"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">${item.label}</p>
+                                <p class="text-gray-500 text-sm mt-1">${value}</p>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.insertAdjacentHTML('beforeend', html);
+                }
+            });
+
+            // 아이콘 새로고침
+            if (window.lucide) lucide.createIcons();
+        })
+        .catch(err => console.error("AJAX 호출 에러:", err));
+}
+
+
+// [조회] 시도(CTPV) 목록 로드
+function fetchAreaTags() {
+    fetch('/trip/getCtpvList.do')
+        .then(res => res.json())
+        .then(areas => {
+            const container = document.getElementById("main-region-tags");
+            if (!container) return;
+            let html = `<button class="area-tag text-orange-500 font-bold border-b-2 border-orange-500 pb-1 cursor-pointer" onclick="handleCityClick(0, '전체', this)">#전체</button>`;
+            html += areas.map(area => `
+                <button class="area-tag text-gray-400 hover:text-orange-500 pb-1 transition-all cursor-pointer" 
+                        onclick="handleCityClick(${area.tripCtpv}, '${area.tripCtpvNm}', this)">
+                    #${area.tripCtpvNm}
+                </button>
+            `).join("");
+            container.innerHTML = html;
+        });
+}
+
+// [기능] 시도 클릭 -> 군구 로드 및 필터 적용
+function handleCityClick(ctpvCode, ctpvNm, btnElem) {
+    document.querySelectorAll(".area-tag").forEach(b => {
+        b.classList.remove("text-orange-500", "font-bold", "border-b-2", "border-orange-500");
+        b.classList.add("text-gray-400");
+    });
+    btnElem.classList.replace("text-gray-400", "text-orange-500");
+    btnElem.classList.add("font-bold", "border-b-2", "border-orange-500");
+
+    tripState.tripCtpv = parseInt(ctpvCode);
+    tripState.tripGungu = 0;
+    tripState.pageNo = 1;
+    document.getElementById("view-title").innerText = ctpvNm;
+
+    const subContainer = document.getElementById("sub-region-tags");
+    if (tripState.tripCtpv === 0) {
+        subContainer.classList.add("hidden");
+        fetchList();
         return;
     }
 
-    // 3. 리스트 렌더링 (삭제 버튼 index 추가)
-    container.innerHTML = comments.map((c, index) => `
-        <div class="p-6 bg-white rounded-xl border border-gray-100 mb-4 shadow-sm relative group">
-            <div class="flex justify-between items-start">
-                <div class="text-yellow-400 mb-2">${'★'.repeat(c.rating)}${'☆'.repeat(5 - c.rating)}</div>
-                <button onclick="deleteComment('${id}', ${index})" class="text-gray-300 hover:text-red-500 transition-colors">
-                    <i data-lucide="trash-2" size="16"></i>
-                </button>
-            </div>
-            <p class="text-sm mb-4 text-gray-700">${c.text}</p>
-            ${c.image ? `<img src="${c.image}" class="w-32 h-32 object-cover rounded-lg border">` : ''}
-            <p class="text-[10px] text-gray-300 mt-2">${c.date}</p>
-        </div>`).join('');
-
-    // 아이콘 재렌더링
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-function setupImageHandler() {
-    const input = document.getElementById('image-upload');
-    if (input) {
-        input.addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('file-name').innerText = file.name;
-                const reader = new FileReader();
-                reader.onload = ev => {
-                    document.getElementById('img-preview').src = ev.target.result;
-                    document.getElementById('preview-box').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+    // 군구(GNGU) 데이터 fetch (AreaVO 필드명 사용)
+    fetch(`/trip/getGnguList.do?tripCtpv=${tripState.tripCtpv}`)
+        .then(res => res.json())
+        .then(gngus => {
+            if (gngus && gngus.length > 0) {
+                subContainer.classList.remove("hidden");
+                let html = `<button onclick="handleGnguClick(0, this)" class="gngu-btn font-bold text-gray-900 cursor-pointer">전체</button>`;
+                html += gngus.map(g => `
+                    <button onclick="handleGnguClick(${g.tripGungu}, this)" class="gngu-btn hover:text-gray-900 cursor-pointer">
+                        ${g.tripGunguNm}
+                    </button>
+                `).join("");
+                subContainer.innerHTML = html;
+            } else {
+                subContainer.classList.add("hidden");
             }
+            fetchList();
         });
-    }
 }
 
-window.deleteComment = function (id, index) {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
+// [기능] 군구 클릭
+function handleGnguClick(gnguCode, btnElem) {
+    document.querySelectorAll(".gngu-btn").forEach(b => b.classList.remove("font-bold", "text-gray-900"));
+    btnElem.classList.add("font-bold", "text-gray-900");
+    tripState.tripGungu = parseInt(gnguCode);
+    tripState.pageNo = 1;
+    fetchList();
+}
 
-    // 해당 ID의 댓글 배열에서 특정 인덱스 제거
-    state.comments[id].splice(index, 1);
+// [기능] 테마 클릭 (TripVO tripTag 연동)
+function filterTheme(tag, btnElem) {
+    // 1. 이미 선택된 태그를 다시 눌렀는지 확인 (해제 로직)
+    const isSame = (tripState.tripTag === tag);
 
-    // 데이터 저장 및 재렌더링
-    localStorage.setItem('trip_comments', JSON.stringify(state.comments));
-    renderComments(id);
-};
+    // 2. 모든 테마 버튼의 디자인 초기화
+    document.querySelectorAll(".theme-btn").forEach(b => {
+        b.classList.remove("text-orange-600", "font-bold");
+        b.classList.add("text-gray-400");
+    });
+
+    if (isSame) {
+        // 이미 선택된 걸 다시 누르면 -> 선택 해제 (전체 보기)
+        tripState.tripTag = "";
+    } else {
+        // 새로운 태그 선택
+        tripState.tripTag = tag;
+        // 선택된 버튼만 강조
+        btnElem.classList.remove("text-gray-400");
+        btnElem.classList.add("text-orange-600", "font-bold");
+    }
+
+    // 3. 페이지 1로 초기화 후 리스트 새로고침
+    tripState.pageNo = 1;
+    fetchList();
+}
+
+// trip.js의 fetchList 함수 수정
+function fetchList() {
+    const params = new URLSearchParams(tripState).toString();
+    fetch(`/trip/doRetrieveJson.do?${params}`)
+        .then(res => res.json())
+        .then(data => {
+            renderDestList(data);
+            const totalCount = data.length > 0 ? (data[0].totalCnt || 0) : 0;
+
+            // [수정] 요소가 존재할 때만 innerText 설정 (상세페이지 에러 방지)
+            const totalCountElem = document.getElementById("total-count");
+            if (totalCountElem) {
+                totalCountElem.innerText = totalCount;
+            }
+
+            renderPagination(totalCount);
+        })
+        .catch(err => console.error("데이터 로드 실패:", err)); // 여기서 에러가 잡힘
+}
+
+// [렌더링] 리스트 출력
+function renderDestList(list) {
+    const container = document.getElementById("dest-list");
+    if (!container) return;
+    if (!list || list.length === 0) {
+        container.innerHTML = '<div class="py-20 text-center text-gray-400 font-medium font-bold">검색 결과가 없습니다.</div>';
+        return;
+    }
+
+    const defaultImg = 'https://via.placeholder.com/400x300?text=No+Image';
+
+    container.innerHTML = list.map(item => `
+        <div class="group flex flex-col md:flex-row gap-6 p-6 bg-white rounded-3xl border border-gray-100 hover:shadow-xl transition-all cursor-pointer" 
+             onclick="location.href='/trip/trip_view?tripContsId=${item.tripContsId}'">
+            <div class="shrink-0 overflow-hidden rounded-2xl w-full md:w-64 h-44 bg-gray-50">
+                <img src="${item.tripPathNm || defaultImg}" 
+                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                     onerror="this.onerror=null; this.src='${defaultImg}';">
+            </div>
+            <div class="flex flex-col justify-center flex-1">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">${item.tripNm}</h3>
+                    <span class="text-gray-400 text-sm font-medium">
+                        ${item.tripAddr ? item.tripAddr.split(' ').slice(0, 2).join(' ') : ''}
+                    </span>
+                </div>
+                <div class="mb-4">
+                    <span class="px-3 py-1 bg-orange-50 text-orange-600 font-bold text-xs rounded-lg border border-orange-100">
+                        ${item.tripTagNm || '관련 테마 없음'}
+                    </span>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-gray-400">
+                    <span class="flex items-center gap-1"><i data-lucide="eye" size="14"></i> 조회 ${item.tripInqCnt || 0}</span>
+                </div>
+            </div>
+        </div>
+    `).join("");
+
+    if (window.lucide) lucide.createIcons();
+}
+
+// [렌더링] 페이징
+function renderPagination(totalCnt) {
+    const totalPage = Math.ceil(totalCnt / tripState.pageSize);
+    const container = document.getElementById("pagination");
+    if (!container || totalPage <= 1) { if (container) container.innerHTML = ""; return; }
+
+    const curr = tripState.pageNo;
+    const startPage = Math.max(1, curr - 2);
+    const endPage = Math.min(totalPage, startPage + 4);
+
+    let html = "";
+    for (let i = startPage; i <= endPage; i++) {
+        html += `
+            <button onclick="movePage(${i})" 
+                class="w-10 h-10 border rounded-xl flex items-center justify-center transition-all cursor-pointer
+                ${i === curr ? 'bg-gray-900 text-white font-bold' : 'text-gray-400 bg-white hover:border-gray-900'}">
+                ${i}
+            </button>`;
+    }
+    container.innerHTML = html;
+}
+
+function movePage(num) {
+    tripState.pageNo = num;
+    fetchList();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ✅ (1) 페이지 로딩 시: 내가 찜했는지 확인해서 하트 스타일 반영
+function initFavorite(tripContsId) {
+    const icon = document.getElementById("like-icon");
+    if (!icon) return;
+
+    fetch(`/trip/favoriteStatus.do?tripContsId=${encodeURIComponent(tripContsId)}`)
+        .then(res => res.text())
+        .then(txt => {
+            const exists = parseInt(txt, 10);
+
+            // 찜한 상태면 빨간색(또는 fill 느낌)
+            if (exists > 0) {
+                icon.classList.add("text-red-500");
+            } else {
+                icon.classList.remove("text-red-500");
+            }
+            // lucide 아이콘 다시 렌더(필요시)
+            if (window.lucide) lucide.createIcons();
+        })
+        .catch(() => {
+            // 실패해도 페이지는 계속 사용 가능하게 조용히 무시
+        });
+}
+
+function handleLike() {
+    // 1. ID 가져오기
+    const tripContsId =
+        document.getElementById("tripContsId")?.value ||
+        new URLSearchParams(window.location.search).get("tripContsId");
+
+    if (!tripContsId) return;
+
+    // [추가] 현재 하트 상태 확인 (이미 빨간색이면 '취소', 아니면 '추가')
+    const icon = document.getElementById("like-icon");
+    const isAdding = icon ? !icon.classList.contains("text-red-500") : true;
+    
+    // [추가] 사용자 확인 문구
+    const confirmMsg = isAdding 
+        ? "해당 여행지를 찜 목록에 추가하시겠습니까?" 
+        : "찜을 취소하시겠습니까?";
+
+    if (!confirm(confirmMsg)) return;
+
+    // 2. GET 방식으로 호출
+    fetch(`/trip/toggleFavorite.do?tripContsId=${encodeURIComponent(tripContsId)}`, {
+        method: "GET",
+        credentials: "same-origin"
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("서버 응답 오류"); 
+        return res.json(); 
+    })
+    .then(data => {
+        const status = data[0]; // 1: 성공, -1: 로그인 필요
+        const totalCountByUser = data[1]; // [중요] 사용자의 '총' 찜 개수 (서버에서 넘겨줘야 함)
+
+        if (status === -1) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        if (status === 1) {
+            // [추가] 10개 제한 체크 로직
+            // 서버에서 "추가" 처리가 되었는데 총 개수가 10개를 넘었다면 알림 후 원상복구
+            if (isAdding && totalCountByUser > 10) {
+                alert("찜 목록이 가득 찼습니다! (최대 10개)\n기존의 찜 목록을 정리해 주세요.");
+                
+                // 11개째 저장된 것을 다시 삭제하기 위해 서버를 한 번 더 호출하거나,
+                // 애초에 서버에서 10개 넘으면 저장을 안 하고 다른 상태값을 주는 것이 좋습니다.
+                // 일단은 사용자에게 알리고 다시 toggle을 호출해 취소시킵니다.
+                handleLike(); 
+                return;
+            }
+
+            // 하트 옆 숫자 업데이트 (해당 여행지의 총 찜수)
+            // ※ 주의: data[2] 등에 해당 여행지 전체 찜수를 따로 받아온다면 그걸 쓰세요.
+            // 현재 컨트롤러가 어떻게 주느냐에 따라 수정이 필요할 수 있습니다.
+
+            // 하트 색깔 토글
+            if (icon) {
+                icon.classList.toggle("text-red-500");
+                alert(isAdding ? "찜 목록에 추가되었습니다." : "찜이 취소되었습니다.");
+            }
+
+            if (window.lucide) lucide.createIcons();
+        }
+    })
+    .catch((err) => {
+        console.error("찜 처리 에러:", err);
+        alert("처리에 실패했습니다.");
+    });
+}
 
 
-window.clearImage = function () {
-    document.getElementById('image-upload').value = '';
-    document.getElementById('file-name').innerText = '선택된 파일 없음';
-    const box = document.getElementById('preview-box');
-    if (box) box.classList.add('hidden');
-    const img = document.getElementById('img-preview');
-    if (img) img.src = '';
-};
+function renderThemeTags() {
+    fetch('/trip/getTripTags.do')
+        .then(res => res.json())
+        .then(tags => {
+            const container = document.getElementById("theme-tags");
+            if (!container || !tags) return;
 
-// 모든 리소스가 로드된 후 init 실행
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
+            container.innerHTML = tags.map(tag => `
+                <button onclick="filterTheme('${tag}', this)" 
+                        class="theme-btn hover:text-orange-500 transition-colors cursor-pointer text-gray-400">
+                    #${tag}
+                </button>
+            `).join("");
+        })
+
+
+
+
 }

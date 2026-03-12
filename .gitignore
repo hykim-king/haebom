@@ -150,4 +150,10 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Secret properties
+application-secret.properties
+
+# VSCode
+.vscode/
+
 # End of https://www.toptal.com/developers/gitignore/api/maven,windows,eclipse,web,java

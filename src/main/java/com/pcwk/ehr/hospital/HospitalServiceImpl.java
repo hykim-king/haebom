@@ -38,7 +38,12 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     public int doDelete(HospitalVO param) {
         throw new UnsupportedOperationException();
-    }   
+    }
+
+    @Override
+    public List<HospitalVO> getAll() {
+        return hospitalMapper.getAll();
+    }
 
 
 

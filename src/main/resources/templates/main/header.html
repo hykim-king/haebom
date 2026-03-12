@@ -1,20 +1,20 @@
 <div th:fragment="header">
   <nav class="header">
     <div class="header-inner">
-      <a href="/public/index.html" class="logo">
+      <a th:href="@{/main}" class="logo">
         <img src="../img/haebom_header_logo.png" alt="해봄이" class="logo-icon">
         <!-- <span class="logo-text"></span> -->
       </a>
 
       <ul class="nav-menu">
-        <li><a href="#">여행지</a></li>
-        <li><a href="#">여행지 코스</a></li>
-        <li><a href="#">테마</a></li>
+        <li><a th:href="@{/trip/trip}">여행지</a></li>
+        <li><a th:href="@{/tripCourse}">여행지 코스</a></li>
+        <li><a th:href="@{/thema}">테마</a></li>
         <li class="dropdown">
-        <a href="#" class="dropdown-toggle">추천 AI</a>
+        <a th:href="@{/tripAi}" class="dropdown-toggle">추천 AI</a>
         <ul class="dropdown-menu">
-          <li><a href="#">여행지 AI</a></li>
-          <li><a href="#">여행코스 AI</a></li>
+          <li><a th:href="@{/tripAi}">여행지 AI</a></li>
+          <li><a th:href="@{/tripCourseAi}">여행코스 AI</a></li>
         </ul>
       </li>
         <li><a th:href="@{/medical}">의료가이드</a></li>

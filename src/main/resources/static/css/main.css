@@ -1,595 +1,674 @@
 /* =========================
   나만의 맞춤 여행지 배너 디자인
 ========================= */
-.theme-banner {
-  position: relative; /* 반드시 필요 */
-  background-color: #fdba74;
-  border-radius: 16px;
-  overflow: hidden;
+.theme-banner-container {
+    position: relative;
+    background: linear-gradient(135deg, #ffb656 0%, #ffa735 50%, #fa9521 100%);
+    border-radius: 24px;
+    padding: 60px 40px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(249, 115, 22, 0.3);
+    transition: all 0.4s ease;
 }
 
-.theme-banner .overlay-image {
-  position: absolute;
-  inset: 0;
-  background: url("https://images.unsplash.com/photo-1765375783767-6f48d65d336c?q=80&w=1080")
-    center/cover;
-  opacity: 0.2;
+.theme-banner-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 70px rgba(249, 115, 22, 0.4);
 }
 
-.theme-banner .card-body {
-  position: relative;
-  z-index: 2;
+/* 그라디언트 배경 애니메이션 */
+.theme-banner-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+    animation: gradientMove 8s ease-in-out infinite;
+    z-index: 1;
 }
 
-.text-btn {
-  --bs-text-opacity: 1;
-  color: #f78e1e;
+@keyframes gradientMove {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(10px, 10px) scale(1.05);
+    }
 }
 
+/* 배너 콘텐츠 */
+.theme-banner-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    color: white;
+}
+
+/* 아이콘 */
+.theme-banner-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+.theme-banner-icon i {
+    width: 36px;
+    height: 36px;
+    color: white;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* 제목 */
+.theme-banner-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: white;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.5px;
+}
+
+/* 설명 */
+.theme-banner-desc {
+    font-size: 1.1rem;
+    margin-bottom: 32px;
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* 버튼 */
+.theme-banner-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    color: #f97316;
+    border: none;
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-banner-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.theme-banner-btn:hover::before {
+    left: 100%;
+}
+
+.theme-banner-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    background: #fff;
+}
+
+.theme-banner-btn i {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.theme-banner-btn:hover i {
+    transform: translateX(5px);
+}
+
+/* 장식 원형 요소 */
+.theme-banner-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float 6s ease-in-out infinite;
+}
+
+.circle-1 {
+    width: 120px;
+    height: 120px;
+    top: -30px;
+    right: 10%;
+    animation-delay: 0s;
+}
+
+.circle-2 {
+    width: 80px;
+    height: 80px;
+    bottom: 20px;
+    left: 8%;
+    animation-delay: 2s;
+}
+
+.circle-3 {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    right: -40px;
+    animation-delay: 4s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(10deg);
+    }
+}
 /* =========================
-  Main Banner 
+  Main Banner (Hero Section)
 ========================= */
+.hero {
+    position: relative;
+    height: 800px;
+    padding: 200px 20px 140px;
+    background: #000;
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .hero-inner {
-  max-width: 960px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 3;
-  position: relative;
-  z-index: 2;
+    max-width: 960px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 3;
 }
 
 .hero-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  margin-bottom: 24px;
-  font-size: 13px;
-  font-weight: bold;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    margin-bottom: 24px;
+    font-size: 13px;
+    font-weight: bold;
 }
 
 .hero-title {
-  font-size: 42px;
-  font-weight: 800;
-  margin-bottom: 20px;
-  line-height: 1.3;
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    line-height: 1.3;
 }
 
 .hero-title strong {
-  color: #fdba74;
+    color: #fdba74;
 }
 
 .hero-desc {
-  font-size: 17px;
-  margin-bottom: 32px;
-  color: #ffedd5;
+    font-size: 17px;
+    margin-bottom: 32px;
+    color: #ffedd5;
 }
 
 /* 메인 배너 검색 창 */
 .hero-search {
-  max-width: 600px; /* 검색창 전체 너비 제한 */
-  margin: 0 auto; /* 중앙 정렬 */
-  display: flex;
-  gap: 8px;
-  background: #ffffff81;
-  padding: 8px; /* 내부 여백 축소 */
-  border-radius: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    gap: 8px;
+    background: #ffffff81;
+    padding: 8px;
+    border-radius: 12px;
 }
 
 .hero-search input {
-  flex: 1;
-  border: 1px solid #dddddd;
-  background: #ffffffcc;
-  padding: 10px 14px; /* 입력창 높이 축소 */
-  border-radius: 8px;
-  font-size: 15px;
+    flex: 1;
+    border: 1px solid #dddddd;
+    background: #ffffffcc;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 15px;
 }
 
 .hero-btn {
-  background: #fc8b3bd8;
-  color: #fff;
-  border: none;
-  padding: 0 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 15px;
+    background: #fc8b3bd8;
+    color: #fff;
+    border: none;
+    padding: 0 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.2s;
 }
 
 .hero-btn:hover {
-  background: #ea580c;
+    background: #ea580c;
 }
 
-/* 슬라이드 */
+/* 슬라이더 배경 */
+#hero-slider {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+#hero-slider::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 2;
+}
+
 .slide {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.2s ease-in-out;
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
 }
 
 .slide.active {
-  opacity: 1;
-}
-
-/* 어두운 오버레이 */
-#hero-slider::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 2; /* 👈 배경 위 */
-}
-
-/* =========================
-   Hero [맞춤여행지~footer까지 배경색 구분]
-========================= */
-.hero {
-  position: relative;
-  min-height: 100px;
-  padding: 120px 20px 140px;
-  background: #000;
-  color: #fff;
-  text-align: center;
-  overflow: hidden;
-  padding-top: 200px; /* 상단 여백 추가하여 높이감 조정 */
-  height: 800px; /* 전체 높이 증가 (기존 값 없음/유동적 -> 900px 고정) */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* =========================
-  Main Banner Slider
-========================= */
-#hero-slider {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-#hero-slider .slide {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.2s ease-in-out;
-}
-
-#hero-slider .slide.active {
-  opacity: 1;
-}
-
-/* =========================
-   Featured
-========================= */
-.featured {
-  padding: 100px 20px;
-  background: #fff;
-  text-align: center;
-}
-
-.section-title {
-  font-size: 32px;
-  margin-bottom: 48px;
-}
-
-.featured-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.featured-card {
-  padding: 80px 0;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  font-weight: bold;
+    opacity: 1;
 }
 
 /* =========================
    실시간 인기 관광지
 ========================= */
-/*메인 타이틀*/
-.popular-section h2 {
-  font-size: 25px;
+.popular-section {
+    max-width: 1150px;
+    margin: 0 auto;
 }
 
-/* 카드 전체 높이 증가 */
+.popular-section h2 {
+    font-size: 30px;
+}
+
+/* 실시간 인기 관광지 제목 옆 아이콘 색상 변경 */
+.popular-section h2 [data-lucide="trending-up"] {
+    color: #f97316 !important; /* 주황색으로 강제 적용 */
+    stroke-width: 2.5px;       /* 아이콘을 조금 더 또렷하게 만들고 싶다면 추가 */
+}
+
 .popular-item {
-  padding: 20px 24px;
-  min-height: 100px;
-  transition: 0.2s;
+    padding: 20px 24px;
+    min-height: 100px;
+    background: #ffffff; /* 배경색을 명시적으로 지정하면 그림자가 더 예쁘게 보입니다 */
+    transition: all 0.3s ease-out; /* 모든 속성에 부드러운 전환 효과 적용 */
+    border: 1px solid rgba(0, 0, 0, 0.05); /* 약간의 테두리를 주면 그림자가 더 잘 보입니다 */
 }
 
 .popular-item:hover {
-  transform: translateY(-3px);
+    transform: translateY(-3px); /* 위로 살짝 떠오르는 효과 */
+    /* 주황색 그림자: x축 0, y축 10px, 번짐 20px, 주황색 0.15 투명도 */
+    box-shadow: 0 10px 20px rgba(249, 115, 22, 0.15) !important;
+    border-color: rgba(249, 115, 22, 0.3); /* 테두리도 은은한 주황색으로 변경 */
+}
+
+/* 실시간 인기 관광지의 메달(이모지) 크기 조절 */
+.popular-item .rank-medal {
+    font-size: 32px !important; /* 기존보다 크게 설정 */
+    display: block;
+    transition: transform 0.2s;
+}
+
+/* 메달을 감싸는 박스의 너비 확보 (메달이 커지면 공간이 더 필요함) */
+.popular-item .me-4[style*="width: 50px;"] {
+    width: 60px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 마우스 올렸을 때 메달만 살짝 커지는 효과 (선택 사항) */
+.popular-item:hover .rank-medal {
+    transform: scale(1.2);
+}
+.popular-item h4 {
+    font-size: 20px;
 }
 
 .rank-badge {
-  font-size: 24px;
-  width: 45px;
-  text-align: center;
-  height: 45px;
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
+    font-size: 24px;
+    width: 45px;
+    height: 45px;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
 }
 
-/*썸네일*/
 .thumb {
-  width: 120px;
-  height: 80px;
+    width: 120px;
+    height: 80px;
 }
 
 .thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 6px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
 }
 
-.popular-section {
-  max-width: 1500px;
-  margin: 0 auto;
-}
-/* 제목 키우기 */
-.popular-item h4 {
-  font-size: 20px;
-}
-
-/*순위&소제목 텍스트*/
-#popularList .list-group-item {
-  padding: 16px 24px;
-  font-size: 18px;
-}
-
-/* 조회수 영역 */
 .views-box {
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 /* =========================
-   지역별 여행지 추천
+   지역별 여행지 추천 (Swiper)
 ========================= */
-.region-slider-section {
-    max-width: 1300px;
-    margin: 0 auto;
-    border-radius: 1.5rem;
-    padding: 80px 0;
-    background-color: #fff4e3;
+/*.region-slider-section {*/
+/*    max-width: 1400px;*/
+/*    margin: 0 auto;*/
+/*    border-radius: 1.5rem;*/
+/*    padding: 80px 20px;*/
+/*    background-color: #fff4e3;*/
+/*}*/
+
+/* Swiper 카드 바디의 패딩을 극단적으로 줄임 */
+.regionSwiper .card-body {
+    padding: 15px 10px !important; /* 상하 8px, 좌우 10px로 축소 */
 }
 
-.slider-text{
-    --bs-text-opacity: 1;
-    color: rgb(255, 102, 0) !important;
+/* 지역별 여행지 추천 제목 옆 아이콘 수정 */
+.container h2 [data-lucide="map-pin"] {
+    color: #f97316 !important; /* 주황색으로 변경 */
+    width: 28px !important;    /* 크기 조절 */
+    height: 28px !important;
+    stroke-width: 2.5px;       /* 선 두께 조정 */
 }
-
-/* 날씨 섹션의 .weather-inner와 동일한 규격 */
 .region-inner {
     max-width: 1200px;
     margin: 0 auto !important;
     padding: 0 40px !important;
     position: relative;
-    box-sizing: border-box;
 }
 
-/* 슬라이더 컨테이너 - 화살표 공간 확보 */
 .slider-container {
+    padding: 0 60px; /* 화살표가 들어갈 공간 */
     position: relative;
-    padding: 0 80px; /* 좌우에 화살표 공간 확보 */
+    overflow: visible !important;
 }
 
-/* 슬라이더 영역 */
-.region-swiper {
+.regionSwiper {
     width: 100% !important;
-    padding: 20px 0 60px 0 !important;
+    position: relative;
     overflow: hidden !important;
+    border-radius: 25px;
+    /* 하단 패딩은 페이지네이션을 밖으로 뺐으므로 줄여도 됩니다 */
+    padding-bottom: 50px !important;
 }
 
-.region-swiper .swiper-slide {
-    height: 450px;
+.regionSwiper .swiper-slide {
+    height: 350px;
     border-radius: 25px;
     overflow: hidden;
     position: relative;
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .slide-content-overlay {
     position: absolute;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     padding: 2rem;
     background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
     color: white;
-    text-align: left;
 }
 
 .slide-title {
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .slide-desc {
     font-size: 1rem;
     margin-bottom: 1.5rem;
     opacity: 0.9;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
-.slide-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border: 1px solid rgba(255,255,255,0.4);
-    background: rgba(0,0,0,0.3);
-    color: white;
-    border-radius: 30px;
-    font-size: 13px;
-    backdrop-filter: blur(5px);
-    transition: all 0.3s;
-    text-decoration: none;
+/* 네비게이션 & 페이지네이션 */
+
+.custom-pagination.swiper-pagination {
+    position: relative !important; /* absolute 해제하여 카드 아래에 배치 */
+    bottom: 0 !important;
+    margin-top: 30px !important;   /* 카드와 점 사이 간격 */
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
 }
 
-.slide-btn:hover {
-    background: white;
-    color: #333;
-    border-color: white;
+/* 비활성화된 회색 점 (강제 주입) */
+.custom-pagination .swiper-pagination-bullet {
+    background: #cbd5e1 !important;
+    opacity: 0.6 !important;
+    width: 10px !important;
+    height: 10px !important;
+    margin: 0 !important;
 }
 
-.slide-number {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    font-size: 12px;
-    border-radius: 20px;
-    color: rgba(255,255,255,0.8);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
+/* 활성화된 주황색 점 (파란색 방지) */
+.custom-pagination .swiper-pagination-bullet-active {
+    background: #f97316 !important;
+    background-color: #f97316 !important; /* 이중 보안 */
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    opacity: 1 !important;
 }
 
-/* 네비게이션 버튼 - 슬라이더 외부 배치 */
 .slider-container .swiper-button-prev,
 .slider-container .swiper-button-next {
-    position: absolute;
+    width: 60px !important;
+    height: 60px !important;
+    background-color: #ffffff !important;
+    border: 2px solid #f97316 !important;
+    border-radius: 50% !important;
+    color: #f97316 !important;
     top: 50%;
     transform: translateY(-50%);
-    width: 56px;
-    height: 56px;
-    background: white;
-    border: 2px solid #f97316;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 20;
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
-}
-
-.slider-container .swiper-button-prev {
-    left: 0;
-}
-
-.slider-container .swiper-button-next {
-    right: 0;
-}
-
-/* 기본 화살표 숨기기 */
-.slider-container .swiper-button-prev:after,
-.slider-container .swiper-button-next:after {
-    display: none;
-}
-
-/* Lucide 아이콘 스타일 */
-.slider-container .swiper-button-prev svg,
-.slider-container .swiper-button-next svg {
-    width: 28px;
-    height: 28px;
-    color: #f97316;
-    stroke-width: 2.5;
-}
-
-/* 호버 효과 */
-.slider-container .swiper-button-prev:hover,
-.slider-container .swiper-button-next:hover {
-    background: #f97316;
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
-}
-
-.slider-container .swiper-button-prev:hover svg,
-.slider-container .swiper-button-next:hover svg {
-    color: white;
-}
-
-/* 비활성화 상태 */
-.slider-container .swiper-button-disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-.slider-container .swiper-button-disabled:hover {
-    background: white;
-    transform: translateY(-50%);
-}
-
-/* 활성화된 중앙 슬라이드 강조 */
-.swiper-slide-active {
-    border: none;
-    transform: scale(1.0);
+    transition: all 0.3s ease-in-out !important;
     z-index: 10;
 }
 
-/* 페이지네이션 (동그라미) 스타일 */
-.region-swiper .swiper-pagination {
-    bottom: 20px !important;
+/* 4. 마우스 호버 시 광채(Shadow Glow) 효과 */
+.slider-container .swiper-button-prev:hover,
+.slider-container .swiper-button-next:hover {
+    background-color: #f97316 !important;
+    color: #ffffff !important;
+    /* 주황색 빛이 퍼지는 느낌 */
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.6) !important;
+    transform: translateY(-50%) scale(1.1); /* 살짝 커짐 */
 }
 
-.region-swiper .swiper-pagination-bullet {
+/* 3. < , > 모양 크기 키우기 */
+.slider-container .swiper-button-prev:after,
+.slider-container .swiper-button-next:after {
+    font-size: 24px !important; /* 원형 안에 꽉 차는 크기 */
+    font-weight: 800 !important;
+}
+
+/* 5. 화살표 위치 고정 */
+.slider-container .swiper-button-prev { left: -20px !important; }
+.slider-container .swiper-button-next { right: -20px !important; }
+
+/* 비활성화된 회색 점들의 투명도를 조절해 더 깔끔하게 보이게 함 */
+/* 1. 페이지네이션 전체 위치 조정 */
+.regionSwiper .swiper-pagination {
+    position: absolute !important;
+    bottom: -10px !important;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    z-index: 5;
+}
+
+.regionSwiper .swiper-pagination-bullet {
+    background: #cbd5e1 !important;
+    opacity: 0.6 !important;
     width: 10px;
     height: 10px;
-    background: rgba(249, 115, 22, 0.3); /* 주황색 투명 */
-    opacity: 1;
-    transition: all 0.3s ease;
+    margin: 0 !important; /* Swiper 기본 마진 제거 */
 }
 
-.region-swiper .swiper-pagination-bullet-active {
-    background: #f97316; /* 해봄트립 주황색 */
-    width: 28px; /* 활성화된 것은 길쭉하게 */
-    border-radius: 5px;
+.swiper.regionSwiper .swiper-pagination-bullet-active {
+    background: #f97316 !important;
+    background-color: #f97316 !important;
+    width: 12px !important; /* 정원형 크기 고정 */
+    height: 12px !important;
+    border-radius: 50% !important;
+    opacity: 1 !important;
 }
-
-.region-swiper .swiper-pagination-bullet:hover {
-    background: #f97316;
-    transform: scale(1.2);
-}
-
 
 /* =========================
-   오늘의 날씨
+   오늘의 날씨 섹션 - 카드 높이 통일 수정본
 ========================= */
 .weather-section {
-  background-color: #fef2e1;
-  border-radius: 1.5rem;
-  max-width: 1300px; /* 실시간 인기 관광지와 동일하게 설정 */
-  margin: 90px auto; /* 위아래 여백 2배 증가 (기존: 0 auto 또는 60px auto 정도였던 것을 상정) */
-  padding: 60px 40px; /* 상하좌우 여백을 충분히 주어 안정감 부여 */
-  text-align: center; /* 내부 모든 요소 기본 중앙 정렬 */
+    background-color: #fef2e1;
+    border-radius: 1.5rem;
+    max-width: 1200px;
+    margin: 90px auto;
+    padding: 60px 20px;
+    text-align: center;
 }
 
-.weather-inner {
-  width: 100%;
-  align-items: center; /* 수평 중앙 정렬 */
+
+/* 1. 카드를 감싸는 그리드 열(Column) 설정: 내부 카드가 꽉 차게 만듭니다 */
+#weatherList > div {
+    display: flex;
 }
 
-/* 날씨 카드 내부 제목 */
-.card-region-title {
-  font-size: 22px;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 5px;
-}
-
-/* 메인 아이콘 스타일 */
-.weather-main-icon {
-  width: 48px;
-  height: 48px;
-  stroke: #f97316; /* 주황색 포인트 */
-  stroke-width: 2.5px;
-}
-
-/* 상세 정보 그리드 배치 (3열) */
-.weather-info-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 20px;
-  padding-top: 3rem !important;
-  border-top: 1px solid #f1f5f9;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.info-item .label {
-  display: block;
-  font-size: 15px;
-  color: #818b99;
-  margin-bottom: 4px;
-}
-
-.info-item .value {
-  font-size: 15px;
-  font-weight: bold;
-  color: #333;
-}
-
-/* 개별 카드 스타일 제어 */
-#weatherList .col-md-4, 
-#weatherList > div { 
-  /* 자바스크립트로 생성되는 카드 감싸는 div의 최대 너비 제한 */
-  max-width: 320px; 
-}
-
-/* 흰색 카드(날씨 카드) 크기 축소 */
+/* 2. 날씨 카드 자체 설정: 높이를 100%로 고정 */
 #weatherList .card {
- border: none;
-  border-radius: 20px; /* 카드가 커진 만큼 모서리도 더 부드럽게 */
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-  background: #ffffff;
-  min-height: 220px; /* 카드의 최소 높이를 지정해 일관성 유지 */
-  display: flex;
-  /* align-items: center; */
-  justify-content: center;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+
+    /* 핵심 수정 사항 */
+    width: 100%;           /* 가로 꽉 채우기 */
+    height: 100%;          /* 세로 꽉 채우기 (세 카드 동일 높이) */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 내부 콘텐츠를 위아래로 균등 배치 */
+
+    min-height: 300px;     /* 내용이 많아졌으므로 최소 높이를 살짝 상향 */
+    transition: transform 0.3s;
 }
 
+#weatherList .card:hover {
+    transform: translateY(-5px);
+}
+
+/* 3. 카드 바디 여백 조정 */
 #weatherList .card-body {
-  padding: 30px 20px; /* 카드 내부 여백 */
-  text-align: center;
+    flex: 1;               /* 남은 공간을 카드가 꽉 채우도록 함 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* 모든 요소를 가로 중앙 정렬 */
+    justify-content: space-between; /* 수직 공간 균등 배분 */
+    padding: 1.5rem 1.5rem !important;
 }
 
-/* 지역명(강릉, 여수, 전주) 폰트 크기 줄이기 */
-#weatherList .card-title {
-  font-size: 18px; /* 기존보다 작게 조정 */
-  font-weight: 800;
-  margin-bottom: 8px;
-  color: #334155;
+.region-name {
+    font-size: 25px !important;;
+    font-weight: 800;
+    color: #334155;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* '여행하기 좋은 날씨' 텍스트 크기 줄이기 */
-#weatherList .card-text {
-  font-size: 12px;
-  color: #666;
+/* 메달 슬롯 (금, 은, 동) 크기 조절 */
+.medal-slot {
+    font-size: 50px !important; /* 기존 40px에서 대폭 확대 */
+    filter: drop-shadow(0 10px 10px rgba(0,0,0,0.15));
+    margin-bottom: 10px;
+    display: block;
 }
 
+.weather-section h2 [data-lucide="thermometer-sun"] {
+    width: 40px !important;
+    height: 40px !important;
+    stroke-width: 2px;
+}
+
+.weather-icon {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 20px 0 !important;
+    width: 100% !important;
+    min-height: 60px; /* 아이콘이 커질 공간 확보 */
+}
+
+/* Lucide가 생성한 svg와 i 태그 모두에 강제 적용 */
+.weather-icon svg {
+    width: 100px !important;   /* 기존보다 훨씬 크게 (원하는대로 조절 가능) */
+    height: 100px !important;  /* 가로 세로 비율 동일하게 */
+    min-width: 100px !important;
+    min-height: 100px !important;
+    stroke: #f97316;           /* 주황색 테두리 유지 */
+    stroke-width: 1.5px;       /* 너무 두꺼우면 투박하므로 살짝 조절 */
+    display: block !important;
+}
+
+/* 유틸리티 */
 .hover-lift {
-  transition: transform 0.3s;
+    transition: transform 0.3s;
 }
 
 .hover-lift:hover {
-  transform: translateY(-3px);
-}
-
-/* =========================
-   Responsive
-========================= */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 36px;
-  }
-
-  .hero-search {
-    flex-direction: column;
-  }
-
-  .mascot-inner {
-    flex-direction: column;
-    text-align: center;
-  }
+    transform: translateY(-3px);
 }

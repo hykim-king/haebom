@@ -1,13 +1,13 @@
 package com.pcwk.ehr.mypage;
 
 import java.util.List;
+
+import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.cmn.WorkDiv;
 
-import java.util.Map;
-import java.util.HashMap;
 
-public interface MyPageService extends WorkDiv<UserVO>{
+public interface MyPageService extends WorkDiv<UserVO> {
 
     /** 회원 정보 수정 (닉네임) */
     int doUpdateNick(UserVO userVO);
@@ -18,22 +18,20 @@ public interface MyPageService extends WorkDiv<UserVO>{
     /** 회원 정보 수정 (주소) */
     int doUpdateAddr(UserVO userVO);
 
-    /** 비밀번호 변경 */
-    int doUpdatePw(UserVO userVO);
+    // 비밀번호 변경 (현재비번 확인 로직 포함)
+    int updatePassword(UserVO vo, String newPw);
 
     /** 찜/여행완료 목록 조회 */
-    List<UserVO> getRelationList(UserVO userVO);
+    List<TripVO> getRelationList(int userNo, int relClsf);
 
     /** 찜/여행완료 카운트 조회 */
-    int getRelationCount(UserVO userVO);
+    int getRelationCount(int userNo, int relClsf);
 
     /** 관계 데이터 삭제 (찜 취소 등) */
-    int deleteRelation(UserVO userVO);
+    int deleteRelation(int userNo, int relClsf,Integer tripContsId);
 
     /** 사용자 정보 단건 조회 (WorkDiv 대용) */
     UserVO doSelectOne(UserVO userVO);
 
-    /** 찜 목록 개별 삭제 */
-    int doDeleteWish(Map<String, Object> paramMap);
-    
+    int nickCheck(String userNick);
 }

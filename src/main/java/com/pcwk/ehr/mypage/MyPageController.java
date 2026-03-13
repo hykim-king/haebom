@@ -8,14 +8,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.user.UserEntity; // 💡 반드시 추가되어야 함
 import lombok.extern.slf4j.Slf4j;
-import java.util.Map;
-import java.util.HashMap;
-
 
 @Slf4j
 @Controller
@@ -24,6 +22,20 @@ public class MyPageController {
 
     @Autowired
     private MyPageService myPageService;
+
+    /**
+     * 0. 마이페이지 화면 이동 (View)
+     * 이 메서드는 @ResponseBody가 없어야 합니다!
+     */
+    @GetMapping("/mypage.do")
+    public String myPageHome(HttpSession session) {
+       UserEntity sessionUser = (UserEntity) session.getAttribute("user");
+        if (sessionUser == null) {
+            log.info("로그인 세션이 없습니다.");
+            return "redirect:../user/login";
+        }
+        return "mypage/mypage";
+    }
 
     /**
      * 1. 내 정보 상세 조회
@@ -52,31 +64,29 @@ public class MyPageController {
      */
     @GetMapping("/getRelationCount.do")
     @ResponseBody
-    public int getRelationCount(HttpSession session) {
+    public int getRelationCount(@RequestParam("relClsf") int relClsf, HttpSession session) {
         UserEntity sessionUser = (UserEntity) session.getAttribute("user");
         if (sessionUser == null)
             return 0;
 
-        UserVO inVO = new UserVO();
-        inVO.setUserNo(sessionUser.getUserNo());
-
-        return myPageService.getRelationCount(inVO);
+        // ibatis : @Param 방식으로 수정된 서비스 호출 (int, int 던짐)
+        return myPageService.getRelationCount(sessionUser.getUserNo(), relClsf);
     }
 
     /**
-     * 3. 찜 목록 리스트 조회
+     * 3. 찜(10) / 여행완료(20) 목록 리스트 조회
+     * URL 예시: /mypage/getRelationList.do?relClsf=10
      */
     @GetMapping("/getRelationList.do")
     @ResponseBody
-    public List<UserVO> getRelationList(HttpSession session) {
+    public List<TripVO> getRelationList(@RequestParam("relClsf") int relClsf, HttpSession session) {
         UserEntity sessionUser = (UserEntity) session.getAttribute("user");
+
         if (sessionUser == null)
             return null;
 
-        UserVO inVO = new UserVO();
-        inVO.setUserNo(sessionUser.getUserNo());
-
-        return myPageService.getRelationList(inVO);
+        // 세션의 유저번호와 파라미터로 받은 분류값을 서비스에 전달
+        return myPageService.getRelationList(sessionUser.getUserNo(), relClsf);
     }
 
     /**
@@ -121,27 +131,37 @@ public class MyPageController {
         userVO.setUserNo(sessionUser.getUserNo());
         return myPageService.doUpdateTag(userVO);
     }
-
-    /**
-     * 7. 찜목록 삭제
+    /*
+    * 7. 비밀번호 수정
      */
-    @PostMapping("/deleteWish.do")
+    @PostMapping("/updatePw.do")
     @ResponseBody
-    public int deleteWish(String tripContsId, HttpSession session) {
-        // 💡 1. 세션에서 UserEntity 꺼내기
-        UserEntity user = (UserEntity) session.getAttribute("user");
-        if (user == null)
+    public int updatePw(UserVO userVO, @RequestParam("newPw") String newPw, HttpSession session) {
+        UserEntity sessionUser = (UserEntity) session.getAttribute("user");
+        if (sessionUser == null) return 0;
+
+        userVO.setUserNo(sessionUser.getUserNo());
+        // 현재 비번은 userVO.userEnpswd에 담겨 오고, 새 비번은 newPw로 받음
+        return myPageService.updatePassword(userVO, newPw);
+    }
+
+
+
+    /*
+    * 8. 관계 분류(10/20) 값 입력받고 삭제
+    *    trip_conts_id 없을시 전체삭제, 있으면 개별 삭제
+    */
+    @PostMapping("/deleteRelation.do")
+    @ResponseBody
+    public int deleteRelation(@RequestParam("relClsf") int relClsf,
+            @RequestParam(value = "tripContsId", required = false) Integer tripContsId,
+            HttpSession session) {
+        UserEntity sessionUser = (UserEntity) session.getAttribute("user");
+        if (sessionUser == null)
             return 0;
 
-        // 💡 2. Map 생성 및 데이터 담기
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("userNo", user.getUserNo());
-
-        if (tripContsId != null && !tripContsId.isEmpty()) {
-            paramMap.put("tripContsId", Integer.parseInt(tripContsId));
-        }
-
-        // 💡 3. Map을 파라미터로 서비스 호출
-        return myPageService.doDeleteWish(paramMap);
+        // 서비스 호출 (ID가 없으면 null로 넘어감 -> MyBatis <if>문에서 처리됨)
+        return myPageService.deleteRelation(sessionUser.getUserNo(), relClsf, tripContsId);
     }
+
 }

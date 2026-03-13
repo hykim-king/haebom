@@ -19,7 +19,7 @@ const THEME_CODE_MAP = {
     "leisure": [
         "A03020300", "A03020400", "A03020500", "A03020600", "A03020700", "A03020900",
         "A03021100", "A03021200", "A03021300", "A03021400", "A03021600", "A03021700",
-        "A03021800", "A03022000", "A03022100", "A03022200", "A03022300", "A03022400",
+        "A03021800", "A0302000", "A03022100", "A03022200", "A03022300", "A03022400",
         "A03022700", "A03030100", "A03030200", "A03030300", "A03030400", "A03030500",
         "A03030600", "A03030700", "A03030800", "A03040100", "A03040200", "A03040300"
     ]
@@ -46,12 +46,12 @@ function createCardHTML(item) {
 
     return `
     <div class="col-md-3 col-sm-6 mb-4">
-      <div class="card h-100 shadow-sm" data-id="${item.id}"> 
+      <div class="card h-100 shadow-sm" data-id="${item.id}" style="cursor: pointer;"> 
         <img src="${item.img}" class="card-img-top" alt="${item.title}">
         <div class="card-body">
           <div class="card-title-row d-flex justify-content-between align-items-center mb-2">
             <h5 class="card-title mb-0 text-truncate" style="max-width: 80%;">${item.title}</h5>
-            <button class="btn-wish border-0 bg-transparent p-0 ${activeClass}">
+            <button class="btn-wish border-0 bg-transparent p-0 ${activeClass}" style="position: relative; z-index: 2;">
               <i class="${heartIconClass} fa-heart" style="color: #ff4d4d;"></i>
             </button>
           </div>
@@ -73,7 +73,6 @@ function mapItemToCard(item) {
         let district = addrParts[1] || "";
         displayAddr = `${city} ${district}`.trim();
     }
-    // ⭐ [수정] XML에서 tripInqCnt 필드에 isWish 결과값을 담아 보냈으므로 이를 매핑합니다.
     return { 
         id: item.tripContsId, 
         title: item.tripNm, 
@@ -252,73 +251,92 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // -----------------------------
-    // 하트 토글 이벤트
+    // ⭐ [수정 핵심] 카드 클릭(상세이동) 및 하트 토글 통합 이벤트
     // -----------------------------
     document.addEventListener("click", (e) => {
-        const btn = e.target.closest(".btn-wish");
-        if (!btn) return;
-
-        // 로그인 여부 체크
-        if (typeof window.isFirstLogin === 'undefined' || window.isFirstLogin === false) {
-            alert("로그인이 필요한 서비스입니다.");
-            return;
-        }
-
-        const icon = btn.querySelector("i");
-        const isActivating = icon.classList.contains("fa-regular");
-        const card = btn.closest(".card");
-        const tripContsId = card ? card.dataset.id : null;
-
-        if (!tripContsId) {
-            console.error("여행지 ID를 찾을 수 없습니다.");
-            return;
-        }
-
-        $.ajax({
-            url: isActivating ? "/thema/wish/add.do" : "/thema/wish/delete.do",
-            type: "POST",
-            beforeSend: function (xhr) {
-                const token = $("meta[name='_csrf']").attr("content");
-                const header = $("meta[name='_csrf_header']").attr("content");
-                if (header && token) {
-                    xhr.setRequestHeader(header, token);
-                }
-            },
-            data: { "tripContsId": tripContsId },
-            success: function (res) {
-                if (isActivating) {
-                    icon.classList.replace("fa-regular", "fa-solid"); 
-                    btn.classList.add("active");
-                } else {
-                    icon.classList.replace("fa-solid", "fa-regular");
-                    btn.classList.remove("active");
-                }
-            },
-            error: function (xhr) {
-                if (xhr.status === 403) {
-                    alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-                } else {
-                    alert("처리 중 오류가 발생했습니다.");
-                }
+        const btnWish = e.target.closest(".btn-wish");
+        
+        if (btnWish) {
+            e.stopPropagation(); 
+            
+            if (typeof window.isFirstLogin === 'undefined' || window.isFirstLogin === false) {
+                alert("로그인이 필요한 서비스입니다.");
+                return;
             }
-        });
+
+            const icon = btnWish.querySelector("i");
+            const isActivating = icon.classList.contains("fa-regular");
+            const card = btnWish.closest(".card");
+            const tripContsId = card ? card.dataset.id : null;
+
+            if (!tripContsId) return;
+
+            $.ajax({
+                url: isActivating ? "/thema/wish/add.do" : "/thema/wish/delete.do",
+                type: "POST",
+                beforeSend: function (xhr) {
+                    const token = $("meta[name='_csrf']").attr("content");
+                    const header = $("meta[name='_csrf_header']").attr("content");
+                    if (header && token) xhr.setRequestHeader(header, token);
+                },
+                data: { "tripContsId": tripContsId },
+                success: function (resText) {
+                    // 컨트롤러가 @ResponseBody String을 반환하므로 JSON으로 파싱
+                    const res = typeof resText === 'string' ? JSON.parse(resText) : resText;
+
+                    if (res.status === "success") {
+                        // [수정 포인트] 이미 추가된 경우 알림 후 리턴 (아이콘 유지)
+                        if (res.msg === "already_added") {
+                            alert("이미 찜 목록에 있는 여행지입니다.");
+                            // 아이콘이 이미 채워져 있어야 하므로 동기화
+                            icon.classList.replace("fa-regular", "fa-solid");
+                            btnWish.classList.add("active");
+                            return;
+                        }
+
+                        // 정상 상태 변경
+                        if (isActivating) {
+                            icon.classList.replace("fa-regular", "fa-solid"); 
+                            btnWish.classList.add("active");
+                        } else {
+                            icon.classList.replace("fa-solid", "fa-regular");
+                            btnWish.classList.remove("active");
+                        }
+                    } else {
+                        // 로그인 만료 등 실패 처리
+                        if (res.msg === "login_required") {
+                            alert("로그인이 필요한 서비스입니다.");
+                        } else {
+                            alert("요청 처리 중 오류가 발생했습니다.");
+                        }
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.status === 403 ? "세션 만료" : "오류 발생");
+                }
+            });
+            return; 
+        }
+
+        const card = e.target.closest(".card");
+        if (card) {
+            const tripId = card.dataset.id;
+            if (tripId) {
+                location.href = "/thema/trip_view?tripContsId=" + tripId;
+            }
+        }
     });
 });
 
+// 하단 버튼 및 스크롤 이벤트 유지
 window.addEventListener("scroll", function () {
     const topBtn = document.getElementById("backToTop");
     if (topBtn) {
-        if (window.scrollY > 300) {
-            topBtn.style.setProperty("display", "flex", "important");
-        } else {
-            topBtn.style.setProperty("display", "none", "important");
-        }
+        topBtn.style.setProperty("display", window.scrollY > 300 ? "flex" : "none", "important");
     }
 });
 
 const topBtnEl = document.getElementById("backToTop");
 if (topBtnEl) {
-    topBtnEl.addEventListener("click", function () {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    topBtnEl.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 }

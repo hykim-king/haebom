@@ -116,4 +116,38 @@
         <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
     </select>
 
+    <!-- 여행지/코스별 댓글 목록 조회 (닉네임, 이미지 포함) -->
+    <select id="getCommentsByTarget" parameterType="CommentVO" resultType="CommentVO">
+        SELECT
+            c.CMT_NO,
+            c.CMT_CN,
+            c.CMT_STARNG,
+            c.CMT_CLSF,
+            c.CMT_HIDE_YN,
+            c.TRIP_COURSE_NO,
+            c.CMT_REG,
+            c.CMT_MOD,
+            c.REG_NO,
+            c.MOD_NO,
+            u.USER_NICK,
+            (SELECT LISTAGG(af.FILE_PATH_NM, '||') WITHIN GROUP (ORDER BY af.FILE_NO)
+             FROM attach_file af
+             WHERE af.BOARD_CLSF = 'comment' AND af.BOARD_ID = c.CMT_NO) AS FILE_PATH_LIST
+        FROM cmt c
+        LEFT JOIN ss_user u ON c.REG_NO = u.USER_NO
+        WHERE c.TRIP_COURSE_NO = #{tripCourseNo}
+          AND c.CMT_CLSF = #{cmtClsf}
+          AND (c.CMT_HIDE_YN IS NULL OR c.CMT_HIDE_YN = 'N')
+        ORDER BY c.CMT_NO DESC
+    </select>
+
+    <!-- 여행지/코스별 댓글 건수 -->
+    <select id="getCountByTarget" parameterType="CommentVO" resultType="int">
+        SELECT COUNT(*)
+        FROM cmt
+        WHERE TRIP_COURSE_NO = #{tripCourseNo}
+          AND CMT_CLSF = #{cmtClsf}
+          AND (CMT_HIDE_YN IS NULL OR CMT_HIDE_YN = 'N')
+    </select>
+
 </mapper>

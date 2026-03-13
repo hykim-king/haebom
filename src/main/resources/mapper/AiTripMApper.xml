@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pcwk.ehr.ai_trip.AiTripMapper">
+
+    <select id="doRetrieve" parameterType="map" resultType="com.pcwk.ehr.domain.TripVO">
+        SELECT * FROM (
+            SELECT 
+                trip_conts_id AS tripContsId, 
+                trip_nm       AS tripNm, 
+                trip_path_nm  AS tripPathNm, 
+                trip_addr     AS tripAddr, 
+                trip_tag      AS tripTag
+            FROM TRIP 
+            WHERE trip_path_nm IS NOT NULL
+            <if test="userTag != null and userTag != ''">
+                AND UPPER(trip_tag) LIKE '%' || UPPER(#{userTag}) || '%'
+            </if>
+            ORDER BY DBMS_RANDOM.VALUE
+        ) WHERE ROWNUM &lt;= 3
+    </select>
+
+    <select id="doRetrieveByAiNames" parameterType="java.util.List" resultType="com.pcwk.ehr.domain.TripVO">
+        SELECT * FROM (
+            SELECT 
+                trip_conts_id AS tripContsId, 
+                trip_nm       AS tripNm, 
+                trip_path_nm  AS tripPathNm, 
+                trip_addr     AS tripAddr, 
+                trip_tag      AS tripTag
+            FROM TRIP 
+            WHERE trip_path_nm IS NOT NULL
+            <if test="list != null and list.size > 0">
+                AND (
+                <foreach collection="list" item="name" separator=" OR ">
+                    UPPER(trip_nm) LIKE '%' || UPPER(#{name}) || '%' 
+                    OR UPPER(trip_addr) LIKE '%' || UPPER(#{name}) || '%'
+                </foreach>
+                )
+            </if>
+            ORDER BY DBMS_RANDOM.VALUE
+        ) WHERE ROWNUM &lt;= 3
+    </select>
+
+    <select id="getSpotsByAge" parameterType="map" resultType="com.pcwk.ehr.domain.TripVO">
+        SELECT * FROM (
+            SELECT 
+                trip_conts_id AS tripContsId, 
+                trip_nm AS tripNm, 
+                trip_path_nm AS tripPathNm, 
+                trip_addr AS tripAddr, 
+                trip_tag AS tripTag
+            FROM TRIP 
+            <where>
+                trip_path_nm IS NOT NULL
+                <choose>
+                    <when test="userAgeGroup != null and userAgeGroup != ''">
+                        /* 연령대 태그가 있는 것 우선 */
+                        AND trip_tag LIKE '%' || #{userAgeGroup} || '%'
+                    </when>
+                    <otherwise>
+                        /* 태그가 없으면 일반 관광지(12), 문화시설(14) 등에서 랜덤 */
+                        AND trip_clsf IN ('12', '14', '28')
+                    </otherwise>
+                </choose>
+            </where>
+            ORDER BY DBMS_RANDOM.VALUE
+        ) 
+        WHERE ROWNUM &lt;= 4  
+    </select>
+    
+    <select id="getSpotsByNames" parameterType="map" resultType="com.pcwk.ehr.domain.TripVO">
+        SELECT * FROM (
+            SELECT 
+                trip_conts_id AS tripContsId, 
+                trip_nm AS tripNm, 
+                trip_path_nm AS tripPathNm, 
+                trip_addr AS tripAddr
+            FROM TRIP
+            WHERE trip_path_nm IS NOT NULL
+            
+            <if test="userAddr != null and userAddr != ''">
+                AND trip_addr LIKE '%' || #{userAddr} || '%'
+            </if>
+
+            <if test="list != null and list.size > 0">
+                AND (
+                <foreach collection="list" item="name" separator=" OR ">
+                    (REPLACE(trip_nm, ' ', '') LIKE '%' || REPLACE(#{name}, ' ', '') || '%'
+                    OR REPLACE(trip_addr, ' ', '') LIKE '%' || REPLACE(#{name}, ' ', '') || '%')
+                </foreach>
+                )
+            </if>
+            ORDER BY DBMS_RANDOM.VALUE
+        ) WHERE ROWNUM &lt;= 20
+    </select>
+
+    <select id="getSpotsByAddr" parameterType="map" resultType="com.pcwk.ehr.domain.TripVO">
+        SELECT * FROM (
+            SELECT 
+                trip_conts_id AS tripContsId, trip_nm AS tripNm, 
+                trip_path_nm AS tripPathNm, trip_addr AS tripAddr
+            FROM TRIP 
+            WHERE trip_path_nm IS NOT NULL
+            <if test="userAddr != null and userAddr != ''">
+                AND trip_addr LIKE '%' || #{userAddr} || '%'
+            </if>
+            ORDER BY trip_conts_id DESC
+        ) 
+        WHERE ROWNUM &lt;= 20
+    </select>
+
+    <insert id="doSaveWish" parameterType="map">
+        INSERT INTO relation (
+            REL_NO,
+            REL_CLSF,
+            USER_NO,
+            TRIP_CONTS_ID
+            ) VALUES (
+            SEQ_REL_NO.NEXTVAL,
+            #{relClsf},
+            #{userNo},
+            #{tripContsId}
+        )
+    </insert>
+
+    <delete id="doDeleteWish" parameterType="map">
+        DELETE FROM relation
+        WHERE USER_NO = #{userNo}
+        AND TRIP_CONTS_ID = #{tripContsId}
+        AND REL_CLSF = #{relClsf}
+    </delete>
+
+</mapper>

@@ -1,4 +1,4 @@
-package com.pcwk.ehr.Service;
+package com.pcwk.ehr.service;
 
 import com.pcwk.ehr.domain.NoticeVO;
 import com.pcwk.ehr.domain.UserVO;

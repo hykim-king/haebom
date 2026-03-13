@@ -44,17 +44,17 @@ public class MainServiceImpl implements MainService {
 
     @Override
     public int doUpdate(TripVO param) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int doDelete(TripVO param) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int doSave(TripVO param) {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 
     @Override

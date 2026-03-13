@@ -7,11 +7,16 @@
    CSS 변수 정의 (컬러 팔레트)
 =================================== */
 :root {
-    --primary-orange: #f79e38;      /* 메인 오렌지 색상 */
-    --hover-orange: #ea580c;        /* 호버 시 진한 오렌지 */
-    --light-orange: #ffedd5;        /* 연한 오렌지 배경 */
-    --bg-gray: #f8fafc;             /* 페이지 배경 색상 */
-    --success-green: #22c55e;       /* 여행완료 테마 색상 */
+    --primary-orange: #f79e38;
+    /* 메인 오렌지 색상 */
+    --hover-orange: #ea580c;
+    /* 호버 시 진한 오렌지 */
+    --light-orange: #ffedd5;
+    /* 연한 오렌지 배경 */
+    --bg-gray: #f8fafc;
+    /* 페이지 배경 색상 */
+    --success-green: #22c55e;
+    /* 여행완료 테마 색상 */
 }
 
 /* ===================================
@@ -34,11 +39,16 @@ body {
 }
 
 .btn-contact:hover {
-    transform: translateY(-3px);        /* 위로 3px 이동 */
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);  /* 그림자 추가 */
-    background-color: transparent !important;  /* 배경색 없음 */
-    border-color: var(--primary-orange) !important;  /* 테두리 색상 유지 */
-    color: var(--primary-orange) !important;  /* 텍스트 색상 유지 */
+    transform: translateY(-3px);
+    /* 위로 3px 이동 */
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    /* 그림자 추가 */
+    background-color: transparent !important;
+    /* 배경색 없음 */
+    border-color: var(--primary-orange) !important;
+    /* 테두리 색상 유지 */
+    color: var(--primary-orange) !important;
+    /* 텍스트 색상 유지 */
 }
 
 /* ===================================
@@ -48,7 +58,8 @@ body {
 .btn-save-uniform {
     min-width: 100px;
     padding: 0.5rem 1.5rem !important;
-    border-radius: 50px !important;     /* 완전히 둥근 모서리 */
+    border-radius: 50px !important;
+    /* 완전히 둥근 모서리 */
     font-weight: 600;
     font-size: 0.9rem;
 }
@@ -223,6 +234,7 @@ body {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -287,6 +299,7 @@ body {
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -671,4 +684,129 @@ body {
     .completed-card img {
         height: 160px;
     }
+}
+
+
+:root {
+    --main-orange: #ff9f43;
+}
+
+body {
+    background-color: #fdfdfd;
+    font-family: 'Pretendard', sans-serif;
+}
+
+.custom-card {
+    background: white;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.profile-img {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.content-header {
+    background-color: var(--main-orange);
+    color: white;
+    padding: 18px 25px;
+    border-radius: 20px 20px 0 0;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.content-body {
+    border: 2px solid var(--main-orange);
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    padding: 30px;
+    background: white;
+    min-height: 400px;
+}
+
+.info-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-label {
+    color: #888;
+    font-size: 0.8rem;
+    display: block;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.action-btn {
+    background: var(--main-orange);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+}
+
+.menu-item {
+    cursor: pointer;
+    padding: 15px 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    color: #555;
+    transition: 0.3s;
+    margin-bottom: 5px;
+}
+
+.menu-item.active {
+    background: var(--main-orange);
+    color: white;
+}
+
+/* 찜 카드 스타일 */
+.wish-card-wrapper {
+    transition: 0.3s;
+    position: relative;
+}
+
+.wish-card-img {
+    height: 160px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.btn-remove {
+    position: absolute;
+    top: 8px;
+    right: 20px;
+    background: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.selected {
+    border: 3px solid var(--main-orange) !important;
+    border-radius: 15px;
 }

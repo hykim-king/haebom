@@ -1,4 +1,4 @@
-package com.pcwk.ehr.Service;
+package com.pcwk.ehr.service;
 
 import com.pcwk.ehr.domain.SupportVO;
 import com.pcwk.ehr.support.SupportMapper;

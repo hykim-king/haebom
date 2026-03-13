@@ -1,0 +1,293 @@
+/* ==========================================
+   THEMA 스타일 카드 & 하트 토글 (ai_trip 전용)
+   ========================================== */
+
+/* 1. 카드 외형 (thema.css 스타일) */
+.travel-card, .card {
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+    background: #fff !important;
+    border: none !important;
+}
+
+.travel-card:hover, .card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* 2. 이미지 높이 및 비율 */
+.card-img-wrapper img, .card img {
+    width: 100%;
+    object-fit: cover;
+}
+
+/* 3. 제목과 하트 버튼 가로 정렬 레이아웃 */
+.card-body-custom, .card-body {
+    padding: 12px !important;
+    text-align: left !important; /* thema 스타일은 좌측 정렬 지향 */
+}
+
+.card-title-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 10px;
+}
+
+/* 4. 하트 토글 애니메이션 (thema.css 핵심 기능) */
+.btn-wish {
+    position: static !important; /* 이미지 위 플로팅 해제 */
+    border: none !important;
+    background: none !important;
+    cursor: pointer;
+    font-size: 18px !important;
+    color: #999 !important;
+    padding: 0 !important;
+    line-height: 1;
+    transform: translateY(0) scale(1);
+    transition: transform 0.3s cubic-bezier(.4, 0, .2, 1), color 0.2s ease !important;
+}
+
+/* 호버 시 위로 툭 튀어오르는 효과 */
+.btn-wish:hover {
+    color: #f97316 !important;
+    transform: translateY(-3px) scale(1.15) !important;
+}
+
+/* 클릭되어 활성화(active) 되었을 때 */
+.btn-wish.active {
+    transform: translateY(0) scale(1) !important; /* 다시 제자리로 */
+}
+
+.btn-wish.active i {
+    color: #e11d48 !important; /* 활성화 시 빨간색 */
+}
+
+/* 5. 텍스트 스타일 */
+.card-title-custom, .card-title {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+    color: #333;
+}
+
+.card-location-custom, .card-location, .card-sub {
+    font-size: 14px !important;
+    color: #777 !important;
+}
+
+:root {
+    --primary-orange: #f97316;
+    --primary-blue: #ffffff;
+    --text-dark: #333333;
+    --text-gray: #666666;
+    --bg-light-blue: #eef4ff;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #ffffff;
+    color: var(--text-dark);
+    overflow-x: hidden;
+}
+
+/* --- Header Styles --- */
+.navbar { border-bottom: 1px solid #eeeeee; padding: 1rem 0; }
+.navbar-brand { font-weight: 900; color: var(--primary-orange) !important; font-size: 1.5rem; }
+.nav-link { color: var(--text-dark) !important; font-weight: 500; margin: 0 10px; }
+.auth-links .nav-link { font-size: 0.85rem; color: var(--text-gray) !important; }
+
+/* --- Hero Section --- */
+.hero-section { padding: 40px 0 20px 0; }
+.sub-title { font-size: 0.95rem; color: var(--text-gray); margin-bottom: 5px; }
+.main-title { font-weight: 800; font-size: 2.2rem; display: flex; align-items: center; gap: 10px; }
+
+/* --- AI Recommendation Area --- */
+.recommend-header { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+.recommend-title-group h3 { font-weight: 700; font-size: 1.4rem; margin-bottom: 8px; }
+.recommend-desc { font-size: 0.9rem; color: var(--text-gray); }
+.recommend-desc span { color: #f97316; }
+.ai-status-badge { background-color: #f97316; color: #fff; padding: 6px 15px; border-radius: 50px; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.btn-refresh { border: 1px solid #cccccc; background: white; border-radius: 50px; padding: 8px 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.btn-refresh:hover { background-color: #f8f9fa; border-color: #999999; }
+
+/* --- Card Styles (Top Section) --- */
+.travel-card { border: none; background: none; margin-bottom: 30px; }
+.card-img-wrapper { position: relative; border-radius: 15px; overflow: hidden; aspect-ratio: 4 / 3; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.travel-card:hover .card-img-wrapper img { transform: scale(1.05); }
+.btn-wish { position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.8); border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-gray); transition: all 0.2s; z-index: 2; }
+.btn-wish:hover { background: white; color: #ff4757; }
+.card-body-custom { padding: 15px 0; text-align: center; }
+.card-title-custom {
+    /* 텍스트 생략 핵심 설정 */
+    flex: 1 !important;
+    min-width: 0 !important; /* flex 아이템에서 말줄임표 작동을 위한 필수 속성 */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    
+    /* 폰트 스타일 보존 */
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: #333;
+}
+.card-location-custom { font-size: 0.85rem; color: var(--text-gray); }
+
+/* --- Age Preference Section (Section 2) --- */
+.age-preference-section { background-color: #fdbd9044;; padding: 60px 0; margin-top: 40px; position: relative; }
+.age-sidebar { padding-right: 20px; }
+.age-badge { background-color: #333; color: white; padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; font-weight: 700; margin-bottom: 10px; display: inline-block; }
+.age-title { font-weight: 800; font-size: 1.8rem; margin-bottom: 30px; }
+.age-list { list-style: none; padding: 0; }
+.age-list li { margin-bottom: 12px; font-size: 1rem; color: #888; cursor: pointer; transition: color 0.2s; font-weight: 500; }
+.age-list li.active {
+    color: #333 !important;      /* 글자색 검정 */
+    font-weight: 800 !important; /* 글자 두껍게 */
+    text-decoration: none !important; /* 밑줄 대신 다른 효과 선호 시 제거 */
+    border-left: 4px solid #f97316; /* 좌측에 주황색 선 추가 (강조 효과) */
+    padding-left: 10px;          /* 선과의 간격 */
+    transition: all 0.3s ease;
+}
+.age-list li:hover { color: #333; }
+
+.tab-navigation { background-color: #f97316; border-radius: 8px; display: flex; overflow: hidden; margin-bottom: 20px; }
+.tab-item { flex: 1; text-align: center; padding: 15px 10px; color: rgba(255,255,255,0.75); font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border-right: 1px solid rgba(255,255,255,0.2); }
+.tab-item:last-child { border-right: none; }
+.tab-item.active { background: linear-gradient(90deg, #ff9f43, #f97316); color: white; font-weight: 700; }
+
+.age-desc { text-align: center; color: #555; font-size: 0.9rem; margin-bottom: 30px; font-weight: 500;}
+
+/* Carousel Navigation inside Section 2 */
+.carousel-container { position: relative; padding: 0 15px; }
+.carousel-btn { position: absolute; top: 40%; transform: translateY(-50%); width: 40px; height: 40px; background: rgba(0,0,0,0.75); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; }
+.carousel-prev { left: -5px; }
+.carousel-next { right: -5px; }
+
+.pagination-text { text-align: right; font-size: 0.9rem; color: #888; font-weight: 600; margin-top: 10px; padding-right: 15px;}
+.pagination-text span { color: #333; }
+
+/* Section 2 Specific Card Styles */
+.small-card { background-color: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.small-card .card-img-wrapper { aspect-ratio: 1 / 1; border-radius: 0; box-shadow: none; }
+.small-card .card-body-custom { padding: 15px 10px; }
+.small-card .card-title-custom { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600;}
+.small-card .card-location-custom { font-size: 0.8rem; }
+
+/* --- Local Recommendations Section (New Section 3) --- */
+.local-section { padding: 60px 0; }
+.local-card { border: none; background: transparent; cursor: pointer; }
+.local-card-img { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 10; margin-bottom: 12px; }
+.local-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.local-card:hover .local-card-img img { transform: scale(1.05); }
+
+.local-card-body { text-align: left; }
+.local-card-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #222;}
+.local-card-location { font-size: 0.75rem; color: #666; background-color: #f4f4f4; border: 1px solid #eaeaea; padding: 4px 8px; border-radius: 4px; display: inline-block; font-weight: 500;}
+
+/* --- Modern Load More Button --- */
+.btn-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 60px auto 0;
+    padding: 14px 60px;
+    background-color: #f8f9fa; /* 사진과 유사한 아주 옅은 회색 배경 */
+    border: 1.5px solid #f97316; /* 주황색 테두리 */
+    border-radius: 50px;
+    color: #f97316; /* 주황색 텍스트 */
+    font-weight: 800;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.btn-more:hover {
+    background-color: #f97316; /* 마우스 올리면 배경이 주황색으로 채워짐 */
+    color: #ffffff;
+    border-color: #f97316;
+    transform: translateY(-3px); /* 위로 살짝 떠오름 */
+    box-shadow: 0 6px 15px rgba(249, 115, 22, 0.3); /* 주황색 은은한 그림자 */
+}
+.btn-more:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+.btn-more:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.btn-more i.fa-chevron-down {
+    display: inline-block; /* CSS 애니메이션(transform)을 적용하기 위한 필수 속성 */
+    transition: transform 0.3s ease;
+    font-size: 1.1rem;
+}
+.btn-more:hover i.fa-chevron-down {
+    transform: translateY(5px); /* 호버 시 화살표만 아래로 5px 내려감! */
+}
+
+/* --- Floating Action Buttons --- */
+.floating-buttons {
+    position: fixed;
+    bottom: 40px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 1000;
+}
+.fab-btn {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fab-chatbot {
+    background-color: var(--primary-blue);
+    color: white;
+}
+.fab-chatbot:hover {
+    background-color: #3b55a0;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+.fab-top {
+    background-color: white;
+    color: #555;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    font-size: 1.2rem;
+}
+.fab-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.fab-top:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-orange);
+    transform: translateY(-3px);
+}
+
+/* Utility */
+.info-icon { color: #bbbbbb; font-size: 0.9rem; cursor: pointer; }
+
+@media (max-width: 992px) {
+    .age-sidebar { text-align: center; margin-bottom: 40px; }
+    .age-list { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+    .carousel-btn { display: none; } /* Hide on mobile to allow swipe */
+}

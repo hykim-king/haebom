@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="_csrf" th:content="${_csrf?.token}">
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}">
+    <meta name="referrer" content="no-referrer">
+
+    <title>해봄트립 - AI 여행 추천</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/AI-widget.css}">
+    <link rel="stylesheet" th:href="@{/css/ai_trip.css}">
+</head>
+
+<body>
+
+    <div th:replace="~{main/header :: header}"></div>
+
+    <main class="container">
+        <section class="recommend-header">
+            <div class="recommend-title-group">
+                <h3><i data-lucide="briefcase"></i> 나만의 맞춤 여행지</h3>
+                <p class="recommend-desc">
+                    나의 성향에 따른 맞춤형 여행지를 추천해드립니다.
+                </p>
+            </div>
+            <button class="btn-refresh" id="refreshBtn">
+                <i class="fa-solid fa-rotate-right"></i> 다시 추천받기
+            </button>
+        </section>
+
+        <div class="row" id="travelGrid">
+        </div>
+    </main>
+
+    <section class="age-preference-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="age-sidebar">
+                        <span class="age-badge">연령대별</span>
+                        <h2 class="age-title">선호 여행지</h2>
+                        <ul class="age-list" id="ageTabList">
+                            <li id="age-all" class="active">#전체</li>
+                            <li id="age-20">#20대</li>
+                            <li id="age-30">#30대</li>
+                            <li id="age-40">#40대</li>
+                            <li id="age-50">#50대</li>
+                            <li id="age-60">#60대 이상</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-10">
+
+                    <p class="age-desc">대한민국구석구석 사용자를 연령대별로 그룹핑하여 각 그룹이 최근 선호하는 여행지입니다.</p>
+
+                    <div class="carousel-container">
+                        <div class="row row-cols-2 row-cols-md-4 g-3" id="ageTravelGrid">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-4 position-relative">
+                        <button class="btn-refresh" id="ageRefreshBtn">
+                            <i class="fa-solid fa-rotate-right"></i> 다시 추천받기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="local-section container">
+
+        <div class="recommend-title-group">
+            <h3><i data-lucide="briefcase"></i> 우리집 맞춤 여행지</h3>
+            <p class="recommend-desc">
+                나의 성향에 따른 맞춤형 여행지를 추천해드립니다.
+            </p>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4" id="localTravelGrid">
+        </div>
+
+        <button class="btn-more" id="loadMoreLocalBtn">
+            내 지역 주변 여행지 더보기
+            <i class="fa-solid fa-chevron-down"></i>
+        </button>
+    </section>
+
+    <div class="floating-buttons">
+        <button class="fab-btn fab-top" id="topBtn" title="위로 가기">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <div th:replace="~{main/footer :: footer}"></div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.travelData = /*[[${list}]]*/[];
+        window.ageData = /*[[${ageList}]]*/[];
+        window.localData = /*[[${localList}]]*/[];
+
+        window.isFirstLogin = /*[[${session.user != null}]]*/ false;
+
+        window.userAgeGroup = /*[[${userAgeGroup}]]*/ "";
+        /*]]>*/
+    </script>
+
+    <script th:src="@{/javascript/AI-widget.js}"></script>
+    <script th:src="@{/javascript/ai_trip.js}"></script>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

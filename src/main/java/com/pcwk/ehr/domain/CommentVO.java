@@ -25,4 +25,7 @@ public class CommentVO extends DTO {
     private String cmtMod;       // 댓글 수정시간
     private int    regNo;        // 등록자 고유번호
     private int    modNo;        // 수정자 고유번호
+    private String userNick;     // 등록자 닉네임 (조회용)
+    private String filePathNm;   // 첨부 이미지 경로 (조회용, 단건)
+    private String filePathList; // 첨부 이미지 경로 목록 (조회용, LISTAGG)
 }

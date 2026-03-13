@@ -1,157 +1,334 @@
-/**
- * ===================================
- * 해봄트립 마이페이지 JavaScript (페이징 & 선택 삭제)
- * ===================================
- */
+/* ===================================
+   1. CSRF 토큰 및 전역 설정
+=================================== */
+const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
 
-/* 전역 변수 */
-let allWishList = [];       // 서버에서 받아온 전체 찜 데이터
-let currentPage = 1;        // 현재 페이지
-const pageSize = 6;         // 페이지당 출력 개수 (6개)
-let selectedWishIds = new Set(); // 선택된 찜 ID 저장
+const THEMES = [
+    { id: 'mountain', icon: '⛰️', label: '산' }, { id: 'waterfall', icon: '🌊', label: '폭포' },
+    { id: 'valley', icon: '💦', label: '계곡' }, { id: 'sea', icon: '🏖️', label: '바다' },
+    { id: 'lake', icon: '🚣', label: '호수' }, { id: 'river', icon: '🏞️', label: '강' },
+    { id: 'cave', icon: '🦇', label: '동굴' }, { id: 'history', icon: '🏯', label: '역사 관광지' },
+    { id: 'temple', icon: '🙏', label: '사찰' }, { id: 'spa', icon: '♨️', label: '온천/스파' },
+    { id: 'themepark', icon: '🎡', label: '테마공원' }, { id: 'experience', icon: '🚜', label: '체험' },
+    { id: 'view', icon: '🗼', label: '기념/전망' }, { id: 'culture', icon: '🏛️', label: '문화시설' },
+    { id: 'leisure', icon: '🚲', label: '레포츠' }
+];
 
+let wishListData = [];
+let completedListData = []; // 완료 리스트 저장용 추가
+const pageSize = 6;
+
+
+
+
+
+
+
+/* ===================================
+    1. 초기화 및 이벤트 리스너 
+=================================== */
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     loadUserInfo();
-    fetchWishList(); // 초기 데이터 로드
+    
+    // 페이지 로드 시 찜 목록과 완료 목록 데이터 미리 확보
+    loadRelationData(10); 
+    loadRelationData(20); 
+
+    // 메뉴 전환 및 탭 데이터 연동 로직
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', async function () {
+            const target = this.dataset.menu; // 'info', 'wish', 'completed'
+            
+            // 1. 모든 메뉴에서 active 제거 후 클릭한 메뉴에 추가
+            document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+            this.classList.add('active');
+
+            // 2. 모든 컨텐츠 패널 숨김 후 타겟 패널 표시
+            document.querySelectorAll('.content-pane').forEach(pane => pane.style.display = 'none');
+            const targetPane = document.getElementById(`content-${target}`);
+            if (targetPane) targetPane.style.display = 'block';
+
+            // 3. 탭 클릭 시 실시간 데이터 로드 (relClsf 값 전달)
+            if (target === 'wish') {
+                // 찜 목록(10) 데이터 새로 불러오고 렌더링
+                await loadRelationData(10);
+                renderListPage(1, 10);
+            } else if (target === 'completed') {
+                // 여행 완료(20) 데이터 새로 불러오고 렌더링
+                await loadRelationData(20);
+                renderListPage(1, 20);
+            }
+
+            lucide.createIcons(); // 동적 생성된 아이콘 재생성
+        });
+    });
+
+    // 기존 수정 폼 토글 기능 유지
+    const setupToggle = (btnId, panelId) => {
+        document.getElementById(btnId)?.addEventListener('click', () => {
+            document.getElementById(panelId).classList.toggle('d-none');
+        });
+    };
+    setupToggle('btn-nick-edit-toggle', 'nick-edit-fields');
+    setupToggle('btn-pw-edit-toggle', 'pw-edit-fields');
+    
+    // 해시태그 편집 버튼 이벤트 유지
+    document.getElementById('btn-tag-edit-toggle')?.addEventListener('click', openTagEditor);
 });
 
 /* ===================================
-   1. 데이터 로드 및 페이징 처리
+   2. 태그 편집기 열기 (모달 내용 생성)
 =================================== */
-
-// 서버에서 전체 찜 목록 가져오기
-function fetchWishList() {
-    fetch('/mypage/getRelationList.do')
-        .then(res => res.json())
-        .then(list => {
-            allWishList = list;
-            renderWishPage(1); // 1페이지 출력
-            updateWishCount(list.length);
-        })
-        .catch(err => console.error("찜 목록 로드 실패:", err));
-}
-
-// 특정 페이지의 데이터 렌더링
-function renderWishPage(page) {
-    currentPage = page;
-    const container = document.getElementById('wish-items-row');
-    if (!container) return;
-
-    // 데이터가 없을 때
-    if (allWishList.length === 0) {
-        container.innerHTML = `<div class="col-12 text-center py-5 text-muted">찜한 여행지가 없습니다.</div>`;
-        renderPagination(0);
+function openTagEditor() {
+    const wrapper = document.getElementById('theme-list-wrapper');
+    if (!wrapper) {
+        console.error("theme-list-wrapper를 찾을 수 없습니다.");
         return;
     }
+    
+    // 현재 화면(사이드바나 본문)에 표시된 태그들을 가져와서 선택 상태로 만듭니다.
+    const currentTags = Array.from(document.querySelectorAll('#hashtag-container span'))
+                             .map(span => span.innerText.replace('#', '').trim());
 
-    // 페이징 계산 (6개씩 자르기)
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const pageItems = allWishList.slice(startIndex, endIndex);
-
-    // HTML 생성
-    container.innerHTML = pageItems.map(item => {
-        const isSelected = selectedWishIds.has(String(item.tripContsId));
+    // THEMES 배열을 바탕으로 버튼 생성
+    wrapper.innerHTML = THEMES.map(t => {
+        const isSelected = currentTags.includes(t.label);
+        const btnClass = isSelected ? 'btn-warning text-white' : 'btn-outline-secondary';
         return `
-        <div class="col-md-4 mb-4 wish-item-card" data-wish-id="${item.tripContsId}">
-            <div class="card h-100 shadow-sm wish-card ${selectMode ? 'select-mode' : ''} ${isSelected ? 'selected' : ''}">
-                <div class="selection-overlay"></div> <img src="${item.itemImage || '/images/common/no-image.png'}" class="card-img-top" alt="여행지">
-                <div class="card-body">
-                    <h5 class="card-title text-truncate">${item.itemTitle}</h5>
-                    <p class="card-text small text-muted"><i data-lucide="map-pin" size="12"></i> ${item.itemAddr || '주소 정보 없음'}</p>
+            <button type="button" class="btn ${btnClass} btn-sm m-1 tag-select-btn" 
+                    data-label="${t.label}" onclick="toggleTagSelection(this)">
+                ${t.icon} ${t.label}
+            </button>
+        `;
+    }).join('');
+}
+
+// 태그 선택/해제 토글 함수도 함께 있어야 합니다.
+function toggleTagSelection(btn) {
+    btn.classList.toggle('btn-warning');
+    btn.classList.toggle('text-white');
+    btn.classList.toggle('btn-outline-secondary');
+}
+
+
+
+
+/* ===================================
+   3. 공통 전송 함수
+=================================== */
+async function secureFetch(url, formData) {
+    return fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: { [csrfHeader]: csrfToken }
+    });
+}
+
+/* ===================================
+   4. 데이터 로드 및 렌더링
+=================================== */
+async function loadUserInfo() {
+    try {
+        const res = await fetch('/mypage/getUserInfo.do');
+        const data = await res.json();
+        if (!data) return;
+
+        document.getElementById('sidebar-nickname').innerText = data.userNick || '여행자';
+        document.getElementById('sidebar-email').innerText = data.userEmlAddr || '';
+        document.getElementById('display-nickname').innerText = data.userNick || '여행자';
+        document.getElementById('info-name').innerText = data.userNm || '-';
+        document.getElementById('info-phone').innerText = data.userTelno || '-';
+
+        const fullAddr = `${data.userAddr || ''} ${data.userDaddr || ''}`.trim();
+        document.getElementById('current-addr-text').innerText = fullAddr || '주소를 등록해 주세요.';
+
+        if (data.userTag) renderTags(data.userTag);
+    } catch (e) { console.error("정보 로드 실패", e); }
+}
+
+function renderTags(tagStr) {
+    if (!tagStr) return;
+    const tags = tagStr.split(',');
+    const container = document.getElementById('hashtag-container');
+    const display = document.getElementById('selected-hashtags-display');
+
+    const sidebarHtml = tags.map(t => `<span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2 py-1 me-1" style="font-size:0.75rem;">#${t.trim()}</span>`).join('');
+    const mainHtml = tags.map(t => `<span class="badge bg-warning text-white rounded-pill px-3 py-2 me-2 mb-2 d-inline-block"># ${t.trim()}</span>`).join('');
+
+    if (container) container.innerHTML = sidebarHtml;
+    if (display) display.innerHTML = mainHtml;
+}
+
+/* ===================================
+   5. 수정 기능 (POST 요청들)
+=================================== */
+
+// [주소] 카카오 우편번호 서비스
+function execPostCode() {
+    new daum.Postcode({
+        oncomplete: function (data) {
+            document.getElementById('addr-edit-fields').classList.remove('d-none');
+            document.getElementById('postcode').value = data.zonecode;
+            document.getElementById('address-base').value = data.roadAddress;
+            document.getElementById('address-detail').focus();
+        }
+    }).open();
+}
+
+// [주소] 저장
+document.getElementById('btn-addr-save')?.addEventListener('click', async () => {
+    const fd = new FormData();
+    fd.append("userZip", document.getElementById('postcode').value);
+    fd.append("userAddr", document.getElementById('address-base').value);
+    fd.append("userDaddr", document.getElementById('address-detail').value);
+
+    const res = await secureFetch('/mypage/updateAddr.do', fd);
+    if (await res.json() > 0) { alert("주소가 수정되었습니다."); location.reload(); }
+});
+
+// [닉네임] 중복 확인 (경로 수정됨)
+document.getElementById('btn-nick-check')?.addEventListener('click', function () {
+    const nick = document.getElementById('new-nickname').value;
+    const msg = document.getElementById('nick-msg');
+    const saveBtn = document.getElementById('btn-nick-save');
+
+    if (!nick.trim()) return alert("닉네임을 입력하세요.");
+
+    // 컨트롤러 경로에 맞게 수정 (.do 추가)
+    fetch(`/mypage/api/check-nickname.do?nickname=${encodeURIComponent(nick)}`)
+        .then(res => res.json())
+        .then(count => {
+            if (count > 0) {
+                msg.innerText = "이미 사용 중인 닉네임입니다.";
+                msg.style.color = "red";
+                saveBtn.disabled = true;
+            } else {
+                msg.innerText = "사용 가능한 닉네임입니다.";
+                msg.style.color = "green";
+                saveBtn.disabled = false;
+            }
+        });
+});
+
+// [닉네임] 저장
+document.getElementById('btn-nick-save')?.addEventListener('click', async () => {
+    const val = document.getElementById('new-nickname').value;
+    const fd = new FormData();
+    fd.append("userNick", val);
+    const res = await secureFetch('/mypage/updateNick.do', fd);
+    if (await res.json() > 0) location.reload();
+});
+
+// [비밀번호] 저장
+document.getElementById('btn-pw-save')?.addEventListener('click', async () => {
+    const cur = document.getElementById('current-pw').value;
+    const nPw = document.getElementById('new-pw').value;
+    const cfm = document.getElementById('confirm-pw').value;
+    if (nPw !== cfm) return alert("새 비밀번호가 일치하지 않습니다.");
+
+    const fd = new FormData();
+    fd.append("userEnpswd", cur);
+    fd.append("newPw", nPw);
+
+    const res = await secureFetch('/mypage/updatePw.do', fd);
+    const result = await res.json();
+    if (result > 0) { alert("비밀번호가 변경되었습니다."); location.reload(); }
+    else { alert("현재 비밀번호가 올바르지 않습니다."); }
+});
+
+/* ===================================
+   6. 찜(10) / 완료(20) 통합 로직
+=================================== */
+async function loadRelationData(relClsf) {
+    try {
+        const res = await fetch(`/mypage/getRelationList.do?relClsf=${relClsf}`);
+        
+        // 500 에러 등이 발생했을 경우 처리
+        if (!res.ok) {
+            console.error(`서버 응답 에러: ${res.status}`);
+            return; 
+        }
+
+        const data = await res.json();
+        const finalData = Array.isArray(data) ? data : []; 
+
+        if(relClsf === 10) {
+            wishListData = finalData;
+            // 사이드바와 배지 개수 업데이트
+            const sidebarCount = document.getElementById('sidebar-wish-count');
+            const badgeCount = document.getElementById('wish-count-badge');
+            if(sidebarCount) sidebarCount.innerText = finalData.length;
+            if(badgeCount) badgeCount.innerText = finalData.length;
+        } else {
+            completedListData = finalData;
+        }
+    } catch (e) { 
+        console.error("데이터 파싱 실패:", e); 
+    }
+}
+
+function renderListPage(page, relClsf) {
+    const dataList = (relClsf === 10) ? wishListData : completedListData;
+    const rowId = (relClsf === 10) ? 'wish-items-row' : 'complete-items-row';
+    const pagiId = (relClsf === 10) ? 'wish-pagination' : 'complete-pagination';
+
+    const start = (page - 1) * pageSize;
+    const pagedList = dataList.slice(start, start + pageSize);
+    const row = document.getElementById(rowId);
+
+    if (!row) return;
+
+    if (!pagedList || pagedList.length === 0) {
+        row.innerHTML = '<div class="col-12 text-center py-5 text-muted">항목이 없습니다.</div>';
+    } else {
+        row.innerHTML = pagedList.map(item => `
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius:15px;">
+                    <div style="position:relative;">
+                        <img src="${item.tripPathNm || '/images/common/no-image.png'}" class="card-img-top" style="height:120px; object-fit:cover;">
+                        <button onclick="deleteRelationItem('${item.tripContsId}', ${relClsf})" style="position:absolute; top:8px; right:8px; border:none; background:white; border-radius:50%; width:24px; height:24px; box-shadow:0 2px 4px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center;">
+                            <i data-lucide="trash-2" size="12" style="color:red;"></i>
+                        </button>
+                    </div>
+                    <div class="card-body p-2 text-center">
+                        <p class="fw-bold text-truncate small mb-0">${item.tripNm}</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    `}).join('');
-    
-    renderPagination(allWishList.length);
+        `).join('');
+    }
+    renderPagination(dataList.length, page, pagiId, relClsf);
     lucide.createIcons();
 }
 
-// 페이징 버튼 생성
-function renderPagination(totalCount) {
-    const nav = document.getElementById('wish-pagination-nav');
-    if (!nav) return;
-
+function renderPagination(totalCount, currentPage, containerId, relClsf) {
     const totalPages = Math.ceil(totalCount / pageSize);
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (totalPages <= 1) { container.innerHTML = ''; return; }
+
     let html = '';
-
     for (let i = 1; i <= totalPages; i++) {
-        html += `
-            <li class="page-item ${i === currentPage ? 'active' : ''}">
-                <a class="page-link" href="javascript:void(0)" onclick="renderWishPage(${i})">${i}</a>
-            </li>
-        `;
+        const activeClass = (i === currentPage) ? 'btn-warning text-white' : 'btn-light';
+        html += `<button class="btn btn-sm ${activeClass} me-1" onclick="renderListPage(${i}, ${relClsf})">${i}</button>`;
     }
-    nav.innerHTML = html;
+    container.innerHTML = html;
 }
 
-/* ===================================
-   2. 선택 모드 및 일괄 삭제 기능
-=================================== */
+// 개별 삭제 (통합)
+async function deleteRelationItem(tripContsId, relClsf) {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
 
-// 선택 모드 토글 (이미지의 '선택 삭제', '취소' 버튼 연동)
-function toggleSelectMode() {
-    selectMode = !selectMode;
-    const btnGroup = document.getElementById('select-mode-btns'); // 버튼 감싸는 컨테이너
-    const cards = document.querySelectorAll('.wish-card');
+    const fd = new FormData();
+    fd.append("relClsf", relClsf);
+    fd.append("tripContsId", tripContsId);
 
-    if (selectMode) {
-        document.getElementById('btn-toggle-select').classList.add('d-none');
-        document.getElementById('select-actions').classList.remove('d-none');
-        cards.forEach(c => c.classList.add('select-mode'));
-    } else {
-        selectedWishIds.clear();
-        document.getElementById('btn-toggle-select').classList.remove('d-none');
-        document.getElementById('select-actions').classList.add('d-none');
-        renderWishPage(currentPage); // 화면 초기화
+    const res = await secureFetch('/mypage/deleteRelation.do', fd);
+    if (await res.json() > 0) {
+        alert("삭제되었습니다.");
+        await loadRelationData(relClsf);
+        renderListPage(1, relClsf);
     }
-}
-
-// 카드 클릭 시 선택 처리
-document.getElementById('wish-items-row')?.addEventListener('click', function(e) {
-    if (!selectMode) return;
-    
-    const card = e.target.closest('.wish-card');
-    if (!card) return;
-
-    const wishId = String(card.closest('.wish-item-card').dataset.wishId);
-
-    if (selectedWishIds.has(wishId)) {
-        selectedWishIds.delete(wishId);
-        card.classList.remove('selected');
-    } else {
-        selectedWishIds.add(wishId);
-        card.classList.add('selected');
-    }
-});
-
-// 선택된 항목 서버에 삭제 요청
-function deleteSelectedItems() {
-    if (selectedWishIds.size === 0) return alert("삭제할 항목을 선택해주세요.");
-
-    if (confirm(`선택한 ${selectedWishIds.size}개의 항목을 삭제하시겠습니까?`)) {
-        // 실제로는 반복문으로 삭제 API를 호출하거나, 서버에 리스트로 보냅니다.
-        const promises = Array.from(selectedWishIds).map(id => 
-            fetch(`/trip/toggleFavorite.do?tripContsId=${id}`)
-        );
-
-        Promise.all(promises).then(() => {
-            alert("삭제되었습니다.");
-            selectedWishIds.clear();
-            toggleSelectMode(); // 모드 해제
-            fetchWishList();    // 데이터 갱신
-        });
-    }
-}
-
-/* ===================================
-   3. 기타 유틸리티 (카운트 등)
-=================================== */
-function updateWishCount(count) {
-    const el1 = document.getElementById('wish-count-display');
-    const el2 = document.getElementById('sidebar-wish-count');
-    if (el1) el1.innerText = count;
-    if (el2) el2.innerText = count;
 }

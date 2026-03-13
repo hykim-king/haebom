@@ -74,4 +74,16 @@
         WHERE RNUM BETWEEN #{pageSize} * (#{pageNo} - 1) + 1 
                        AND #{pageSize} * (#{pageNo} - 1) + #{pageSize}
     </select>
+
+    <select id="selectCourseBasic" parameterType="int" resultType="CourseVO">
+        SELECT
+            COURSE_NO      AS courseNo,
+            COURSE_NM      AS title,
+            COURSE_INFO    AS courseInfo,
+            COURSE_PATH_NM AS coursePathNm,
+            COURSE_DSTNC   AS courseDstnc,
+            COURSE_REQ_TM  AS courseReqTm
+        FROM course
+        WHERE COURSE_NO = #{courseNo}
+    </select>
 </mapper>

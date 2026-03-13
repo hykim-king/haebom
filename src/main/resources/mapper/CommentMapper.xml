@@ -169,17 +169,7 @@
         ON c.TRIP_COURSE_NO = ct.COURSE_NO
         WHERE 1 = 1
         <if test="searchWord != null and searchWord != ''">
-            <choose>
-                <when test="searchDiv == '10'">
-                    AND c.CMT_CN LIKE '%' || #{searchWord} || '%'
-                </when>
-                <when test="searchDiv == '20'">
-                    AND c.TRIP_COURSE_NO = #{searchWord}
-                </when>
-                <when test="searchDiv == '40'">
-                    AND c.CMT_HIDE_YN = #{searchWord}
-                </when>
-            </choose>
+            AND c.CMT_CN LIKE '%' || #{searchWord} || '%'
         </if>
         ORDER BY c.CMT_NO DESC
         ) T1
@@ -188,17 +178,7 @@
         <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
     </select>
 
-    <select id="selectCourseBasic" parameterType="int" resultType="CourseVO">
-        SELECT
-            COURSE_NO,
-            COURSE_NM,
-            COURSE_INFO,
-            COURSE_PATH_NM,
-            COURSE_DSTNC,
-            COURSE_REQ_TM
-        FROM course
-        WHERE COURSE_NO = #{courseNo}
-    </select>
+
 
     <select id="selectCourseItems" parameterType="int" resultType="CourseTripVO">
         SELECT

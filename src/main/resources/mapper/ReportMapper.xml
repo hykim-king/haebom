@@ -4,6 +4,15 @@
 
 <mapper namespace="com.pcwk.ehr.report.ReportMapper">
 
+    <resultMap id="reportResultMap" type="com.pcwk.ehr.domain.ReportVO">
+        <result property="repNo" column="REP_NO" />
+        <result property="repCn" column="REP_CN" />
+        <result property="repClsf" column="REP_CLSF" />
+        <result property="cmtNo" column="CMT_NO" />
+        <result property="repReg" column="REP_REG" />
+        <result property="repStatYn" column="REP_STAT_YN" />
+    </resultMap>
+
     <!-- 신고 등록 -->
     <insert id="doSave" parameterType="ReportVO">
         <selectKey keyProperty="repNo" resultType="int" order="BEFORE">
@@ -68,7 +77,7 @@
     </select>
 
     <!-- 목록 조회 -->
-    <select id="doRetrieve" parameterType="DTO" resultType="ReportVO">
+    <select id="doRetrieve" parameterType="DTO" resultType="ReportVO" resultMap="reportResultMap">
         SELECT *
         FROM (
             SELECT ROWNUM AS rnum, T1.*
@@ -101,6 +110,80 @@
             <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
         ) TT1
         <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
+    </select>
+
+    <!-- 관리자용 -->
+
+    <select id="getReportStats" resultType="map">
+        SELECT
+            COUNT(CASE WHEN REP_STAT_YN = 'N' THEN 1 END) as "pendingCount",
+            COUNT(CASE WHEN REP_REG = TO_CHAR(SYSDATE, 'YYYYMMDD') THEN 1 END) as "todayCount",
+            COUNT(CASE WHEN REP_STAT_YN = 'Y'
+                AND REP_PROC_DT >= TO_CHAR(TRUNC(SYSDATE, 'IW'), 'YYYYMMDD') THEN 1 END) as "weekSuccessCount"
+        FROM report
+    </select>
+
+    <select id="RpdoSelectAdmin" parameterType="ReportVO" resultType="map" >
+        SELECT
+            r.REP_NO      AS "repNo",
+            r.REP_CN      AS "repCn",
+            r.REP_CLSF    AS "repClsf",
+            r.REP_STAT_YN  AS "repStatYn",
+            r.REP_REG     AS "repReg",
+            c.CMT_CN      AS "cmtCn",    /* 신고 대상 댓글 내용 */
+            c.CMT_NO      AS "cmtNo"     /* 처리를 위한 댓글 번호 */
+        FROM report r
+                 LEFT JOIN cmt c ON r.CMT_NO = c.CMT_NO
+        WHERE r.REP_NO = #{repNo}
+    </select>
+
+    <select id="doSelectAdminList" parameterType="ReportVO" resultType="map">
+        SELECT * FROM (
+        SELECT ROWNUM AS rnum, A.* FROM (
+        SELECT
+        r.REP_NO    AS "repNo",
+        r.REP_CN    AS "repCn",
+        r.REP_CLSF  AS "repClsf",
+        r.REP_STAT_YN AS "repStatYn",
+        r.REP_REG   AS "repReg",
+        c.CMT_CN    AS "cmtCn",
+        c.CMT_NO    AS "cmtNo",
+        r.REG_NO    AS "regNo"
+        FROM report r
+        LEFT JOIN cmt c ON r.CMT_NO = c.CMT_NO
+        WHERE 1=1
+        <if test="repStatYn != null and repStatYn != ''">
+            AND r.REP_STAT_YN = #{repStatYn}
+        </if>
+        <if test="repClsf != null and repClsf != ''">
+            AND r.REP_CLSF = #{repClsf}
+        </if>
+        ORDER BY r.REP_NO DESC
+        ) A
+        <![CDATA[ WHERE ROWNUM <= #{pageSize} * #{pageNo} ]]>
+        )
+        <![CDATA[ WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1 ]]>
+    </select>
+
+    <update id="RpdoUpdateAdmin" parameterType="ReportVO">
+        UPDATE report
+        SET
+            REP_STAT_YN = 'Y',
+            REP_PROC_DT = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            REP_PROC_HM = TO_CHAR(SYSDATE, 'HH24MI')
+        WHERE REP_NO = #{repNo}
+    </update>
+
+    <select id="getAdminReportCount" parameterType="ReportVO" resultType="int">
+        SELECT COUNT(*)
+        FROM report r
+        WHERE 1=1
+        <if test="repStatYn != null and repStatYn != '' and repStatYn != 'all'">
+            AND r.REP_STAT_YN = #{repStatYn}
+        </if>
+        <if test="repClsf != null and repClsf > 0">
+            AND r.REP_CLSF = #{repClsf}
+        </if>
     </select>
 
 </mapper>

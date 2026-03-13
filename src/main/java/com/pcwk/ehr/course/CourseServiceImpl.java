@@ -55,4 +55,6 @@ public class CourseServiceImpl implements CourseService {
     public List<CourseTripVO> getCourseRoute(int courseNo, int userNo) {
         return courseMapper.selectCourseRoute(courseNo);
     }
+
+
 }

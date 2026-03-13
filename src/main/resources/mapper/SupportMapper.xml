@@ -39,17 +39,21 @@
 
     <select id="doRetrieve" parameterType="SupportVO" resultType="SupportVO">
         SELECT * FROM (
-            SELECT ROWNUM AS rn, a.* FROM (
-                SELECT s.*, COUNT(*) OVER() AS total_cnt
-                FROM SUPPORT s
-                WHERE 1=1
-        <!-- ✅ 이 부분 추가 -->
+        SELECT ROWNUM AS rn, a.* FROM (
+        SELECT s.*, COUNT(*) OVER() AS total_cnt
+        FROM SUPPORT s
+        WHERE 1=1
         <if test="filterRegNo != null">
-                    AND REG_NO = #{filterRegNo}
-                </if>
-                ORDER BY SUP_NO DESC
-            ) a WHERE ROWNUM &lt;= #{pageNo} * #{pageSize}
-        ) WHERE rn > (#{pageNo} - 1) * #{pageSize}
+            AND REG_NO = #{filterRegNo}
+        </if>
+        <if test="supYn != null and supYn != ''">
+            AND SUP_YN = #{supYn}
+        </if>
+        ORDER BY SUP_NO DESC
+        ) a
+        WHERE ROWNUM &lt;= #{pageNo} * #{pageSize}
+        )
+        WHERE rn > (#{pageNo} - 1) * #{pageSize}
     </select>
 
     <update id="doUpdate" parameterType="SupportVO">

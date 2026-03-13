@@ -13,7 +13,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class ReportVO extends DTO {
+public class
+ReportVO extends DTO {
 
     private int repNo; // 신고 고유번호
     private String repCn; // 신고 내용

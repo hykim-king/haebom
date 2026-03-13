@@ -123,7 +123,9 @@ public class SecurityConfig {
 						"/user/login",
 						"/user/main",
 						"/user/social-signup",
-						"/admin/users/api"
+						"/admin/users/api",
+						"/admin/**",
+						"/support/**"
 				))
 
 				.authorizeHttpRequests(auth -> auth

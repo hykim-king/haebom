@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <title>해봄트립 - 마이페이지</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" th:href="@{/css/header.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/myPage.css}">
+    
+    <style>
+        .btn-orange { background-color: #ff9f43; color: white; border: none; }
+        .btn-orange:hover { background-color: #e68a2e; color: white; }
+        .password-wrapper { position: relative; }
+        .pw-icon { 
+            position: absolute; right: 15px; top: 50%; 
+            transform: translateY(-50%); cursor: pointer; color: #ccc; 
+        }
+        .validation-msg { font-size: 0.85rem; margin-top: 5px; }
+        .custom-card { border-radius: 15px; border: none; background: #fff; }
+        .content-pane { display: none; }
+        .content-pane.active { display: block; }
+        .menu-item { cursor: pointer; padding: 12px; border-radius: 10px; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+        .menu-item:hover { background-color: #fff9f2; }
+        .menu-item.active { background-color: #ff9f43; color: white; }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{main/header :: header}"></div>
+
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="custom-card p-4 text-center mb-4 shadow-sm border">
+                    <div class="mb-3">
+                        <div id="sidebar-nickname" class="fw-bold fs-5">여행자</div>
+                        <div id="sidebar-email" class="small text-muted text-truncate"></div>
+                    </div>
+                    <div class="text-start mb-4 border-top pt-3">
+                        <small class="text-muted fw-bold">나의 해시태그</small>
+                        <div id="hashtag-container" class="d-flex flex-wrap gap-1 mt-2"></div>
+                    </div>
+                    <button class="btn btn-outline-warning w-100 rounded-pill py-2"
+                        style="color:#ff9f43; border-color:#ff9f43;">문의하기</button>
+                </div>
+                
+                <div class="custom-card p-2 shadow-sm border">
+                    <div class="menu-item active" data-menu="info">
+                        <span><i data-lucide="user" class="me-2"></i> 내 정보</span> 
+                        <i data-lucide="chevron-right"></i>
+                    </div>
+                    <div class="menu-item" data-menu="wish">
+                        <span><i data-lucide="heart" class="me-2"></i> 찜 목록 (<span id="sidebar-wish-count">0</span>)</span> 
+                        <i data-lucide="chevron-right"></i>
+                    </div>
+                    <div class="menu-item" data-menu="completed">
+                        <span><i data-lucide="map-pin" class="me-2"></i> 여행 완료</span> 
+                        <i data-lucide="chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                
+                <div id="content-info" class="content-pane active">
+                    <div class="content-header" style="background-color: #ff9f43; color: white; padding: 15px; border-radius: 15px 15px 0 0;">
+                        <span><i data-lucide="user"></i> 내 정보 관리</span>
+                    </div>
+                    
+                    <div class="content-body shadow-sm p-4 bg-white border border-top-0" style="border-radius: 0 0 15px 15px;">
+                        <div class="row g-3 mb-4 border-bottom pb-3 text-center text-md-start">
+                            <div class="col-md-6">
+                                <div class="small text-muted">이름</div>
+                                <div id="info-name" class="fw-bold">-</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="small text-muted">연락처</div>
+                                <div id="info-phone" class="fw-bold">-</div>
+                            </div>
+                        </div>
+
+                        <div class="info-box mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <div class="small text-muted">닉네임</div>
+                                    <div id="display-nickname" class="fw-bold">로딩 중...</div>
+                                </div>
+                                <button class="btn btn-orange rounded-pill px-4" id="btn-nick-edit-toggle">변경하기</button>
+                            </div>
+                            <div id="nick-edit-fields" class="d-none p-3 bg-light rounded mt-2 border">
+                                <div class="input-group">
+                                    <input type="text" id="new-nickname" class="form-control" placeholder="새 닉네임">
+                                    <button class="btn btn-outline-dark" id="btn-nick-check">중복확인</button>
+                                    <button class="btn btn-dark" id="btn-nick-save" disabled>저장</button>
+                                </div>
+                                <div id="nick-msg" class="validation-msg"></div>
+                            </div>
+                        </div>
+
+                        <div class="info-box mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <div class="small text-muted">비밀번호</div>
+                                    <div class="fw-bold">********</div>
+                                </div>
+                                <button class="btn btn-orange rounded-pill px-4" id="btn-pw-edit-toggle">변경하기</button>
+                            </div>
+                            <div id="pw-edit-fields" class="d-none p-3 bg-light rounded mt-2 border">
+                                <input type="password" id="current-pw" class="form-control mb-2" placeholder="현재 비밀번호">
+                                <div class="password-wrapper mb-2">
+                                    <input type="password" id="new-pw" class="form-control" placeholder="새 비밀번호">
+                                    <i data-lucide="eye" class="pw-icon" onclick="togglePassword('new-pw')"></i>
+                                </div>
+                                <div class="password-wrapper mb-2">
+                                    <input type="password" id="confirm-pw" class="form-control" placeholder="비밀번호 확인">
+                                    <i data-lucide="eye" class="pw-icon" onclick="togglePassword('confirm-pw')"></i>
+                                </div>
+                                <div id="pw-match-msg" class="validation-msg"></div>
+                                <button class="btn btn-dark w-100 mt-2" id="btn-pw-save">비밀번호 저장</button>
+                            </div>
+                        </div>
+
+                        <div class="info-box mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <div class="small text-muted">주소지 관리</div>
+                                    <div id="current-addr-text" class="text-muted small">주소를 등록해 주세요.</div>
+                                </div>
+                                <button class="btn btn-orange rounded-pill px-4" onclick="execPostCode()">수정하기</button>
+                            </div>
+                            <div id="addr-edit-fields" class="d-none p-3 bg-light rounded mt-2 border">
+                                <div class="row g-2">
+                                    <div class="col-4"><input type="text" id="postcode" class="form-control" placeholder="우편번호" readonly></div>
+                                    <div class="col-12"><input type="text" id="address-base" class="form-control" placeholder="기본 주소" readonly></div>
+                                    <div class="col-12"><input type="text" id="address-detail" class="form-control" placeholder="상세 주소"></div>
+                                    <div class="col-12 text-end"><button class="btn btn-dark btn-sm" id="btn-addr-save">주소 저장</button></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">관심 해시태그</span>
+                                <button class="btn btn-sm text-muted" data-bs-toggle="modal" data-bs-target="#tagModal" id="btn-tag-edit-toggle">
+                                    <i data-lucide="edit-3" size="14"></i> 설정하기
+                                </button>
+                            </div>
+                            <div class="p-4 bg-light rounded-4 text-center text-muted border" id="selected-hashtags-display" style="border-radius: 20px;">
+                                태그를 선택해 주세요.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-wish" class="content-pane">
+                    <div class="content-header bg-warning text-white p-3" style="border-radius: 15px 15px 0 0;">
+                        <span><i data-lucide="heart"></i> 찜 목록 (<span id="wish-count-badge">0</span>)</span>
+                    </div>
+                    <div class="content-body shadow-sm p-4 bg-white border border-top-0" style="border-radius: 0 0 15px 15px;">
+                        <div class="row" id="wish-items-row"></div>
+                        <div id="wish-pagination" class="d-flex justify-content-center mt-4"></div>
+                    </div>
+                </div>
+
+                <div id="content-completed" class="content-pane">
+                    <div class="content-header bg-success text-white p-3" style="border-radius: 15px 15px 0 0;">
+                        <span><i data-lucide="check-circle"></i> 여행 완료 목록</span>
+                    </div>
+                    <div class="content-body shadow-sm p-4 bg-white border border-top-0" style="border-radius: 0 0 15px 15px;">
+                        <div class="row" id="complete-items-row"></div>
+                        <div id="complete-pagination" class="d-flex justify-content-center mt-4"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="tagModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none;">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">관심사 설정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="theme-list-wrapper" class="d-flex flex-wrap gap-2"></div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-orange rounded-pill px-4" onclick="saveTags()">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{main/footer :: footer}"></div>
+
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/javascript/myPage.js}"></script>
+</body>
+</html>

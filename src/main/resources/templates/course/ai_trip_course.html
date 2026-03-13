@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해봄트립 - AI콕콕 플래너</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/ai_trip_course.css">
+
+</head>
+<body>
+
+<div th:replace="~{main/header :: header}"></div>
+
+<div class="planner-hero">
+    <div class="stars" id="starsContainer"></div>
+
+    <div class="content-wrapper">
+        <h2 class="welcome-text">Welcome</h2>
+        <h1 class="main-title">
+            AI콕콕 플래너에<br>
+            오신 것을 환영합니다.
+        </h1>
+        <p class="sub-description">
+            국내 여행을 계획 중이신가요?<br>
+            여행을 떠날 지역, 기간, 테마만 알려주시면<br>
+            자동으로 맞춤형 코스를 만들어 드립니다.
+        </p>
+        <button class="btn-start" onclick="location.href='/course/ai/locate'">START</button>
+    </div>
+
+    <div class="bottom-graphic">
+        <div class="city-skyline"></div>
+
+        <div class="map-path">
+            <div class="map-pin"><i class="fa-solid fa-location-dot"></i></div>
+            <div class="map-pin"><i class="fa-solid fa-location-dot"></i></div>
+        </div>
+
+        <div class="robot-wrapper">
+            <div class="antenna-line"></div>
+            <div class="robot-img">
+                <i class="fa-solid fa-robot robot-face"></i>
+                <div class="robot-tablet"><i class="fa-solid fa-check"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{main/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const starsContainer = document.getElementById('starsContainer');
+    const numStars = 50;
+    const numMeteors = 5;
+
+    for (let i = 0; i < numStars; i++) {
+        let star = document.createElement('div');
+        star.classList.add('star');
+        let size = Math.random() * 3 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.animationDelay = (Math.random() * 2) + 's';
+        if (Math.random() > 0.8) {
+            star.classList.add('star-green');
+        }
+        starsContainer.appendChild(star);
+    }
+
+    for (let i = 0; i < numMeteors; i++) {
+        let meteor = document.createElement('div');
+        meteor.classList.add('meteor');
+        meteor.style.top = Math.random() * 50 + '%';
+        meteor.style.left = Math.random() * 100 + '%';
+        meteor.style.animationDelay = (Math.random() * 5) + 's';
+        starsContainer.appendChild(meteor);
+    }
+</script>
+</body>
+</html>

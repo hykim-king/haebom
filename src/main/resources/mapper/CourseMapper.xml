@@ -1,146 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.course.CourseMapper">
 
-    <resultMap id="courseResultMap" type="com.pcwk.ehr.domain.CourseVO">
-        <id property="courseNo" column="COURSE_NO"/>
-        <result property="courseNm" column="COURSE_NM"/>
-        <result property="courseInfo" column="COURSE_INFO"/>
-        <result property="coursePathNm" column="COURSE_PATH_NM"/>
-        <result property="courseDstnc" column="COURSE_DSTNC"/>
-        <result property="courseReqTm" column="COURSE_REQ_TM"/>
-        <collection property="courseItems" ofType="com.pcwk.ehr.domain.CourseTripVO">
-            <id property="ctNo" column="CT_NO"/>
-            <result property="courseNo" column="COURSE_NO"/>
-            <result property="tripContsId" column="TRIP_CONTS_ID"/>
-            <result property="ctOrder" column="CT_ORDER"/>
-            <result property="tripNm" column="TRIP_NM"/>
-            <result property="tripAddr" column="TRIP_ADDR"/>
-            <result property="tripPathNm" column="TRIP_PATH_NM"/>
-            <result property="tripLat" column="TRIP_LAT"/>
-            <result property="tripLot" column="TRIP_LOT"/>
-        </collection>
-    </resultMap>
+    <!--여행 코스 등록-->
+    <insert id="doSave" parameterType="CourseVO">
+        INSERT INTO course (
+            COURSE_NO,
+            COURSE_NM,
+            COURSE_INFO,
+            COURSE_PATH_NM,
+            COURSE_DSTNC,
+            COURSE_REQ_TM
+        ) VALUES (
+            SEQ_COURSE_NO.NEXTVAL,
+            #{courseNm},
+            #{courseInfo},
+            #{coursePathNm},
+            #{courseDstnc},
+            #{courseReqTm}
+        )
+    </insert>
 
-    <!-- 코스 기본 정보 조회 -->
-    <select id="selectCourseBasic" parameterType="int" resultType="CourseVO">
-        SELECT COURSE_NO      AS courseNo,
-               COURSE_NM      AS courseNm,
-               COURSE_INFO    AS courseInfo,
-               COURSE_PATH_NM AS coursePathNm,
-               COURSE_DSTNC   AS courseDstnc,
-               COURSE_REQ_TM  AS courseReqTm
-        FROM COURSE
+    <!--건수 조회-->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM course
+    </select>
+
+    <!-- 단건조회-->
+    <select id="doSelectOne" parameterType="CourseVO" resultType="CourseVO">
+        SELECT
+            COURSE_NO,
+            COURSE_NM,
+            COURSE_INFO,
+            COURSE_PATH_NM,
+            COURSE_DSTNC,
+            COURSE_REQ_TM
+        FROM course
         WHERE COURSE_NO = #{courseNo}
     </select>
 
-    <!-- ★ 코스 여행지 목록 조회 (좌표 NULL이어도 여행지 목록은 전부 보여줌) -->
-    <select id="selectCourseItems" parameterType="int" resultType="CourseTripVO">
-        SELECT CT.CT_NO         AS ctNo,
-               CT.COURSE_NO     AS courseNo,
-               CT.TRIP_CONTS_ID AS tripContsId,
-               CT.CT_ORDER      AS ctOrder,
-               T.TRIP_NM        AS tripNm,
-               T.TRIP_ADDR      AS tripAddr,
-               T.TRIP_PATH_NM   AS tripPathNm,
-               T.TRIP_LAT       AS tripLat,
-               T.TRIP_LOT       AS tripLot
-        FROM COURSE_TRIP CT
-                 JOIN TRIP T ON CT.TRIP_CONTS_ID = T.TRIP_CONTS_ID
-        WHERE CT.COURSE_NO = #{courseNo}
-        ORDER BY CT.CT_ORDER ASC
-    </select>
-
-    <!-- 코스 등록 -->
-    <insert id="doSave" parameterType="com.pcwk.ehr.domain.CourseVO">
-        <selectKey keyProperty="courseNo" resultType="int" order="BEFORE">
-            SELECT SEQ_COURSE_NO.NEXTVAL FROM DUAL
-        </selectKey>
-        INSERT INTO course (COURSE_NO, COURSE_NM, COURSE_INFO, COURSE_PATH_NM, COURSE_DSTNC, COURSE_REQ_TM)
-        VALUES (#{courseNo}, #{courseNm}, #{courseInfo}, #{coursePathNm}, #{courseDstnc}, #{courseReqTm})
-    </insert>
-
-    <!-- 목록 조회 (페이징) -->
-    <select id="doRetrieve" parameterType="com.pcwk.ehr.cmn.DTO" resultType="CourseVO">
-        SELECT * FROM (
-            SELECT T1.COURSE_NO,
-                   T1.COURSE_NM,
-                   T1.COURSE_INFO,
-                   T1.COURSE_PATH_NM,
-                   T1.COURSE_DSTNC,
-                   T1.COURSE_REQ_TM,
-                   ROW_NUMBER() OVER (ORDER BY T1.COURSE_NO DESC) AS RNUM,
-                   COUNT(*) OVER () AS TOTAL_CNT
-            FROM course T1
-            <where>
-                <if test="searchDiv != null and searchDiv == '10' and searchWord != null and searchWord != ''">
-                    T1.COURSE_NM LIKE '%' || #{searchWord} || '%'
-                </if>
-                <if test="searchDiv != null and searchDiv == '20' and searchWord != null and searchWord != ''">
-                    T1.COURSE_INFO LIKE '%' || #{searchWord} || '%'
-                </if>
-            </where>
-        ) T1
-        WHERE RNUM BETWEEN #{pageSize} * (#{pageNo} - 1) + 1
-                       AND #{pageSize} * (#{pageNo} - 1) + #{pageSize}
-    </select>
-
-    <!-- COURSE_TRIP INSERT -->
-    <insert id="insertCourseTrip" parameterType="CourseTripVO">
-        <selectKey keyProperty="ctNo" resultType="int" order="BEFORE">
-            SELECT SEQ_CT_NO.NEXTVAL FROM DUAL
-        </selectKey>
-        INSERT INTO COURSE_TRIP (CT_NO, COURSE_NO, TRIP_CONTS_ID, CT_ORDER)
-        VALUES (#{ctNo}, #{courseNo}, #{tripContsId}, #{ctOrder})
-    </insert>
-
-    <!-- RELATION INSERT -->
-    <insert id="insertRelation" parameterType="RelationVO">
-        <selectKey keyProperty="relNo" resultType="int" order="BEFORE">
-            SELECT SEQ_REL_NO.NEXTVAL FROM DUAL
-        </selectKey>
-        INSERT INTO RELATION (REL_NO, REL_CLSF, USER_NO, COURSE_NO, TRIP_CONTS_ID)
-        VALUES (#{relNo}, #{relClsf}, #{userNo}, #{courseNo}, #{tripContsId})
-    </insert>
-
-    <!-- 경로 좌표 조회 (좌표 있는 것만) -->
-    <select id="selectCourseRoute" parameterType="int" resultType="CourseTripVO">
-        SELECT CT.CT_NO AS ctNo, CT.COURSE_NO AS courseNo,
-               CT.TRIP_CONTS_ID AS tripContsId, CT.CT_ORDER AS ctOrder,
-               T.TRIP_NM AS tripNm, T.TRIP_ADDR AS tripAddr,
-               T.TRIP_LAT AS tripLat, T.TRIP_LOT AS tripLot
-        FROM COURSE_TRIP CT
-                 JOIN TRIP T ON CT.TRIP_CONTS_ID = T.TRIP_CONTS_ID
-        WHERE CT.COURSE_NO = #{courseNo}
-          AND T.TRIP_LAT IS NOT NULL AND T.TRIP_LOT IS NOT NULL
-          AND T.TRIP_LAT != 0 AND T.TRIP_LOT != 0
-        ORDER BY CT.CT_ORDER ASC
-    </select>
-
-    <!-- 내 코스 목록 조회 -->
-    <select id="selectMyCourses" parameterType="int" resultMap="courseResultMap">
-        SELECT C.COURSE_NO, C.COURSE_NM, C.COURSE_INFO, C.COURSE_PATH_NM,
-               C.COURSE_DSTNC, C.COURSE_REQ_TM,
-               CT.CT_NO, CT.TRIP_CONTS_ID, CT.CT_ORDER,
-               T.TRIP_NM, T.TRIP_ADDR, T.TRIP_PATH_NM, T.TRIP_LAT, T.TRIP_LOT
-        FROM RELATION R
-                 JOIN COURSE C ON R.COURSE_NO = C.COURSE_NO
-                 LEFT JOIN COURSE_TRIP CT ON C.COURSE_NO = CT.COURSE_NO
-                 LEFT JOIN TRIP T ON CT.TRIP_CONTS_ID = T.TRIP_CONTS_ID
-        WHERE R.USER_NO = #{userNo} AND R.REL_CLSF = 30 AND R.COURSE_NO IS NOT NULL
-        ORDER BY C.COURSE_NO DESC, CT.CT_ORDER ASC
-    </select>
-
-    <!-- doSelectOne (기존 WorkDiv 유지) -->
-    <select id="doSelectOne" parameterType="com.pcwk.ehr.domain.CourseVO" resultType="CourseVO">
-        SELECT COURSE_NO, COURSE_NM, COURSE_INFO, COURSE_PATH_NM, COURSE_DSTNC, COURSE_REQ_TM
-        FROM COURSE WHERE COURSE_NO = #{courseNo}
-    </select>
-
-    <!-- doDelete -->
+    <!-- 코스 삭제 -->
     <delete id="doDelete" parameterType="CourseVO">
-        DELETE FROM COURSE WHERE COURSE_NO = #{courseNo}
+        DELETE FROM course WHERE COURSE_NO = #{courseNo}
     </delete>
 
+    <!--목록조회-->
+    <select id="doRetrieve" parameterType="DTO" resultType="CourseVO">
+        SELECT * FROM (
+            SELECT 
+                T1.COURSE_NO,
+                T1.COURSE_NM,
+                T1.COURSE_INFO,
+                T1.COURSE_PATH_NM,
+                T1.COURSE_DSTNC,
+                T1.COURSE_REQ_TM,
+                ROW_NUMBER() OVER(ORDER BY T1.COURSE_REQ_TM DESC) AS RNUM,
+                COUNT(*) OVER() AS TOTAL_CNT
+            FROM course T1
+            WHERE 1=1
+            <choose>
+                <when test="searchDiv != null and searchDiv == '10'">
+                    AND T1.COURSE_NM LIKE '%' || #{searchWord} || '%'
+                </when>
+                <when test="searchDiv != null and searchDiv == '20'">
+                    AND T1.COURSE_INFO LIKE '%' || #{searchWord} || '%'
+                </when>
+                <when test="searchDiv != null and (searchDiv == '12' or searchDiv == '14')">
+                    AND T1.COURSE_TYPE = #{searchDiv}
+                </when>
+            </choose>
+        ) T1
+        WHERE RNUM BETWEEN #{pageSize} * (#{pageNo} - 1) + 1 
+                       AND #{pageSize} * (#{pageNo} - 1) + #{pageSize}
+    </select>
 </mapper>

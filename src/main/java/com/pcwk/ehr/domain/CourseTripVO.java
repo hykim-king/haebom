@@ -3,25 +3,24 @@ package com.pcwk.ehr.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-/**
- * COURSE_TRIP 테이블 VO
- * ERD 컬럼명 기준: CT_NO, CT_ORDER
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class CourseTripVO {
 
-    private Integer ctNo;           // PK (SEQ_CT_NO)
-    private Integer courseNo;       // FK → COURSE.COURSE_NO
-    private Integer tripContsId;    // FK → TRIP.TRIP_CONTS_ID
-    private Integer ctOrder;        // 코스 내 순서 (1, 2, 3 ...)
+    private int    courseNo;     // 코스 번호 (FK)
+    private int    tripContsId;  // 여행지 콘텐츠 ID (FK)
+    private int    stepOrder;    // 코스 내 순서
 
-    // JOIN 시 여행지 정보 (읽기 전용 - TripVO 필드와 동일)
-    private String  tripNm;
-    private String  tripAddr;
-    private String  tripPathNm;
-    private Double  tripLat;
-    private Double  tripLot;
+    // 여행지 기본 정보 (JOIN 결과)
+    private String tripNm;       // 여행지명
+    private String tripAddr;     // 주소
+    private String tripImgUrl;   // 대표 이미지 URL
+
+    // 지도 좌표
+    private String tripLat;      // 위도 (latitude)
+    private String tripLot;      // 경도 (longitude)
 }

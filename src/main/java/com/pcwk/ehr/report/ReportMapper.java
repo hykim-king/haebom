@@ -12,4 +12,6 @@ public interface ReportMapper extends WorkDiv<ReportVO> {
 
     int deleteAll();
 
+    int deleteByCmtNo(int cmtNo);
+
 }

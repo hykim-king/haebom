@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <div th:fragment="commentSection(cmtClsf, targetNo)">
+        <input type="hidden" id="cmtClsf" th:value="${cmtClsf}" />
+        <input type="hidden" id="targetNo" th:value="${targetNo}" />
+        <input type="hidden" id="currentUserNo" th:value="${session.user != null ? session.user.userNo : 0}" />
+        <input type="hidden" id="currentUserAdmin" th:value="${session.user != null ? session.user.userMngrYn : 'N'}" />
+
+        <div class="mt-20">
+            <h3 class="text-lg font-bold mb-2">후기 및 댓글 <span id="comment-count"
+                    class="text-orange-500 ml-1 text-sm font-normal">0</span></h3>
+            <div class="flex items-center gap-2 mb-6 text-sm text-gray-500">
+                <span id="avg-star-display" class="text-orange-400 text-base tracking-wide">★★★★★</span>
+                <span>평균 <strong id="avg-star-score" class="text-gray-700">0.0</strong>점</span>
+                <span>(<span id="avg-star-count">0</span>개 평가)</span>
+            </div>
+            <div class="bg-gray-50/50 border border-gray-100 rounded-2xl p-8 mb-10">
+                <div class="space-y-6">
+                    <div class="flex items-center gap-6">
+                        <span class="text-sm font-bold text-gray-700 w-16">별점 등록</span>
+                        <div class="flex flex-row-reverse justify-end star-rating-input">
+                            <input type="radio" id="st5" name="rating" value="5" class="hidden"><label for="st5"
+                                class="cursor-pointer text-gray-300 text-2xl">★</label>
+                            <input type="radio" id="st4" name="rating" value="4" class="hidden"><label for="st4"
+                                class="cursor-pointer text-gray-300 text-2xl">★</label>
+                            <input type="radio" id="st3" name="rating" value="3" class="hidden"><label for="st3"
+                                class="cursor-pointer text-gray-300 text-2xl">★</label>
+                            <input type="radio" id="st2" name="rating" value="2" class="hidden"><label for="st2"
+                                class="cursor-pointer text-gray-300 text-2xl">★</label>
+                            <input type="radio" id="st1" name="rating" value="1" class="hidden"><label for="st1"
+                                class="cursor-pointer text-gray-300 text-2xl">★</label>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <span class="text-sm font-bold text-gray-700 w-16">사진 첨부</span>
+                        <label for="comment-file"
+                            class="bg-white border px-4 py-1.5 rounded-lg text-xs font-bold cursor-pointer hover:bg-gray-50 transition-colors">파일 선택</label>
+                        <input type="file" id="comment-file" class="hidden" accept="image/*" multiple>
+                        <span id="comment-file-name" class="text-xs text-gray-400">선택된 파일 없음 (최대 5개)</span>
+                        <button type="button" onclick="clearCommentFile()" class="text-xs text-gray-400 hover:text-red-400 hidden" id="comment-file-clear">취소</button>
+                    </div>
+                    <div class="relative">
+                        <textarea id="comment-input"
+                            class="w-full p-5 border border-gray-200 rounded-xl h-32 outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-all"
+                            placeholder="여행지의 생생한 후기를 남겨주세요."></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="submitComment()"
+                            class="bg-orange-500 text-white px-10 py-3 rounded-xl font-bold hover:bg-orange-600 shadow-lg shadow-orange-500/20 transition-all">등록하기</button>
+                    </div>
+                </div>
+            </div>
+            <div id="comment-list" class="divide-y divide-gray-100 border-t"></div>
+        </div>
+
+        <script th:src="@{/javascript/comment.js}"></script>
+    </div>
+
+</body>
+</html>

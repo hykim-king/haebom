@@ -2,6 +2,7 @@ package com.pcwk.ehr.trip_course;
 
 import com.pcwk.ehr.domain.CourseTripVO;
 import com.pcwk.ehr.domain.RelationVO;
+import com.pcwk.ehr.domain.TripCourseDetailVO;
 import com.pcwk.ehr.domain.TripCourseVO;
 import com.pcwk.ehr.cmn.WorkDiv;
 import org.apache.ibatis.annotations.Mapper;
@@ -34,4 +35,6 @@ public interface TripCourseMapper extends WorkDiv<TripCourseVO> {
 
     /** 관계(찜 등) 삽입 */
     int insertRelation(RelationVO relationVO);
+
+    List<TripCourseDetailVO> findTripsByContsIds(List<Integer> tripIds);
 }

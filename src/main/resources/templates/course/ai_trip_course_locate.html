@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+
+<title>AI콕콕 플래너 - 지역 선택</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" th:href="@{/css/header.css}">
+<link rel="stylesheet" th:href="@{/css/footer.css}">
+<link rel="stylesheet" th:href="@{/css/ai_trip_course_locate.css}">
+
+</head>
+
+<body>
+
+<div th:replace="~{main/header :: header}"></div>
+
+
+<div class="card-wrapper container">
+
+<div class="planner-card">
+
+<div class="card-header-custom">
+
+<div class="logo-text">AI콕콕 플래너</div>
+
+<div class="step-indicator">
+
+<span class="step-active">01</span>
+
+<div class="step-line"></div>
+
+<span class="step-inactive">02</span>
+
+<span class="step-inactive">03</span>
+
+</div>
+
+</div>
+
+
+<div class="sub-title">이번 여행, 어디로 떠나볼까요?</div>
+
+<h1 class="main-title">
+
+여행을 떠나고 싶은 지역을<br>
+선택해 주세요.
+
+</h1>
+
+
+<!-- =====================
+     시도 선택
+===================== -->
+
+<div class="region-grid" id="regionGrid">
+
+<div class="region-item"
+     th:each="region : ${regions}"
+     th:data-ctpv="${region.tripCtpv}"
+     th:data-name="${region.tripCtpvNm}"
+     th:text="${region.tripCtpvNm}">
+</div>
+
+</div>
+
+
+
+<!-- =====================
+     군구 선택
+===================== -->
+
+<h2 class="sub-title mt-5" id="gunguTitle" style="display:none">
+세부 지역을 선택하세요
+</h2>
+
+<div class="region-grid" id="gunguGrid"></div>
+
+
+
+<div class="btn-next-wrap">
+
+<button class="btn-next" id="nextBtn" disabled>
+
+다음
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div th:replace="~{main/footer :: footer}"></div>
+
+
+<script>
+
+let selectedRegionCode = null;
+let selectedRegionName = null;
+let selectedGunguCode = null;
+let selectedGunguName = null;
+
+const nextBtn = document.getElementById("nextBtn");
+const gunguGrid = document.getElementById("gunguGrid");
+const gunguTitle = document.getElementById("gunguTitle");
+
+
+/* =========================
+   시도 선택
+========================= */
+
+document.querySelectorAll(".region-item").forEach(item => {
+
+item.addEventListener("click", async function(){
+
+document.querySelectorAll(".region-item")
+.forEach(i => i.classList.remove("selected"));
+
+this.classList.add("selected");
+
+selectedRegionCode = this.dataset.ctpv;
+selectedRegionName = this.dataset.name;
+
+/* 여기 추가 */
+selectedGunguCode = null;
+selectedGunguName = null;
+
+nextBtn.disabled = false;
+
+await loadGungu(selectedRegionCode);
+
+});
+
+});
+
+
+/* =========================
+   군구 로드
+========================= */
+
+async function loadGungu(ctpv){
+
+const res = await fetch("/course/gungu?tripCtpv=" + ctpv);
+
+const data = await res.json();
+
+gunguGrid.innerHTML = "";
+
+gunguTitle.style.display = "block";
+
+
+data.forEach(g => {
+
+const div = document.createElement("div");
+
+div.className = "region-item";
+
+div.dataset.code = g.tripGungu;
+div.dataset.name = g.tripGunguNm;
+
+div.innerText = g.tripGunguNm;
+
+div.addEventListener("click", function(){
+
+document.querySelectorAll("#gunguGrid .region-item")
+.forEach(i => i.classList.remove("selected"));
+
+this.classList.add("selected");
+
+selectedGunguCode = this.dataset.code;
+selectedGunguName = this.dataset.name;
+
+
+
+nextBtn.disabled = false;
+
+});
+
+gunguGrid.appendChild(div);
+
+});
+
+}
+
+
+/* =========================
+   다음 버튼
+========================= */
+
+nextBtn.addEventListener("click", function(){
+
+
+localStorage.setItem("regionName", selectedRegionName);
+localStorage.setItem("regionCode", selectedRegionCode);
+
+if(selectedGunguName){
+    localStorage.setItem("gunguName", selectedGunguName);
+    localStorage.setItem("gunguCode", selectedGunguCode);
+}else{
+    localStorage.removeItem("gunguName");
+    localStorage.removeItem("gunguCode");
+}
+location.href = "/course/ai/date";
+
+});
+
+</script>
+
+
+</body>
+</html>

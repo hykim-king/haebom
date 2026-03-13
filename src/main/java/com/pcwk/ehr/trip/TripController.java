@@ -42,7 +42,7 @@ public class TripController {
     /**
      * 1. 여행지 목록 화면 (초기 로딩용)
      */
-    @GetMapping("/trip")
+    @GetMapping("")
     public String tripList(TripVO tripVO, Model model) {
         if (tripVO.getPageNo() == 0)
             tripVO.setPageNo(1);

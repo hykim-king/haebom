@@ -795,12 +795,119 @@ function renderInquiriesPagination(totalCnt) {
 }
 
 // ===================================
-// 데이터 통계 - 차트 시각화
+// 데이터 통계 - 차트 시각화 (AJAX)
 // ===================================
+let signupChartData = null;
+let activityChartData = null;
+let reportChartData = null;
+let signupChart = null;
+let activityChart = null;
+let reportTypeChart = null;
+
 function initStatistics() {
-  initSignupChart();
-  initActivityChart();
-  initReportTypeChart();
+  const statisticType = document.getElementById('statistic-type');
+  const statisticMonth = document.getElementById('statistic-month');
+  const statisticYear = document.getElementById('statistic-year');
+  const nowMonth = document.getElementById('nowMonth');
+
+  if (!statisticYear) return;
+
+  // 년도 셀렉트 초기화
+  if (statisticYear.options.length === 0) {
+    yearSelect();
+  }
+
+  // 이벤트 리스너 (중복 방지)
+  if (!statisticType._listenerAdded) {
+    statisticType.addEventListener('change', function () {
+      if (this.value === 'day') {
+        statisticMonth.style.display = '';
+      } else {
+        statisticMonth.style.display = 'none';
+      }
+    });
+    statisticType._listenerAdded = true;
+  }
+
+  if (nowMonth && !nowMonth._listenerAdded) {
+    nowMonth.addEventListener('click', function () {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth() + 1;
+      statisticMonth.style.display = '';
+      statisticType.value = 'day';
+      statisticYear.value = year;
+      statisticMonth.value = month;
+      statisticsAjax();
+    });
+    nowMonth._listenerAdded = true;
+  }
+
+  statisticsAjax();
+}
+
+function yearSelect() {
+  const yearSelect = document.getElementById('statistic-year');
+  if (!yearSelect) return;
+  const currentYear = new Date().getFullYear();
+  yearSelect.innerHTML = '';
+  for (let i = 0; i <= 5; i++) {
+    const year = currentYear - i;
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year + ' 년';
+    yearSelect.appendChild(option);
+  }
+}
+
+function statisticsSearch() {
+  statisticsAjax();
+}
+
+function statisticsAjax() {
+  const statisticType = document.getElementById('statistic-type');
+  const statisticYear = document.getElementById('statistic-year');
+  const statisticMonth = document.getElementById('statistic-month');
+
+  if (!statisticType || !statisticYear) return;
+
+  const param = {
+    type: statisticType.value,
+    year: statisticYear.value,
+    month: statisticMonth ? statisticMonth.value : '1'
+  };
+
+  const token = $('meta[name="_csrf"]').attr('content');
+  const header = $('meta[name="_csrf_header"]').attr('content');
+
+  $.ajax({
+    url: '/admin/statisticData',
+    type: 'POST',
+    data: param,
+    dataType: 'json',
+    beforeSend: function (xhr) {
+      xhr.setRequestHeader(header, token);
+    },
+    success: function (res) {
+      if (res.result == 1) {
+        signupChartData = res.signupChartData || [];
+        activityChartData = res.activityChartData || [];
+        reportChartData = res.reportChartData || [];
+        initSignupChart();
+        initActivityChart();
+        initReportTypeChart();
+      } else {
+        alert(res.message || '통계 데이터를 불러오지 못했습니다.');
+      }
+    },
+    error: function (xhr) {
+      let msg = '오류가 발생했습니다.';
+      if (xhr.responseJSON && xhr.responseJSON.message) {
+        msg += '\nmessage: ' + xhr.responseJSON.message;
+      }
+      alert(msg);
+    }
+  });
 }
 
 function initSignupChart() {
@@ -809,15 +916,31 @@ function initSignupChart() {
 
   const labels = [];
   const data = [];
-  const today = new Date();
 
-  for (let i = 5; i >= 0; i--) {
-    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-    labels.push(`${date.getMonth() + 1}월`);
-    data.push(Math.floor(Math.random() * 100) + 50);
+  const type = document.getElementById('statistic-type').value;
+  const year = document.getElementById('statistic-year').value;
+  const month = document.getElementById('statistic-month').value;
+
+  for (let i = 0; i < signupChartData.length; i++) {
+    if (type === 'month') {
+      labels.push(signupChartData[i].MONTH + '월');
+    } else {
+      labels.push(signupChartData[i].DAY + '일');
+    }
+    data.push(signupChartData[i].CNT);
   }
 
-  new Chart(ctx, {
+  if (type === 'month') {
+    document.querySelector('#statistics-section .card .card-header h5').textContent = `${year}년도 회원가입자 수`;
+  } else {
+    document.querySelector('#statistics-section .card .card-header h5').textContent = `${year}년 ${month}월 회원가입자 수`;
+  }
+
+  if (signupChart) {
+    signupChart.destroy();
+  }
+
+  signupChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
@@ -852,20 +975,27 @@ function initActivityChart() {
   const ctx = document.getElementById('activityChart');
   if (!ctx) return;
 
-  new Chart(ctx, {
+  if (activityChart) {
+    activityChart.destroy();
+  }
+
+  const currentData = activityChartData.current || [245, 189, 567, 123];
+  const previousData = activityChartData.previous || [198, 156, 489, 98];
+
+  activityChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: ['댓글', '게시물', '좋아요', '공유'],
       datasets: [{
         label: '이번 달',
-        data: [245, 189, 567, 123],
+        data: currentData,
         backgroundColor: 'rgba(249, 115, 22, 0.8)',
         borderColor: 'rgba(249, 115, 22, 1)',
         borderWidth: 2,
         borderRadius: 8
       }, {
         label: '지난 달',
-        data: [198, 156, 489, 98],
+        data: previousData,
         backgroundColor: 'rgba(59, 130, 246, 0.8)',
         borderColor: 'rgba(59, 130, 246, 1)',
         borderWidth: 2,
@@ -885,15 +1015,24 @@ function initReportTypeChart() {
   const ctx = document.getElementById('reportTypeChart');
   if (!ctx) return;
 
-  const reportCounts = { spam: 0, abuse: 0, inappropriate: 0, etc: 0 };
-  reportsData.forEach(report => { reportCounts[report.type]++; });
+  if (reportTypeChart) {
+    reportTypeChart.destroy();
+  }
 
-  new Chart(ctx, {
+  const labels = [];
+  const data = [];
+
+  for (let i = 0; i < reportChartData.length; i++) {
+    labels.push(reportChartData[i].TYPE);
+    data.push(reportChartData[i].CNT);
+  }
+
+  reportTypeChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['스팸', '욕설/비방', '부적절한 내용', '기타'],
+      labels: labels,
       datasets: [{
-        data: [reportCounts.spam, reportCounts.abuse, reportCounts.inappropriate, reportCounts.etc],
+        data: data,
         backgroundColor: [
           'rgba(239, 68, 68, 0.8)',
           'rgba(249, 115, 22, 0.8)',

@@ -32,6 +32,7 @@ public class AdminController {
     private final CommentMapper commentMapper;
     private final ReportMapper reportMapper;
     private final SupportService supportService;
+    private final AdminService adminService;
 
     @GetMapping("/users")
     public String getUserList() {
@@ -167,6 +168,57 @@ public class AdminController {
             return ResponseEntity.ok().body("1");
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("0");
+    }
+
+    // ---------------- 데이터 통계 ----------------
+
+    @PostMapping("/statisticData")
+    @ResponseBody
+    public Map<String, Object> statisticData(
+            @RequestParam String type,
+            @RequestParam String year,
+            @RequestParam(required = false) String month
+    ) {
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("year", year);
+        param.put("month", month);
+
+        List<Map<String, Object>> signupChartData;
+        List<Map<String, Object>> reportChartData;
+
+        if ("month".equals(type)) {
+            param.put("startDate", year + "0101");
+            param.put("endDate", year + "1231");
+
+            signupChartData = adminService.getMemberRegistMonth(param);
+            reportChartData = adminService.getReportCount(param);
+
+        } else if ("day".equals(type)) {
+            String mm = String.format("%02d", Integer.parseInt(month));
+
+            java.time.LocalDate start = java.time.LocalDate.of(Integer.parseInt(year), Integer.parseInt(mm), 1);
+            java.time.LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+            param.put("startDate", start.toString().replace("-", ""));
+            param.put("endDate", end.toString().replace("-", ""));
+
+            signupChartData = adminService.getMemberRegistDay(param);
+            reportChartData = adminService.getReportCount(param);
+
+        } else {
+            return Map.of(
+                    "result", 0,
+                    "message", "invalid type"
+            );
+        }
+
+        return Map.of(
+                "result", 1,
+                "message", "success",
+                "signupChartData", signupChartData,
+                "reportChartData", reportChartData
+        );
     }
 
     @GetMapping("/inquiries/api")

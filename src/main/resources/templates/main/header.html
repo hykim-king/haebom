@@ -11,9 +11,9 @@
         <li><a th:href="@{/trip_course/trip_course}">여행지 코스</a></li>
         <li><a th:href="@{/thema}">테마</a></li>
         <li class="dropdown">
-        <a th:href="@{/tripAi}" class="dropdown-toggle">추천 AI</a>
+        <a th:href="@{/ai_trip/recommend}" class="dropdown-toggle">추천 AI</a>
         <ul class="dropdown-menu">
-          <li><a th:href="@{/tripAi}">여행지 AI</a></li>
+          <li><a th:href="@{/ai_trip/recommend}">여행지 AI</a></li>
           <li><a th:href="@{/course/ai}">여행코스 AI</a></li>
         </ul>
       </li>
@@ -26,7 +26,7 @@
       </div>
 
       <div class="util-menu" th:if="${session.user != null}">
-        <span class="welcome" th:text="${session.user.userNm} + '님 환영합니다'">사용자님 환영합니다</span>
+        <a th:href="@{/mypage/mypage.do}" class="welcome" th:text="${session.user.userNm} + '님 환영합니다'">사용자님 환영합니다</a>
 
         <form th:action="@{/user/logout}" method="post" style="margin:0;">
           <button type="submit" class="logout-link">로그아웃</button>

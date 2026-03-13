@@ -270,6 +270,83 @@ def ask_and_search(user_question: str, user_code: str):
 
 
 # ============================================================
+# ==================== AI 여행지 추천 영역 ====================
+# ============================================================
+
+class RecommendRequest(BaseModel):
+    user_input: str = "추천 여행지"
+    user_tag: str = "일반"
+
+class AgeRecommendRequest(BaseModel):
+    age_group: str = "20대"
+
+class LocalRecommendRequest(BaseModel):
+    local_addr: str = "전국"
+
+def get_gpt_recommendation(system_instruction: str, user_content: str) -> Optional[List[str]]:
+    try:
+        response = client.chat.completions.create(
+            model=AI_MODEL,
+            messages=[
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": user_content}
+            ],
+            temperature=0.3
+        )
+        ai_answer = response.choices[0].message.content.strip()
+        print(f"GPT 원본 응답: {ai_answer}")
+
+        raw_list = re.split(r'[,\n]', ai_answer)
+        clean_list = []
+        for name in raw_list:
+            t_name = name.strip()
+            t_name = re.sub(r'^[0-9\s\.\-\)]+', '', t_name)
+            t_name = t_name.replace(".", "").strip()
+            if 0 < len(t_name) < 20:
+                clean_list.append(t_name)
+        return clean_list
+    except Exception as e:
+        print(f"GPT 에러 발생: {e}")
+        return None
+
+@app.post("/ai/recommend")
+async def recommend(req: RecommendRequest):
+    """일반 맞춤 여행지 추천"""
+    system_msg = (
+        "너는 한국 관광 전문가야. 설명 없이 오직 장소의 '핵심 명칭'만 3개 답변해.\n"
+        "출력 형식: 명칭1, 명칭2, 명칭3\n"
+        "예: 경복궁, 해운대, 불국사"
+    )
+    user_msg = f"요청: {req.user_input} / 태그: {req.user_tag}"
+    result = get_gpt_recommendation(system_msg, user_msg)
+    return result if result else ["경복궁", "해운대", "불국사"]
+
+@app.post("/ai/recommend_age")
+async def recommend_age(req: AgeRecommendRequest):
+    """연령대별 인기 여행지 추천"""
+    system_msg = (
+        f"너는 {req.age_group} 트렌드 전문가야. 해당 연령대가 좋아할 장소 이름만 4개 답변해.\n"
+        "번호나 주소 쓰지 마. 예: 익선동, 서피비치, 성수동, 에버랜드"
+    )
+    user_msg = f"{req.age_group} 인기 여행지 알려줘."
+    result = get_gpt_recommendation(system_msg, user_msg)
+    return result if result else ["익선동", "서피비치", "성수동", "에버랜드"]
+
+@app.post("/ai/recommend_local")
+async def recommend_local(req: LocalRecommendRequest):
+    """내 주변(지역) 핫플레이스 추천"""
+    system_msg = (
+        f"너는 {req.local_addr} 지역 전문가야. 반드시 {req.local_addr} 행정구역 내에 있는 장소만 추천해.\n"
+        f"다른 도시(용인, 춘천 등)는 절대 포함하지 마. 오직 {req.local_addr}의 장소 이름만 4개 답변해.\n"
+        "형식: 장소1, 장소2, 장소3, 장소4"
+    )
+    user_msg = f"{req.local_addr} 지역 내에서 가볼 만한 핫플레이스를 추천해줘."
+    result = get_gpt_recommendation(system_msg, user_msg)
+    default_spots = [f"{req.local_addr} 호수공원", f"{req.local_addr} 시청 인근", f"{req.local_addr} 맛집골목", f"{req.local_addr} 산책로"]
+    return result if result else default_spots
+
+
+# ============================================================
 # ==================== AI 코스 추천 영역 ====================
 # ============================================================
 

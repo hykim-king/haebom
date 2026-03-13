@@ -8,21 +8,21 @@
 
 // 1. 전역 설정 및 상태
 const THEMES = [
-    { id: 'mountain', icon: '⛰️', label: '산' },
-    { id: 'waterfall', icon: '🌊', label: '폭포' },
-    { id: 'valley', icon: '💦', label: '계곡' },
-    { id: 'sea', icon: '🏖️', label: '바다' },
-    { id: 'lake', icon: '🚣', label: '호수' },
-    { id: 'river', icon: '🏞️', label: '강' },
-    { id: 'cave', icon: '🦇', label: '동굴' },
-    { id: 'history', icon: '🏯', label: '역사 관광지' },
-    { id: 'temple', icon: '🙏', label: '사찰' },
-    { id: 'spa', icon: '♨️', label: '온천/스파' },
-    { id: 'themepark', icon: '🎡', label: '테마공원' },
-    { id: 'experience', icon: '🚜', label: '체험' },
-    { id: 'monument', icon: '🗼', label: '기념/전망' },
-    { id: 'culture', icon: '🏛️', label: '문화시설' },
-    { id: 'leisure', icon: '🚲', label: '레포츠' }
+    { id: '산', icon: '⛰️', label: '산' },
+    { id: '폭포', icon: '🌊', label: '폭포' },
+    { id: '계곡', icon: '💦', label: '계곡' },
+    { id: '바다', icon: '🏖️', label: '바다' },
+    { id: '호수', icon: '🚣', label: '호수' },
+    { id: '강', icon: '🏞️', label: '강' },
+    { id: '동굴', icon: '🦇', label: '동굴' },
+    { id: '역사 관광지', icon: '🏯', label: '역사 관광지' },
+    { id: '사찰', icon: '🙏', label: '사찰' },
+    { id: '온천/스파', icon: '♨️', label: '온천/스파' },
+    { id: '테마공원', icon: '🎡', label: '테마공원' },
+    { id: '체험', icon: '🚜', label: '체험' },
+    { id: '기념/전망', icon: '🗼', label: '기념/전망' },
+    { id: '문화시설', icon: '🏛️', label: '문화시설' },
+    { id: '레포츠', icon: '🚲', label: '레포츠' }
 ];
 
 let timerInterval;
@@ -65,7 +65,7 @@ function startTimer(duration, display) {
 function renderThemes() {
     const $container = $('#theme-container');
     if ($container.length === 0) return;
-    
+
     // 소셜 가입 페이지와 동일한 3열 디자인용 클래스 적용
     const html = THEMES.map(theme => `
         <label class="cursor-pointer group block w-full select-none">
@@ -81,7 +81,7 @@ function renderThemes() {
             </div>
         </label>
     `).join('');
-    
+
     $container.html(html);
 }
 
@@ -192,19 +192,19 @@ $(document).ready(function () {
     // 2. 중복 확인 버튼 클릭 시 (형식 검증 후 통과 시에만 AJAX 실행)
     $('#btn-check-nickname').on('click', function () {
         const nickname = $('#nickname').val().trim();
-        
+
         // [검증 1] 빈 값 체크
-        if (!nickname) { 
-            alert("닉네임을 입력해주세요."); 
-            $('#nickname').focus(); 
-            return; 
+        if (!nickname) {
+            alert("닉네임을 입력해주세요.");
+            $('#nickname').focus();
+            return;
         }
 
         // [검증 2] 한글 초성/모음 포함 여부 검증
         const hasIncompleteKorean = /[ㄱ-ㅎㅏ-ㅣ]/.test(nickname);
         if (hasIncompleteKorean) {
             alert("닉네임 형식이 올바르지 않습니다.\n'ㄱㄴㄷ'이나 'ㅏㅑㅓ' 같은 초성/모음은 사용할 수 없습니다.");
-            
+
             // 잘못된 입력 시 상태 초기화 및 포커스
             $('#nickCheckDone').val('N');
             $('#nickname').val('').focus(); // 입력창을 비우고 포커스
@@ -237,7 +237,7 @@ $(document).ready(function () {
                     $('#nickname').focus();
                 }
             },
-            error: function() {
+            error: function () {
                 alert("중복 확인 중 오류가 발생했습니다.");
             }
         });
@@ -288,6 +288,8 @@ $(document).ready(function () {
         if ($('#nickCheckDone').val() !== 'Y') { alert("닉네임 중복 확인을 해주세요."); return; }
         if ($('#phoneCheckDone').val() !== 'Y') { alert("전화번호 중복 확인을 해주세요."); return; }
         if ($('#password').val() !== $('#password-confirm').val()) { alert("비밀번호가 일치하지 않습니다."); return; }
+        if (!$('#addr-basic').val().trim()) { alert("주소를 입력해주세요."); $('#btn-search-address').focus(); return; }
+        if (!$('#addr-detail').val().trim()) { alert("상세주소를 입력해주세요."); $('#addr-detail').focus(); return; }
 
         const checkedThemes = $('input[name="themes"]:checked');
         if (checkedThemes.length < 3) { alert("여행 테마를 3개 이상 선택해주세요."); return; }

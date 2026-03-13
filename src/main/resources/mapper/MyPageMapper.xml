@@ -69,6 +69,15 @@
     <delete id="doDelete" parameterType="UserVO">
         DELETE FROM ss_user WHERE USER_NO = #{userNo}
     </delete>
+    <delete id="deleteRelationByUserNo" parameterType="int">
+    DELETE FROM relation WHERE USER_NO = #{userNo}
+    </delete>
+
+
+    <delete id="deleteCommentByUserNo" parameterType="int">
+    DELETE FROM cmt 
+    WHERE reg_no = #{userNo}
+    </delete>
 
     <select id="doSelectOne" parameterType="UserVO" resultType="UserVO">
         SELECT USER_NO,

@@ -43,4 +43,10 @@ public interface MyPageService extends WorkDiv<UserVO> {
 
     int deleteFinishedTrip(CommentVO commentVO, TripVO tripVO);
 
+    /** 회원 탈퇴 관련: 모든 관계 데이터(찜, 여행완료) 삭제 */
+    int deleteRelationByUserNo(int userNo);
+
+    /** 회원 탈퇴 관련: 모든 댓글 삭제 (필요시) */
+    int deleteCommentByUserNo(int userNo);
+
 }

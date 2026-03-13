@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.domain.CommentVO;
 import com.pcwk.ehr.domain.TripVO;
@@ -31,10 +33,19 @@ public class MyPageServiceImpl implements MyPageService {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+    @Transactional // 중요: 두 삭제 작업 중 하나라도 실패하면 롤백됩니다.
     public int doDelete(UserVO userVO) {
 
-        return myPageMapper.doDelete(userVO);
+        // 1. 자식 레코드(찜 목록 등) 먼저 삭제
+        myPageMapper.deleteRelationByUserNo(userVO.getUserNo());
+        log.info("자식 레코드(SS_RELATION) 삭제 완료");
+
+        myPageMapper.deleteCommentByUserNo(userVO.getUserNo());
+        // 2. 부모 레코드(회원) 삭제
+        int result = myPageMapper.doDelete(userVO);
+        log.info("부모 레코드(SS_USER) 삭제 완료: 결과 = {}", result);
+
+        return result;
     }
 
     @Override
@@ -114,7 +125,7 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
-    public int deleteCmt(CommentVO vo){
+    public int deleteCmt(CommentVO vo) {
         return myPageMapper.deleteCmt(vo);
     }
 

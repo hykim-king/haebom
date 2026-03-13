@@ -34,8 +34,10 @@
                         <small class="text-muted fw-bold">나의 해시태그</small>
                         <div id="hashtag-container" class="d-flex flex-wrap gap-1 mt-2"></div>
                     </div>
-                    <button class="btn btn-outline-warning w-100 rounded-pill py-2"
-                        style="color:#ff9f43; border-color:#ff9f43;">문의하기</button>
+                    <a th:href="@{/support}" class="btn btn-outline-warning w-100 rounded-pill py-2"
+                        style="color:#ff9f43; border-color:#ff9f43; text-decoration: none;">
+                        문의하기
+                    </a>
                 </div>
 
                 <div class="custom-card p-2 shadow-sm border">
@@ -151,6 +153,14 @@
                                 태그를 선택해 주세요.
                             </div>
                         </div>
+                        <div class="mt-5 pt-3 border-top text-end">
+    <small class="text-muted me-2">해봄트립을 더 이상 이용하지 않으시나요?</small>
+    <button type="button" class="btn btn-link text-danger p-0" 
+            onclick="withdrawUser()" 
+            style="text-decoration: none; font-size: 0.9rem; cursor: pointer;">
+        회원 탈퇴
+    </button>
+</div>
                     </div>
                 </div>
 

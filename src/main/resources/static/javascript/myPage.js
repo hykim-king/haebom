@@ -736,4 +736,32 @@ async function deleteFinishedItem(event, cmtNo, tripContsId) {
     }
 }
 
+function withdrawUser() {
+    // meta 태그에서 CSRF 토큰 가져오기 (jQuery 없이)
+    const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
 
+    if (confirm("정말로 탈퇴하시겠습니까? 작성하신 모든 정보가 삭제됩니다.")) {
+        // fetch API 사용 (jQuery의 $.ajax 대체)
+        fetch("/mypage/doDelete.do", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                [header]: token // CSRF 헤더 설정
+            }
+        })
+        .then(response => response.text())
+        .then(res => {
+            if (res == "1") {
+                alert("회원 탈퇴가 완료되었습니다.");
+                location.href = "/main";
+            } else {
+                alert("탈퇴 처리 중 오류가 발생했습니다.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("서버 통신 중 오류가 발생했습니다.");
+        });
+    }
+}

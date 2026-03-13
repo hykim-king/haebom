@@ -157,8 +157,56 @@ function fetchDetailData(tripContsId) {
 
             // 아이콘 새로고침
             if (window.lucide) lucide.createIcons();
-        })
-        .catch(err => console.error("AJAX 호출 에러:", err));
+        }).catch(err => console.error("AJAX 호출 에러:", err));
+    //[추가] 이미지 리스트가 포함된 기본 정보 호출
+    fetch(`/trip/getTripVO.do?tripContsId=${tripContsId}`)
+        .then(res => res.json())
+        .then(vo => {
+            if (vo.imageList && vo.imageList.length > 0) {
+                renderPhotoGallery(vo.imageList); // 이미지를 그리는 함수 호출
+            }
+        });
+}
+
+function renderPhotoGallery(imageList) {
+    const galleryContainer = document.getElementById("photo-gallery");
+    if (!galleryContainer || !imageList || imageList.length === 0) return;
+
+    const count = imageList.length;
+    let gridClass = "";
+    let html = "";
+
+    // 개수에 따른 그리드 레이아웃 설정
+    if (count === 1) {
+        gridClass = "grid-cols-1";
+        html = `<img src="${imageList[0]}" class="w-full h-[450px] object-cover">`;
+    }
+    else if (count === 2) {
+        gridClass = "grid-cols-2";
+        html = imageList.map(img => `<img src="${img}" class="w-full h-[450px] object-cover">`).join("");
+    }
+    else if (count === 3) {
+        gridClass = "grid-cols-2 grid-rows-2";
+        // 첫 번째 이미지는 크게(왼쪽), 나머지는 오른쪽에 위아래로
+        html = `
+            <img src="${imageList[0]}" class="row-span-2 w-full h-[450px] object-cover">
+            <img src="${imageList[1]}" class="w-full h-[223px] object-cover">
+            <img src="${imageList[2]}" class="w-full h-[223px] object-cover">
+        `;
+    }
+    else if (count >= 4) {
+        gridClass = "grid-cols-4 grid-rows-2";
+        // 첫 번째 이미지는 아주 크게, 나머지는 우측에 배치 (인스타그램/에어비앤비 스타일)
+        html = `
+            <img src="${imageList[0]}" class="col-span-2 row-span-2 w-full h-[450px] object-cover">
+            <img src="${imageList[1]}" class="col-span-2 w-full h-[223px] object-cover">
+            <img src="${imageList[2]}" class="col-span-1 w-full h-[223px] object-cover">
+            <img src="${imageList[3]}" class="col-span-1 w-full h-[223px] object-cover">
+        `;
+    }
+
+    galleryContainer.className = `grid ${gridClass} gap-2 overflow-hidden rounded-[32px] shadow-lg bg-gray-100`;
+    galleryContainer.innerHTML = html;
 }
 
 

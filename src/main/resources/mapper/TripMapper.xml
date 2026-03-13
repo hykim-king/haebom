@@ -4,6 +4,22 @@
 <mapper namespace="com.pcwk.ehr.trip.TripMapper">
     
     
+<resultMap id="tripFullMap" type="TripVO">
+    <id property="tripContsId" column="TRIP_CONTS_ID"/>
+    <result property="tripNm" column="TRIP_NM"/>
+    <result property="tripAddr" column="TRIP_ADDR"/>
+    <result property="tripPathNm" column="TRIP_PATH_NM"/>
+    
+    <result property="tripLat" column="TRIP_LAT"/>
+    <result property="tripLot" column="TRIP_LOT"/>
+    <result property="tripTag" column="TRIP_TAG"/>
+    <result property="tripClsf" column="TRIP_CLSF"/>
+    <result property="tripCtpv" column="TRIP_CTPV"/>
+    <result property="tripGungu" column="TRIP_GUNGU"/>
+    <result property="tripInqCnt" column="TRIP_INQ_CNT"/> <result property="tripTagNm" column="tripTagNm"/>    <collection property="imageList" ofType="java.lang.String" javaType="java.util.ArrayList">
+        <result column="FILE_PATH_NM"/>
+    </collection>
+</resultMap>
     
     <select id="getDistinctTags" resultType="String">
     SELECT DISTINCT 
@@ -70,12 +86,14 @@
         WHERE TRIP_CONTS_ID = #{tripContsId}
     </delete>
 
-<select id="doSelectOne" parameterType="TripVO" resultType="TripVO">
+<select id="doSelectOne" parameterType="TripVO" resultMap="tripFullMap">
+    
     SELECT
         T.TRIP_CONTS_ID, 
         T.TRIP_NM, 
         /* TRIP_PATH_NM이 NULL이면 첨부파일의 경로를 사용 */
-        NVL(T.TRIP_PATH_NM, AF.FILE_PATH_NM) AS TRIP_PATH_NM, 
+        NVL(T.TRIP_PATH_NM, AF.FILE_PATH_NM) AS TRIP_PATH_NM,
+        AF.FILE_PATH_NM AS FILE_PATH_NM, 
         T.TRIP_ADDR,
         T.TRIP_LAT, 
         T.TRIP_LOT, 
@@ -114,7 +132,7 @@
             FROM ATTACH_FILE
             WHERE board_clsf = 'trip'  /* 게시판 구분값 확인 필요 */
         )
-        WHERE rn = 1
+    WHERE rn <![CDATA[ <= ]]> 4
     ) AF ON T.TRIP_CONTS_ID = AF.board_id
     WHERE T.TRIP_CONTS_ID = #{tripContsId}
 </select>

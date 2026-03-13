@@ -40,8 +40,10 @@ public class TripController {
      */
     @GetMapping("/trip")
     public String tripList(TripVO tripVO, Model model) {
-        if (tripVO.getPageNo() == 0) tripVO.setPageNo(1);
-        if (tripVO.getPageSize() == 0) tripVO.setPageSize(10);
+        if (tripVO.getPageNo() == 0)
+            tripVO.setPageNo(1);
+        if (tripVO.getPageSize() == 0)
+            tripVO.setPageSize(10);
 
         List<TripVO> list = tripService.doRetrieve(tripVO);
         int totalCnt = (list != null && !list.isEmpty()) ? list.get(0).getTotalCnt() : 0;
@@ -102,8 +104,10 @@ public class TripController {
     @GetMapping("/doRetrieveJson.do")
     @ResponseBody
     public List<TripVO> doRetrieveJson(TripVO tripVO) {
-        if (tripVO.getPageNo() == 0) tripVO.setPageNo(1);
-        if (tripVO.getPageSize() == 0) tripVO.setPageSize(10);
+        if (tripVO.getPageNo() == 0)
+            tripVO.setPageNo(1);
+        if (tripVO.getPageSize() == 0)
+            tripVO.setPageSize(10);
         return tripService.doRetrieve(tripVO);
     }
 
@@ -142,7 +146,8 @@ public class TripController {
     public int favoriteStatus(@RequestParam("tripContsId") int tripContsId, HttpSession session) {
         // 💡 UserEntity로 세션 정보 획득
         UserEntity user = (UserEntity) session.getAttribute("user");
-        if (user == null) return 0;
+        if (user == null)
+            return 0;
 
         RelationVO vo = new RelationVO();
         vo.setUserNo(user.getUserNo());
@@ -188,8 +193,8 @@ public class TripController {
             relationService.toggleFavorite(vo);
 
             // 2. 결과 데이터 수집
-            int userTotalCount = relationService.getCountByUser(vo); 
-            int tripTotalCount = relationService.getCount(tripContsId); 
+            int userTotalCount = relationService.getCountByUser(vo);
+            int tripTotalCount = relationService.getCount(tripContsId);
 
             resultList.add(1); // 성공 여부
             resultList.add(userTotalCount); // 사용자의 총 찜 개수
@@ -201,4 +206,12 @@ public class TripController {
 
         return resultList;
     }
+
+    @GetMapping("/getTripVO.do")
+    @ResponseBody
+    public TripVO getTripVO(TripVO tripVO) {
+        // 우리가 만든 imageList가 포함된 데이터를 JSON으로 반환
+        return tripService.doSelectOne(tripVO);
+    }
+
 }

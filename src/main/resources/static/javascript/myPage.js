@@ -351,10 +351,9 @@ document.getElementById('btn-pw-save')?.addEventListener('click', async () => {
         return;
     }
 
-    // 4. (추가 제안) 비밀번호 최소 길이 검증 
-    if (8<=nPw.length<=16 ) {
-        alert("새 비밀번호는 최소 8자 이상 16자 이하이어야 합니다.");
-        return;
+    if (nPw.length < 8 || nPw.length > 16) {
+    alert("새 비밀번호는 최소 8자 이상 16자 이하이어야 합니다.");
+    return;
     }
 
     // 5. 서버 전송 데이터 구성
@@ -558,7 +557,13 @@ async function saveTags() {
     // 1. 모달 내에서 선택된(btn-warning 클래스 보유) 버튼들 찾기
     const selectedBtns = document.querySelectorAll('.tag-select-btn.btn-warning');
 
-    // 2. label 값들을 추출하여 콤마(,)로 연결된 문자열 생성
+    // 2. 개수 검증 (최소 3개)
+    if (selectedBtns.length < 3) {
+        alert("관심 해시태그를 최소 3개 이상 선택해 주세요.");
+        return; // 저장을 중단하고 함수 종료
+    }
+
+    // 3. label 값들을 추출하여 콤마(,)로 연결된 문자열 생성
     const selectedLabels = Array.from(selectedBtns).map(btn => btn.dataset.label);
     const tagStr = selectedLabels.join(',');
 

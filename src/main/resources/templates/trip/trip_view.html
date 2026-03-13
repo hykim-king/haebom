@@ -57,8 +57,10 @@
         </div>
 
         <div class="relative mb-12">
-            <img id="detail-img" th:src="${vo != null && vo.tripPathNm != null ? vo.tripPathNm : '/img/no_img.png'}"
-                class="w-full h-[450px] object-cover rounded-[32px] mb-12 shadow-lg bg-gray-100">
+            <div id="photo-gallery" class="grid gap-2 overflow-hidden rounded-[32px] shadow-lg bg-gray-100">
+                <img id="detail-img" th:src="${vo != null && vo.tripPathNm != null ? vo.tripPathNm : '/img/no_img.png'}"
+                    class="w-full h-[450px] object-cover">
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-1 gap-16 mb-16 border-b pb-16">

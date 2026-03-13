@@ -12,9 +12,9 @@ const ageRefreshBtn = document.getElementById('ageRefreshBtn');
 const loadMoreLocalBtn = document.getElementById('loadMoreLocalBtn');
 
 // --- Global States ---
+<<<<<<< HEAD
 let localSeedCounter = 0;
 let isInfiniteScrollActive = false;
-let isDataLoading = false;
 
 // 전역 데이터 가드
 const safeTravelData = window.travelData || [];
@@ -156,10 +156,11 @@ function appendLocalCards() {
         if (loadMoreLocalBtn && !isInfiniteScrollActive) {
             loadMoreLocalBtn.style.display = 'none';
             isInfiniteScrollActive = true;
-        }
-    }, 400);
-}
+=======
+let localSeedCounter = 9;       // 초기 8개 이후의 시드 번호
+let isInfiniteScrollActive = false; // 무한 스크롤 활성화 여부
 
+<<<<<<< HEAD
 // --- Lifecycle & Events ---
 
 window.onload = () => {
@@ -259,10 +260,23 @@ document.addEventListener("click", (e) => {
 /**
  * 새로고침 버튼들 (POST 방식으로 데이터 요청)
  */
+=======
+// --- Initial Render ---
+window.onload = () => {
+    // shuffleAndRender(mainGrid, 3);
+    shuffleAndRender(ageGrid, 4, true);
+    renderLocalCards();
+};
+
+// --- Event Listeners ---
+
+// Section 1 Refresh
+>>>>>>> bbbec91a71d3676e1380afba6ee027f90bcedf1b
 if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
         const icon = refreshBtn.querySelector('i');
         icon.style.transform = 'rotate(360deg)';
+<<<<<<< HEAD
 
         // 메인 추천 다시 받기 (FastAPI recommend 엔드포인트 연동)
         loadAiData("/ai_trip/recommend", { "user_input": "추천 여행지", "user_tag": "일반" }, mainGrid, false);
@@ -271,10 +285,23 @@ if (refreshBtn) {
     });
 }
 
+=======
+        mainGrid.style.opacity = '0';
+        setTimeout(() => {
+            shuffleAndRender(mainGrid, 3);
+            mainGrid.style.opacity = '1';
+            icon.style.transform = 'rotate(0deg)';
+        }, 300);
+    });
+}
+
+// Section 2 Refresh
+>>>>>>> bbbec91a71d3676e1380afba6ee027f90bcedf1b
 if (ageRefreshBtn) {
     ageRefreshBtn.addEventListener('click', () => {
         const icon = ageRefreshBtn.querySelector('i');
         icon.style.transform = 'rotate(360deg)';
+<<<<<<< HEAD
 
         const activeTab = document.querySelector('.age-list li.active');
         let ageValue = activeTab ? activeTab.id.replace('age-', '') : "20";
@@ -293,3 +320,88 @@ window.addEventListener('scroll', () => {
         appendLocalCards();
     }
 });
+=======
+        ageGrid.style.opacity = '0';
+        setTimeout(() => {
+            shuffleAndRender(ageGrid, 4, true);
+            ageGrid.style.opacity = '1';
+            icon.style.transform = 'rotate(0deg)';
+        }, 300);
+    });
+}
+
+// Tab and Tag Interaction
+document.querySelectorAll('.age-list li').forEach(li => {
+    li.addEventListener('click', () => {
+        const activeLi = document.querySelector('.age-list li.active');
+        if (activeLi) activeLi.classList.remove('active');
+        li.classList.add('active');
+        shuffleAndRender(ageGrid, 4, true);
+    });
+});
+
+document.querySelectorAll('.tab-item').forEach(tab => {
+    tab.addEventListener('click', () => {
+        const activeTab = document.querySelector('.tab-item.active');
+        if (activeTab) activeTab.classList.remove('active');
+        tab.classList.add('active');
+        shuffleAndRender(ageGrid, 4, true);
+    });
+});
+
+// Wishlist Toggle (Event Delegation)
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn-wish');
+    if (btn) {
+        const icon = btn.querySelector('i');
+        if (icon.classList.contains('fa-regular')) {
+            icon.classList.replace('fa-regular', 'fa-solid');
+            icon.style.color = '#ff4757';
+        } else {
+            icon.classList.replace('fa-solid', 'fa-regular');
+            icon.style.color = '';
+        }
+    }
+});
+
+// [수정] 더보기 버튼 클릭 이벤트
+if (loadMoreLocalBtn) {
+    loadMoreLocalBtn.addEventListener('click', appendLocalCards);
+}
+
+// [추가] 무한 스크롤 이벤트 리스너
+window.addEventListener('scroll', () => {
+    if (!isInfiniteScrollActive || isDataLoading) return;
+
+    // 바닥에서 300px 여유를 두고 트리거
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 300) {
+        appendLocalCards();
+    }
+});
+
+// --- Floating Buttons Logic ---
+const topBtn = document.getElementById('topBtn');
+const chatbotBtn = document.getElementById('chatbotBtn');
+
+window.addEventListener('scroll', () => {
+    if (topBtn) {
+        if (window.scrollY > 300) {
+            topBtn.classList.add('show');
+        } else {
+            topBtn.classList.remove('show');
+        }
+    }
+});
+
+if (topBtn) {
+    topBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+if (chatbotBtn) {
+    chatbotBtn.addEventListener('click', () => {
+        alert('챗봇 상담 서비스가 준비 중입니다!');
+    });
+}
+>>>>>>> bbbec91a71d3676e1380afba6ee027f90bcedf1b

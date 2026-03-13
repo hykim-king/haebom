@@ -1,7 +1,7 @@
 ### 관리자 페이지 통계 추가
 
 파일 정리
-static/javascript/admin_new.js
+static/javascript/admin_new.\n
 templates/admin/*
 
 src/main/com/pcwk/ehr/admin/*

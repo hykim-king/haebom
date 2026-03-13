@@ -59,4 +59,10 @@ public class AdminServiceImpl implements AdminService {
 	    return list;
 	}
 
+	@Override
+	public List<Map<String, Object>> getReportCount(Map<String, Object> param) {
+		List<Map<String, Object>> list = adminMapper.getReportCount(param);
+		return list;
+	}
+
 }

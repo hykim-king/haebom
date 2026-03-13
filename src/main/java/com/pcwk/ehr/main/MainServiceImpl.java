@@ -3,7 +3,6 @@ package com.pcwk.ehr.main;
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.trip.TripMapper;
-import com.pcwk.ehr.util.weather.WeatherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,33 +10,22 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MainServiceImpl implements MainService {
+public class MainServiceImpl implements MainService{
 
 
     private final TripMapper tripMapper;
-    private final WeatherService weatherService;
 
-    // private final RestTemplateBuilder restTemplateBuilder;
-
-    //인기 관광지
     @Override
-    public List<TripVO> popularTop3() {
-        return tripMapper.popularTop3();
+    public List<TripVO> getTop3Popular() {
+        return tripMapper.selectTop3Popular();
     }
 
-    //지역별 랜덤 추천
     @Override
-    public List<TripVO> randomRegion() {
-        return tripMapper.randomRegion();
+    public List<TripVO> getRandomPerRegion() {
+        return tripMapper.selectRandomPerRegion();
     }
 
-    //날씨 API
     @Override
-    public String getBestWeatherRegions() {
-        return weatherService.getBestWeatherRegions();
-    }
-
-        @Override
     public List<TripVO> doRetrieve(DTO param) {
         return List.of();
     }
@@ -53,13 +41,21 @@ public class MainServiceImpl implements MainService {
     }
 
     @Override
+    public TripVO doSelectOne(TripVO param) {
+        return null;
+    }
+
+    @Override
     public int doSave(TripVO param) {
         return 0;
     }
 
-    @Override
-    public TripVO doSelectOne(TripVO param) {
-        return tripMapper.doSelectOne(param);
-    }
-
+//    @Override
+//    public List<Map<String, Object>> getBestWeatherRegions() {
+//        // TODO: 기상청 APIHub 호출 로직 (RestTemplate 또는 WebClient 사용)
+//        // 1. APIHub 접속 및 데이터 파싱
+//        // 2. 기온/강수 조건에 따라 상위 3개 지역 선정
+//        // 3. List<Map> 형태로 반환하여 main.js에서 사용 가능하게 가공
+//        return new ArrayList<>();
+//    }
 }

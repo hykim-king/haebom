@@ -43,7 +43,7 @@ class TripDetailDaoTest {
 		log.info("└──────────────────────────┘");
 
 		// 1번 데이터: 관광지(12), 이름에 '정서진' 포함
-		tripVO01 = new TripVO();
+		tripVO01 = new TripVO(1, "정서진 관광지", "null", "인천 서구", 37.5, 37.5, "자연", 12, 28, 1, 0);
 
 		tripDetailVO01 = new TripDetailVO(1,"상세정보","휴뮤일","주차","운영 시간","전화번호","유모차","동물","요금","홈페이지","20240522",null);
 		

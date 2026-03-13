@@ -66,15 +66,6 @@ document.addEventListener('DOMContentLoaded', function () {
   yearSelect();
   statisticsAjax();
 
-  const currentPath = window.location.pathname;
-
-  if (currentPath.includes("statisticChart")) {
-    const statisticsMenu = document.querySelector('[data-section="statistics"]');
-    if (statisticsMenu) {
-      statisticsMenu.classList.add("active");
-    }
-  }
-
   statisticType.addEventListener('change', function () {
     if(this.value === 'day'){
       statisticMonth.classList.remove('hidden');
@@ -82,8 +73,6 @@ document.addEventListener('DOMContentLoaded', function () {
       statisticMonth.classList.add('hidden');
     }
   });
-
-
 
   nowMonth.addEventListener('click', function () {
     const today = new Date();
@@ -139,7 +128,7 @@ function initStatistics() {
 }
 let signupChartData = null; 
 let activityChartData = null;
-let reportTypeChartData = null;
+let reportChartData = null;
 
 function statisticsAjax() {
   const param = {
@@ -163,7 +152,8 @@ function statisticsAjax() {
       if (res.result == 1) {
         signupChartData = res.signupChartData || [];
         activityChartData = res.activityChartData || [];
-        reportTypeChartData = res.reportTypeChartData || [];
+        reportChartData = res.reportChartData || [];
+        console.log(reportChartData)
 
         initStatistics();
       } else {
@@ -338,34 +328,21 @@ function initReportTypeChart() {
     reportTypeChart.destroy();
   }
 
-  let reportCounts = {
-    spam: 0,
-    abuse: 0,
-    inappropriate: 0,
-    etc: 0
-  };
+  const labels = [];
+  const data = [];
 
-  if (reportTypeChartData.length > 0) {
-    reportTypeChartData.forEach(item => {
-      reportCounts[item.type] = item.count;
-    });
-  } else {
-    reportsData.forEach(report => {
-      reportCounts[report.type]++;
-    });
+  for (let i = 0; i < reportChartData.length; i++) {
+    labels.push(reportChartData[i].TYPE);
+    data.push(reportChartData[i].CNT);
   }
+  
 
   reportTypeChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['스팸', '욕설/비방', '부적절한 내용', '기타'],
+      labels: labels,
       datasets: [{
-        data: [
-          reportCounts.spam,
-          reportCounts.abuse,
-          reportCounts.inappropriate,
-          reportCounts.etc
-        ],
+        data: data,
         backgroundColor: [
           'rgba(239, 68, 68, 0.8)',
           'rgba(249, 115, 22, 0.8)',

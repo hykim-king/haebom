@@ -40,4 +40,21 @@
 	    GROUP BY D.DAY
 	    ORDER BY D.DAY
 	</select>
+
+	<select id="getReportCount" parameterType="map" resultType="map">
+		SELECT
+			CASE REP_CLSF
+				WHEN 10 THEN '욕설'
+				WHEN 20 THEN '음란'
+				WHEN 30 THEN '홍보'
+				WHEN 40 THEN '개인정보 유출'
+				WHEN 50 THEN '기타'
+			END AS TYPE,
+			COUNT(*) AS CNT
+		FROM REPORT
+		WHERE REP_REG BETWEEN #{startDate} AND #{endDate}
+		GROUP BY REP_CLSF
+		ORDER BY REP_CLSF
+	</select>
+	
 </mapper>

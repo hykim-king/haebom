@@ -1,5 +1,6 @@
 package com.pcwk.ehr.admin;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,59 +15,77 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.pcwk.ehr.config.SecurityConfig;
+
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
-	private final Logger log = LogManager.getLogger(getClass());
-	
-	private final AdminService adminService;
-	@GetMapping("/statisticChart")
+
+    private final SecurityConfig securityConfig;
+    private final AdminService adminService;
+
+    private final Logger log = LogManager.getLogger(getClass());
+
+    @GetMapping("/statisticChart")
     public String statisticChart(Model model) {
         log.debug("┌──────────────────────────────────┐");
         log.debug("│ statisticChart() 호출             │");
         log.debug("└──────────────────────────────────┘");
 
-        // 3. 뷰(main.html)로 데이터 전달
-//        model.addAttribute("popularList", popularList);
-//        model.addAttribute("randomRegionList", randomRegionList);
-
-        // templates/main/main.html 호출
         return "admin/statistic_chart";
     }
-	
-	@PostMapping("/statisticData")
-	@ResponseBody
-	public Map<String, Object> statisticData(
-	        @RequestParam String type,
-	        @RequestParam String year,
-	        @RequestParam(required = false) String month
-	) {
 
-	    Map<String, Object> param = new HashMap<>();
-	    param.put("year", year);
-	    param.put("month", month);
+    @PostMapping("/statisticData")
+//    @GetMapping("/statisticData")
+    @ResponseBody
+    public Map<String, Object> statisticData(
+            @RequestParam String type,
+            @RequestParam String year,
+            @RequestParam(required = false) String month
+    ) {
 
-	    List<Map<String, Object>> signupChartData;
+        Map<String, Object> param = new HashMap<>();
+        param.put("year", year);
+        param.put("month", month);
 
-	    if ("month".equals(type)) {
-	    	signupChartData = adminService.getMemberRegistMonth(param);
-	    } else if ("day".equals(type)) {
-	    	signupChartData = adminService.getMemberRegistDay(param);
-	    } else {
-	        return Map.of(
-	                "result", 0,
-	                "message", "invalid type"
-	        );
-	    }
+        List<Map<String, Object>> signupChartData;
+        List<Map<String, Object>> reportChartData;
 
-	    return Map.of(
-	            "result", 1,
-	            "message", "success",
-	            "signupChartData", signupChartData
-	    );
-	}
+        if ("month".equals(type)) {
+            param.put("startDate", year + "0101");
+            param.put("endDate", year + "1231");
 
+            signupChartData = adminService.getMemberRegistMonth(param);
+            reportChartData = adminService.getReportCount(param);
+
+        } else if ("day".equals(type)) {
+            String mm = String.format("%02d", Integer.parseInt(month));
+            
+      
+            LocalDate start = LocalDate.of(Integer.parseInt(year), Integer.parseInt(mm), 1);
+            LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+            
+            param.put("startDate", start.toString().replace("-", ""));
+            param.put("endDate", end.toString().replace("-", ""));
+
+            signupChartData = adminService.getMemberRegistDay(param);
+            reportChartData = adminService.getReportCount(param);
+
+        } else {
+            return Map.of(
+                    "result", 0,
+                    "message", "invalid type"
+            );
+        }
+
+        return Map.of(
+                "result", 1,
+                "message", "success",
+                "signupChartData", signupChartData,
+                "reportChartData", reportChartData
+        );
+    }
 }

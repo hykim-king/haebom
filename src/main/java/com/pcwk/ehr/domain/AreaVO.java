@@ -18,6 +18,6 @@ public class AreaVO extends DTO {
     private int areaNo; // 지역 고유번호
     private int tripCtpv; // 지역 이름
     private String tripCtpvNm; // 지역 설명
-    private int tripGungu; // 지역 이름
-    private String tripGunguNm; // 지역 설명
+    private int tripGngu; // 지역 이름
+    private String tripGnguNm; // 지역 설명
 }

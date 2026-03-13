@@ -2,16 +2,11 @@ package com.pcwk.ehr.drug;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.util.List;
-
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.pcwk.ehr.domain.DrugVO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,27 +15,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DrugController  {
 
-    final Logger log = LogManager.getLogger(getClass());
-    private final DrugService drugService;
+    final Logger log = LogManager.getLogger(getClass());    
 
-    @GetMapping(value = "/api/drugs")
-    @ResponseBody
-    public List<DrugVO> doRetrieveDrugs(DrugVO drugVO) {
-        log.info("doRetrieveDrugs() drugVO: {}", drugVO);
-        if (drugVO.getPageNo() == 0) drugVO.setPageNo(1);
-        if (drugVO.getPageSize() == 0) drugVO.setPageSize(5);
-        return drugService.doRetrieve(drugVO);
-    }
 
     @GetMapping(value = "/drug_detail")
-    public String drug_detail(@RequestParam("id") int id, Model model) {
-        log.info("drug_detail() id: {}", id);
+    public String drug_detail() {
+        log.info("drug_detail()");
 
-        DrugVO param = new DrugVO();
-        param.setDsNo(id);
-        DrugVO drug = drugService.doSelectOne(param);
-        model.addAttribute("drug", drug);
+        String viewname = "medical/drug_detail";
 
-        return "medical/drug_detail";
+        return viewname;
     }
 }

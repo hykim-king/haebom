@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>해봄트립 - 의료가이드</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../css/header.css" rel="stylesheet">
-    <link href="../css/footer.css" rel="stylesheet">
-    <link href="../css/medical_guidedetail.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/medical_guidedetail.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -16,27 +16,39 @@
 
 <main class="container">
     <div class="breadcrumb-nav">
-        <a th:href="@{/medical}"><i data-lucide="arrow-left" size="18"></i> 목록</a>
+        <a href="medical.html"><i data-lucide="arrow-left" size="18"></i> 목록</a>
         <span>|</span>
-        <span th:text="${drug.dsNm}">약국명</span>
+        <span>서울대학교병원</span>
     </div>
 
     <section class="hero-card">
         <div>
-            <span class="hero-badge">약국</span>
-            <h1 class="hero-title" th:text="${drug.dsNm}">약국명</h1>
+            <span class="hero-badge">병원</span>
+            <h1 class="hero-title">서울대학교병원</h1>
         </div>
         <div class="hero-icon-circle">
-            <i data-lucide="pill" size="32"></i>
+            <i data-lucide="stethoscope" size="32"></i>
         </div>
     </section>
 
     <div class="detail-grid">
 
         <section class="detail-box">
-            <h2 class="detail-h2"><i data-lucide="map-pin" size="22"></i> 위치 안내</h2>
-            <div id="trip-mini-map"
-                 style="width:100%; height:350px; border-radius:16px; overflow:hidden; background:#f3f4f6;"></div>
+            <h2 class="box-title">위치 안내</h2>
+            <div class="map-placeholder">
+                <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1000" alt="Map View" class="map-img">
+                <div class="map-marker">
+                    <i data-lucide="map-pin" size="48" fill="rgba(249, 115, 22, 0.2)"></i>
+                </div>
+                <button class="map-overlay-btn">
+                    <i data-lucide="external-link" size="16"></i>
+                    지도 앱에서 보기
+                </button>
+            </div>
+            <p class="map-caption">
+                * 실제 지도 서비스와 연동되지 않은 예시 이미지입니다.<br>
+                '지도 앱에서 보기'를 클릭하면 길찾기 화면으로 이동합니다.
+            </p>
         </section>
 
         <section class="detail-box">
@@ -47,31 +59,39 @@
                     <div class="info-icon"><i data-lucide="map-pin" size="20"></i></div>
                     <div class="info-content">
                         <label>주소</label>
-                        <span class="detail-addr" th:text="${drug.dsAddr}">주소</span>
+                        <span>서울특별시 종로구 대학로 101</span>
                     </div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon"><i data-lucide="clock" size="20"></i></div>
                     <div class="info-content">
-                        <label>운영시간</label>
-                        <span id="detail-time">09:00 - 18:00</span>
+                        <label>평일 운영시간</label>
+                        <span>09:00 - 18:00</span>
                     </div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon"><i data-lucide="calendar" size="20"></i></div>
                     <div class="info-content">
-                        <label>주말 운영</label>
-                        <span th:text="${drug.dsWkndOpenYn == 'Y' ? '주말 운영 가능' : '주말 휴무'}">주말 운영 여부</span>
+                        <label>주말 및 공휴일</label>
+                        <span>토요일 09:00 - 13:00</span>
+                        <div class="text-holiday">일요일 및 공휴일 휴진</div>
                     </div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-icon"><i data-lucide="phone" size="20"></i></div>
                     <div class="info-content">
-                        <label>대표 전화</label>
-                        <span id="detail-phone1" th:text="${drug.dsTelno}">전화번호</span>
+                        <label>대표 전화 / 응급실</label>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span>1588-5700</span>
+                            <span style="color: #e2e8f0;">|</span>
+                            <span class="text-emergency">02-2072-1182 (응급)</span>
+                        </div>
+                        <div class="emergency-tag">
+                            응급실 운영중
+                        </div>
                     </div>
                 </div>
 
@@ -81,7 +101,7 @@
     </div>
 
     <div class="btn-container">
-        <a class="btn-back-list" th:href="@{/medical}">
+        <a th:href="@{/medical}" class="btn-back-list">
             <i data-lucide="layout-list" size="20"></i>
             목록으로 돌아가기
         </a>
@@ -90,90 +110,12 @@
 
 <div th:replace="~{main/footer :: footer}"></div>
 
-<script src="../javascript/medical.js"></script>
-
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f660768a1b637b8b3e739404a972f5e8&autoload=false" type="text/javascript"></script>
-<script th:inline="javascript">
-    const opTm = /*[[${drug.dsOpTm}]]*/ '';
-    const endTm = /*[[${drug.dsEndTm}]]*/ '';
-
+<script>
+    // 아이콘 렌더링
     window.onload = () => {
         lucide.createIcons();
-        document.getElementById('detail-time').textContent = formatTime(opTm) + ' - ' + formatTime(endTm);
-        const phone1 = document.getElementById('detail-phone1');
-        if (phone1) phone1.textContent = formatPhone(phone1.textContent);
-        document.querySelectorAll('.detail-addr').forEach(el => {
-            el.textContent = el.textContent.replace(/,\s*$/, '');
-        });
-
-
     };
 
-    const dsLat = /*[[${drug.dsLat}]]*/ 0;
-    const dsLot = /*[[${drug.dsLot}]]*/ 0;
-    const dsNm = /*[[${drug.dsNm}]]*/ '약국'; // 이름이 없을 경우 기본값 '약국'
-
-    kakao.maps.load(() => {
-        if (!dsLat || !dsLot) {
-            console.error("좌표 데이터가 없습니다.");
-            return;
-        }
-
-        const container = document.getElementById('trip-mini-map');
-        const map = new kakao.maps.Map(container, {
-            center: new kakao.maps.LatLng(dsLat, dsLot),
-            level: 3
-        });
-
-        const marker = new kakao.maps.Marker({
-            position: new kakao.maps.LatLng(dsLat, dsLot),
-            map: map
-        });
-
-        /* 중앙 정렬 + 클릭 시 카카오맵 이동 링크 포함
-        */
-        const content = `
-            <div style="
-                padding: 7px 14px;
-                background-color: white;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-                font-size: 13px;
-                font-weight: bold;
-                width: max-content;
-                text-align: center;
-                white-space: nowrap;
-                position: relative;
-                margin-bottom: 20px;
-            ">
-                <a href="https://map.kakao.com/link/search/${encodeURIComponent(dsNm)}"
-                   target="_blank"
-                   style="text-decoration: none; color: #222; display: block;">
-                    ${dsNm}
-                </a>
-                <div style="
-                    position: absolute;
-                    width: 10px;
-                    height: 10px;
-                    background: white;
-                    border-right: 1px solid #ddd;
-                    border-bottom: 1px solid #ddd;
-                    bottom: -6px;
-                    left: 50%;
-                    transform: translateX(-50%) rotate(45deg);
-                "></div>
-            </div>`;
-
-        const customOverlay = new kakao.maps.CustomOverlay({
-            position: new kakao.maps.LatLng(dsLat, dsLot),
-            content: content,
-            xAnchor: 0.5, // 중앙 정렬
-            yAnchor: 1.45 // 마커 위 배치
-        });
-
-        customOverlay.setMap(map);
-    });
 </script>
 </body>
 </html>

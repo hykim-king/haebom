@@ -21,7 +21,4 @@ public class SupportVO extends DTO {
     private String supAnsRegHm; // SUP_ANS_REG_HM (CHAR(4)) : 문의사항 답변시간 (HH24MI)
     private int regNo; // REG_NO (NUMBER) : 등록자 고유번호
     private String supYn; // SUP_YN (CHAR) : 문의사항 처리상태 (기본값 'N')
-
-    private Integer filterRegNo;
-
 }

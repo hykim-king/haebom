@@ -1,177 +1,70 @@
 package com.pcwk.ehr.support;
 
-import com.pcwk.ehr.attachfile.AttachFileMapper;
-import com.pcwk.ehr.domain.AttachFileVO;
-import com.pcwk.ehr.domain.SupportVO;
-import com.pcwk.ehr.domain.UserVO;
-import com.pcwk.ehr.user.UserEntity;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-@Log4j2
 @Controller
 @RequestMapping("/support")
 @RequiredArgsConstructor
 public class SupportController {
 
     private final SupportService supportService;
-    private final AttachFileMapper attachFileMapper;
 
-    @GetMapping("")
-    public String support(@RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
-                          Model model, HttpSession session) {
-        UserEntity sessionUser = (UserEntity) session.getAttribute("user");
-        String userMngrYn = "N";
-        String userEmail = null;
-        Integer userNo = null;
+    private final Logger log = LogManager.getLogger(getClass());
 
-        if (sessionUser != null) {
-            userEmail = sessionUser.getUserEmlAddr();
-            userNo = sessionUser.getUserNo();
-            userMngrYn = (sessionUser.getUserMngrYn() != null) ? sessionUser.getUserMngrYn().trim().toUpperCase() : "N";
-            if ("N".equals(userMngrYn) && "ss@s".equals(userEmail)) {
-                userMngrYn = "Y";
-            }
-        }
-
-        int pageSize = 10;
-        SupportVO searchVO = new SupportVO();
-        searchVO.setPageNo(pageNo);
-        searchVO.setPageSize(pageSize);
-
-        if (sessionUser == null) {
-            searchVO.setFilterRegNo(-1);
-        } else if ("N".equals(userMngrYn)) {
-            if (userNo == null) {
-                int recoveredNo = supportService.getUserIdByEmail(userEmail);
-                if (recoveredNo > 0) userNo = recoveredNo;
-            }
-            searchVO.setFilterRegNo(userNo);
-        }
-
-        List<SupportVO> list = supportService.doRetrieve(searchVO);
-
-        // 첨부파일 Map 조회
-        Map<Integer, List<AttachFileVO>> fileMap = new HashMap<>();
-        if (list != null) {
-            for (SupportVO item : list) {
-                AttachFileVO fileSearchVO = new AttachFileVO();
-                fileSearchVO.setBoardClsf("support");
-                fileSearchVO.setBoardId(item.getSupNo());
-                List<AttachFileVO> fileList = attachFileMapper.getFileList(fileSearchVO);
-                if (fileList != null && !fileList.isEmpty()) {
-                    fileMap.put(item.getSupNo(), fileList);
-                }
-            }
-        }
-
-        int totalCount = (list != null && !list.isEmpty()) ? list.get(0).getTotalCnt() : 0;
-        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
-        int startPage  = ((pageNo - 1) / 5) * 5 + 1;
-        int endPage    = Math.min(startPage + 4, totalPages);
-
-        model.addAttribute("list", list);
-        model.addAttribute("fileMap", fileMap);
-        model.addAttribute("loginUser", sessionUser);
-        model.addAttribute("userMngrYn", userMngrYn);
-        model.addAttribute("currentPage", pageNo);
-        model.addAttribute("startPage", startPage);
-        model.addAttribute("endPage", endPage);
-        model.addAttribute("totalPages", totalPages);
-
-        log.info("지원 페이지 접속 - 유저: {}, 권한: {}, 리스트: {}건",
-                (sessionUser != null ? userEmail : "비로그인"), userMngrYn, totalCount);
-
-        return "support/support";
-    }
-
-    @GetMapping("/download")
-    public ResponseEntity<Resource> download(@RequestParam("filePathNm") String filePathNm,
-                                             @RequestParam("fileNm") String fileNm) {
-        try {
-            File file = new File(filePathNm);
-            if (!file.exists()) return ResponseEntity.notFound().build();
-
-            Resource resource = new FileSystemResource(file);
-            String encodedName = URLEncoder.encode(fileNm, StandardCharsets.UTF_8)
-                    .replace("+", "%20");
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename*=UTF-8''" + encodedName)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    // ✅ 파일 처리를 ServiceImpl에 위임 (Notice와 동일한 구조)
     @PostMapping("/doSave.do")
     @ResponseBody
-    public String doSave(@RequestParam("supCn") String supCn,
-                         @RequestParam(value = "files", required = false) List<MultipartFile> files,
-                         HttpSession session) {
+    public String doSave() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doSave()                 │");
+        log.info("└──────────────────────────┘");
 
-        UserEntity loginUser = (UserEntity) session.getAttribute("user");
-        if (loginUser == null) return "로그인 정보가 없습니다.";
-
-        if ("Y".equals(loginUser.getUserMngrYn()) || "ss@s".equals(loginUser.getUserEmlAddr())) {
-            return "관리자 계정으로는 문의글 작성이 불가능합니다.";
-        }
-
-        Integer userNo = loginUser.getUserNo();
-        if (userNo == null) {
-            int recoveredNo = supportService.getUserIdByEmail(loginUser.getUserEmlAddr());
-            if (recoveredNo > 0) userNo = recoveredNo;
-            else return "유저 정보를 찾을 수 없습니다.";
-        }
-
-        SupportVO inVO = new SupportVO();
-        inVO.setSupCn(supCn);
-        inVO.setRegNo(userNo);
-
-        // ✅ 파일 처리를 ServiceImpl에 위임
-        int result = ((SupportServiceImpl) supportService).doSave(inVO, files);
-        return String.valueOf(result);
-    }
-
-    @PostMapping("/doUpdate.do")
-    @ResponseBody
-    public String doUpdate(@RequestBody SupportVO inVO, HttpSession session) {
-        UserEntity loginUser = (UserEntity) session.getAttribute("user");
-        if (loginUser == null || (!"Y".equals(loginUser.getUserMngrYn()) && !"ss@s".equals(loginUser.getUserEmlAddr()))) {
-            return "관리자만 답변 등록이 가능합니다.";
-        }
-        return String.valueOf(supportService.doUpdate(inVO));
+        return "";
     }
 
     @PostMapping("/doDelete.do")
     @ResponseBody
-    public String doDelete(SupportVO inVO) {
-        return String.valueOf(supportService.doDelete(inVO));
+    public String doDelete() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doDelete()               │");
+        log.info("└──────────────────────────┘");
+
+        return "";
     }
 
     @PostMapping("/doSelectOne.do")
     @ResponseBody
-    public SupportVO doSelectOne(@RequestBody SupportVO inVO) {
-        return supportService.doSelectOne(inVO);
+    public String doSelectOne() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doSelectOne()            │");
+        log.info("└──────────────────────────┘");
+
+        return "";
+    }
+
+    @PostMapping("/doUpdate.do")
+    @ResponseBody
+    public String doUpdate() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doUpdate()               │");
+        log.info("└──────────────────────────┘");
+
+        return "";
+    }
+
+    @GetMapping( "/doRetrieve.do")
+    @ResponseBody
+    public String doRetrieve() {
+        log.info("┌──────────────────────────┐");
+        log.info("│ doRetrieve()             │");
+        log.info("└──────────────────────────┘");
+
+        return "Retrieved Data Successfully";
     }
 }

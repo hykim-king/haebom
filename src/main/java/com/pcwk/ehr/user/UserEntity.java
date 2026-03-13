@@ -38,7 +38,7 @@ public class UserEntity {
     @Column(name = "user_enpswd", nullable = false, length = 256)
     private String userEnpswd; // VARCHAR2(256), N-N
 
-    @Column(name = "user_nm", nullable = false, length = 7)
+    @Column(name = "user_nm", nullable = false, length = 20)
     private String userNm; // NVARCHAR2(7), N-N
 
     @Column(name = "user_brdt", nullable = false, precision = 8)

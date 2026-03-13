@@ -2,99 +2,102 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.support.SupportMapper">
 
-<insert id="doSave" parameterType="SupportVO">
-        <!-- ✅ INSERT 전에 시퀀스 값을 supNo에 먼저 세팅 → 파일 저장 시 boardId에 올바른 값 사용 가능 -->
-    <selectKey keyProperty="supNo" resultType="int" order="BEFORE">
-            SELECT SEQ_SUP_NO.NEXTVAL FROM DUAL
-        </selectKey>
-        INSERT INTO SUPPORT (SUP_NO,
-                             SUP_CN,
-                             SUP_ANS_CN,
-                             SUP_REG,
-                             SUP_REG_HM,
-                             REG_NO,
-                             SUP_YN)
-        VALUES (#{supNo},
-                #{supCn},
-                #{supAnsCn},
-                TO_CHAR(SYSDATE, 'YYYYMMDD'),
-                TO_CHAR(SYSDATE, 'HH24MI'),
-                #{regNo},
-                'N')
+    <insert id="doSave" parameterType="SupportVO">
+        INSERT INTO SUPPORT (
+             SUP_NO,
+             SUP_CN,
+             SUP_ANS_CN,
+             SUP_REG,
+             SUP_REG_HM,
+             SUP_ANS_REG,
+             SUP_ANS_REG_HM,
+             REG_NO,
+             SUP_YN)
+        VALUES (
+            SEQ_SUP_NO.NEXTVAL,
+            #{supCn},
+            #{supAnsCn},
+            TO_CHAR(SYSDATE, 'YYYYMMDD'),
+            TO_CHAR(SYSDATE, 'HH24MI'),
+            #{supAnsReg},
+            #{supAnsRegHm},
+            #{regNo},
+            'N'
+               )
     </insert>
 
     <select id="doSelectOne" parameterType="SupportVO">
-        SELECT SUP_NO,
-               SUP_CN,
-               SUP_ANS_CN,
-               SUP_REG,
-               SUP_REG_HM,
-               SUP_ANS_REG,
-               SUP_ANS_REG_HM,
-               REG_NO,
-               SUP_YN
+        SELECT SUP_NO, SUP_CN, SUP_ANS_CN,
+               SUP_REG, SUP_REG_HM,
+               SUP_ANS_REG, SUP_ANS_REG_HM,
+               REG_NO, SUP_YN
         FROM SUPPORT
         WHERE sup_no = #{supNo}
     </select>
 
-    <select id="doRetrieve" parameterType="SupportVO" resultType="SupportVO">
-        SELECT * FROM (
-            SELECT ROWNUM AS rn, a.* FROM (
-                SELECT s.*, COUNT(*) OVER() AS total_cnt
-                FROM SUPPORT s
-                WHERE 1=1
-        <!-- ✅ 이 부분 추가 -->
-        <if test="filterRegNo != null">
-                    AND REG_NO = #{filterRegNo}
+    <select id="doRetrieve" parameterType="DTO" resultType="SupportVO">
+        SELECT *
+        FROM (
+            SELECT ROWNUM AS rnum, T1.*
+            FROM (
+                SELECT
+                    SUP_NO,
+                    SUP_CN,
+                    SUP_ANS_CN,
+                    SUP_REG,
+                    SUP_REG_HM,
+                    SUP_ANS_REG,
+                    SUP_ANS_REG_HM,
+                    REG_NO,
+                    SUP_YN
+            FROM support
+            WHERE 1 = 1
+            <if test="searchWord != null and searchWord != ''">
+                    <choose>
+                        <when test="searchDiv == '10'">
+                            AND SUP_CN LIKE '%' || #{searchWord} || '%'
+                        </when>
+                        <when test="searchDiv == '20'">
+                            AND SUP_ANS_CN LIKE '%' || #{searchWord} || '%'
+                        </when>
+                    </choose>
                 </if>
-                ORDER BY SUP_NO DESC
-            ) a WHERE ROWNUM &lt;= #{pageNo} * #{pageSize}
-        ) WHERE rn > (#{pageNo} - 1) * #{pageSize}
+                ORDER BY SUP_NO ASC
+            ) T1
+            <![CDATA[WHERE ROWNUM <= #{pageSize} * (#{pageNo} - 1) + #{pageSize}]]>
+        ) TT1
+        <![CDATA[WHERE rnum >= #{pageSize} * (#{pageNo} - 1) + 1]]>
     </select>
 
     <update id="doUpdate" parameterType="SupportVO">
         UPDATE SUPPORT
-        SET SUP_ANS_CN     = #{supAnsCn},
-            SUP_ANS_REG    = TO_CHAR(SYSDATE, 'YYYYMMDD'),
+        SET SUP_CN      = #{supCn},
+            SUP_ANS_CN  = #{supAnsCn},
+            SUP_ANS_REG = TO_CHAR(SYSDATE, 'YYYYMMDD'),
             SUP_ANS_REG_HM = TO_CHAR(SYSDATE, 'HH24MI'),
-            SUP_YN         = #{supYn}
+            SUP_YN      = 'Y'
         WHERE SUP_NO = #{supNo}
     </update>
 
     <select id="getAll">
-        SELECT SUP_NO,
-               SUP_CN,
-               SUP_ANS_CN,
-               TO_CHAR(TO_DATE(SUP_REG, 'YYYYMMDD'), 'YYYY.MM.DD')     AS SUP_REG,
-               SUP_REG_HM,
-               TO_CHAR(TO_DATE(SUP_ANS_REG, 'YYYYMMDD'), 'YYYY.MM.DD') AS SUP_ANS_REG,
-               SUP_ANS_REG,
-               REG_NO,
-               SUP_YN
+        SELECT SUP_NO, SUP_CN, SUP_ANS_CN,
+               SUP_REG, SUP_REG_HM,
+               SUP_ANS_CN, SUP_ANS_REG_HM,
+               REG_NO, SUP_YN
         FROM SUPPORT
         ORDER BY SUP_NO DESC
     </select>
 
     <select id="getCount">
-        SELECT COUNT(*)
-        FROM SUPPORT
+        SELECT COUNT(*) FROM SUPPORT
     </select>
 
     <delete id="deleteAll">
-        DELETE
-        FROM SUPPORT
+        DELETE FROM SUPPORT
     </delete>
 
     <delete id="doDelete" parameterType="SupportVO">
-        DELETE
-        FROM SUPPORT
-        WHERE SUP_NO = #{supNo}
+        DELETE FROM SUPPORT WHERE SUP_NO = #{supNo}
     </delete>
-
-    <select id="getUserIdByEmail" parameterType="string" resultType="int">
-    SELECT USER_NO
-    FROM ss_user
-    WHERE USER_EML_ADDR = #{email}
-</select>
 
 </mapper>

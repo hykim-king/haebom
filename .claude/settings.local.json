@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find c:/ACON_20250916/haebomP/junyeop -name *Mapper.xml -o -name *mapper.xml)"
+      "Bash(find c:/ACON_20250916/haebomP/junyeop -name *Mapper.xml -o -name *mapper.xml)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -E \"\\\\.\\(html|js|properties\\)$\")"
     ]
   }
 }

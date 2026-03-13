@@ -80,4 +80,43 @@
     ORDER BY reg_dt DESC
    </select>
 
+      <!-- =========================
+         여행코스 찜 관련 (추가)
+         ========================= -->
+    <select id="existsCourseFavorite" parameterType="RelationVO" resultType="int">
+        SELECT COUNT(*)
+        FROM relation
+        WHERE user_no = #{userNo}
+          AND course_no = #{courseNo}
+          AND rel_clsf = 10
+    </select>
+
+    <insert id="favoriteCourse" parameterType="RelationVO">
+        INSERT INTO relation (
+            rel_no,
+            rel_clsf,
+            user_no,
+            course_no
+        ) VALUES (
+            (SELECT NVL(MAX(rel_no), 0) + 1 FROM relation),
+            10,
+            #{userNo},
+            #{courseNo}
+        )
+    </insert>
+
+    <select id="getCourseCount" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM relation
+        WHERE rel_clsf = 10
+          AND course_no = #{courseNo}
+    </select>
+
+    <delete id="deleteCourseFavorite" parameterType="RelationVO">
+        DELETE FROM relation
+        WHERE user_no = #{userNo}
+          AND course_no = #{courseNo}
+          AND rel_clsf = 10
+    </delete>
+
  </mapper>

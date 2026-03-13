@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pcwk.ehr.course.AiTripCourseMapper">
+
+    <resultMap id="tripCourseDetailMap"
+               type="com.pcwk.ehr.domain.TripCourseDetailVO">
+
+        <result property="tripContsId" column="TRIP_CONTS_ID"/>
+        <result property="tripNm" column="TRIP_NM"/>
+        <result property="tripAddr" column="TRIP_ADDR"/>
+        <result property="tripTag" column="TRIP_TAG"/>
+        <result property="tripPathNm" column="TRIP_PATH_NM"/>
+        <result property="tripInqCnt" column="TRIP_INQ_CNT"/>
+        <result property="tripLat" column="TRIP_LAT"/>
+        <result property="tripLot" column="TRIP_LOT"/>
+
+        <!-- TRIPDETAIL -->
+        <result property="tripdtlInfo" column="TRIPDTL_INFO"/>
+        <result property="tripdtlParking" column="TRIPDTL_PRK_PSBLTY"/>
+        <result property="tripdtlUseTm" column="TRIPDTL_OPER_HR"/>
+        <result property="tripdtlRestdate" column="TRIPDTL_DYOFF_YMD"/>
+
+    </resultMap>
+
+
+<select id="findTripsByContsIds" resultMap="tripCourseDetailMap">
+
+SELECT
+      T.TRIP_CONTS_ID
+    , T.TRIP_NM
+    , T.TRIP_ADDR
+    , T.TRIP_TAG
+    , T.TRIP_PATH_NM
+    , T.TRIP_INQ_CNT
+    , T.TRIP_LAT
+    , T.TRIP_LOT
+
+    , TD.TRIPDTL_INFO
+    , TD.TRIPDTL_PRK_PSBLTY
+    , TD.TRIPDTL_OPER_HR
+    , TD.TRIPDTL_DYOFF_YMD
+
+FROM TRIP T
+
+LEFT JOIN TRIPDETAIL TD
+       ON T.TRIP_CONTS_ID = TD.TRIP_CONTS_ID
+
+WHERE T.TRIP_CONTS_ID IN
+
+<foreach collection="tripIds" item="id" open="(" separator="," close=")">
+    #{id}
+</foreach>
+
+ORDER BY CASE
+<foreach collection="tripIds" item="id" index="idx">
+    WHEN T.TRIP_CONTS_ID = #{id} THEN ${idx}
+</foreach>
+ELSE 999999
+END
+
+</select>
+
+</mapper>

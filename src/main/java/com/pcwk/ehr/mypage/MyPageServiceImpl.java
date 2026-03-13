@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pcwk.ehr.cmn.DTO;
+import com.pcwk.ehr.domain.CommentVO;
 import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.domain.UserVO;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +34,29 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
+    @Transactional // 중요: 하나라도 실패하면 전체 롤백
     public int doDelete(UserVO userVO) {
+        int userNo = userVO.getUserNo();
 
+        // 1. 자식 데이터(관계) 삭제
+        deleteRelationByUserNo(userNo);
+
+        // 2. 자식 데이터(댓글) 삭제
+        deleteCommentByUserNo(userNo);
+
+        // 3. 부모 데이터(사용자) 삭제
+        log.info("최종 회원 삭제 진행: userNo={}", userNo);
         return myPageMapper.doDelete(userVO);
+    }
+
+    @Override
+    public int deleteRelationByUserNo(int userNo) {
+        return myPageMapper.deleteRelationByUserNo(userNo);
+    }
+
+    @Override
+    public int deleteCommentByUserNo(int userNo) {
+        return myPageMapper.deleteCommentByUserNo(userNo);
     }
 
     @Override
@@ -99,8 +121,39 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
     @Override
-    public int deleteRelation(int userNo, int relClsf,Integer tripContsId) {
-        return myPageMapper.deleteRelation(userNo, relClsf,tripContsId);
+    public int deleteRelation(int userNo, int relClsf, Integer tripContsId) {
+        return myPageMapper.deleteRelation(userNo, relClsf, tripContsId);
     }
 
+    @Override
+    public List<TripVO> selectTripFinishedList(CommentVO vo) {
+        return myPageMapper.selectTripFinishedList(vo);
+    }
+
+    @Override
+    public int selectTripFinishedCount(CommentVO vo) {
+        return myPageMapper.selectTripFinishedCount(vo);
+    }
+
+    @Override
+    public int deleteCmt(CommentVO vo) {
+        return myPageMapper.deleteCmt(vo);
+    }
+
+    public int deleteFinishedTrip(CommentVO commentVO, TripVO tripVO) {
+        int result = 0;
+
+        // 1. 댓글 삭제 (cmt_no 기반)
+        result += myPageMapper.deleteCmt(commentVO);
+
+        // 2. 관계 데이터 삭제 (rel_clsf = 20: 여행완료 상태 삭제)
+        // commentVO에 담긴 regNo를 userNo로 사용합니다.
+        result += myPageMapper.deleteRelation(
+                commentVO.getRegNo(),
+                20,
+                tripVO.getTripContsId());
+
+        log.info("여행 완료 통합 삭제 결과 (댓글+관계): {}", result);
+        return result;
+    }
 }

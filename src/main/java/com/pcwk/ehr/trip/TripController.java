@@ -201,4 +201,12 @@ public class TripController {
 
         return resultList;
     }
+
+        @GetMapping("/getTripVO.do")
+    @ResponseBody
+    public TripVO getTripVO(TripVO tripVO) {
+        // 우리가 만든 imageList가 포함된 데이터를 JSON으로 반환
+        return tripService.doSelectOne(tripVO);
+    }
+
 }

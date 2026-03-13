@@ -2,6 +2,56 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.mypage.MyPageMapper">
 
+
+<select id="selectTripFinishedList" parameterType="CommentVO" resultType="TripVO">
+    SELECT 
+        MAX(c.cmt_no) AS cmtNo,           MAX(c.cmt_starng) AS cmtStarng,   t.trip_conts_id AS tripContsId,
+        t.trip_nm AS tripNm,
+        t.trip_addr AS tripAddr,
+        COALESCE(t.trip_path_nm, af.file_path_nm) AS tripPathNm
+    FROM cmt c
+    JOIN trip t ON c.trip_course_no = t.trip_conts_id
+    LEFT OUTER JOIN (
+        /* 첨부파일 1개 가져오는 기존 서브쿼리 */
+        SELECT board_id, file_path_nm
+        FROM (
+            SELECT board_id, file_path_nm,
+                   ROW_NUMBER() OVER(PARTITION BY board_id ORDER BY ROWID ASC) as rn
+            FROM attach_file
+            WHERE board_clsf = 'trip'
+        ) WHERE rn = 1
+    ) af ON t.trip_conts_id = af.board_id
+    WHERE c.reg_no = #{regNo}
+      AND c.cmt_clsf = '1'
+      AND (t.trip_path_nm IS NOT NULL OR af.file_path_nm IS NOT NULL)
+    /* 핵심: 이름뿐만 아니라 ID와 주소, 이미지 경로까지 묶어줘야 에러가 안 납니다 */
+    GROUP BY 
+        t.trip_conts_id, 
+        t.trip_nm, 
+        t.trip_addr, 
+        COALESCE(t.trip_path_nm, af.file_path_nm)
+</select>
+
+    <select id="selectTripFinishedCount" parameterType="CommentVO" resultType="int">
+    SELECT COUNT(*)
+      FROM cmt c
+      JOIN trip t ON c.trip_course_no = t.trip_conts_id
+      LEFT OUTER JOIN (
+          SELECT board_id, file_path_nm
+            FROM (
+                SELECT board_id, file_path_nm,
+                       ROW_NUMBER() OVER(PARTITION BY board_id ORDER BY ROWID ASC) as rn
+                  FROM attach_file
+                 WHERE board_clsf = 'trip'
+            ) WHERE rn = 1
+      ) af ON t.trip_conts_id = af.board_id
+     WHERE c.reg_no = #{regNo}
+       AND c.cmt_clsf = '1'
+       AND (t.trip_path_nm IS NOT NULL OR af.file_path_nm IS NOT NULL)
+    </select>
+
+
+
     <insert id="doSave" parameterType="UserVO">
         INSERT INTO ss_user (
             USER_NO, USER_NICK, USER_EML_ADDR, USER_ENPSWD, USER_NM,
@@ -18,6 +68,15 @@
 
     <delete id="doDelete" parameterType="UserVO">
         DELETE FROM ss_user WHERE USER_NO = #{userNo}
+    </delete>
+    <delete id="deleteRelationByUserNo" parameterType="int">
+    DELETE FROM relation WHERE USER_NO = #{userNo}
+    </delete>
+
+
+    <delete id="deleteCommentByUserNo" parameterType="int">
+    DELETE FROM cmt 
+    WHERE reg_no = #{userNo}
     </delete>
 
     <select id="doSelectOne" parameterType="UserVO" resultType="UserVO">
@@ -59,16 +118,29 @@
         UPDATE ss_user SET USER_ENPSWD = #{userEnpswd} WHERE USER_NO = #{userNo}
     </update>
 
-    <select id="getRelationList" resultType="TripVO">
-        SELECT r.TRIP_CONTS_ID,
-               t.TRIP_NM, 
-               t.TRIP_ADDR, 
-               t.TRIP_PATH_NM
-          FROM relation r
-          JOIN trip t ON r.TRIP_CONTS_ID = t.TRIP_CONTS_ID
-         WHERE r.USER_NO = #{userNo}
-           AND r.REL_CLSF = #{relClsf}
-    </select>
+<select id="getRelationList" resultType="TripVO">
+    SELECT r.TRIP_CONTS_ID,
+           t.TRIP_NM, 
+           t.TRIP_ADDR, 
+           /* 기본 이미지가 없으면 첨부파일 테이블의 첫 번째 이미지를 사용 */
+           COALESCE(t.TRIP_PATH_NM, af.file_path_nm) AS tripPathNm
+      FROM relation r
+      JOIN trip t ON r.TRIP_CONTS_ID = t.TRIP_CONTS_ID
+      LEFT OUTER JOIN (
+          /* 각 여행지(board_id)별로 대표 이미지 1장만 추출 */
+          SELECT board_id, file_path_nm
+            FROM (
+                SELECT board_id, 
+                       file_path_nm,
+                       ROW_NUMBER() OVER(PARTITION BY board_id ORDER BY ROWID ASC) as rn
+                  FROM attach_file
+                 WHERE board_clsf = 'trip'
+            )
+           WHERE rn = 1
+      ) af ON r.TRIP_CONTS_ID = af.board_id
+     WHERE r.USER_NO = #{userNo}
+       AND r.REL_CLSF = #{relClsf}
+</select>
 
     <!-- userNo 받고, relClsf 받은 다음 여행지 아이디 null 아닌 값만 select 후 카운트-->
     <select id="getRelationCount" resultType="int">
@@ -87,5 +159,10 @@
            AND TRIP_CONTS_ID = #{tripContsId}
         </if>
     </delete>
+
+    <delete id="deleteCmt" parameterType="CommentVO">
+    DELETE FROM cmt
+     WHERE CMT_NO = #{cmtNo}       
+       AND REG_NO = #{regNo} </delete>
 
 </mapper>

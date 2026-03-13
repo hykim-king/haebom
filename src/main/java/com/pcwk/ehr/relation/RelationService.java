@@ -18,4 +18,18 @@ public interface RelationService extends WorkDiv<RelationVO>  {
     int getCountByUser(RelationVO vo);
     int deleteAllByUser(RelationVO vo);
     List<RelationVO> getAll();
+
+        // =========================
+    // 여행코스 찜 관련 (추가)
+    // =========================
+    int favoriteCourse(RelationVO vo);
+
+    int getCourseCount(int courseNo);
+
+    int deleteCourseFavorite(RelationVO vo);
+
+    int toggleCourseFavorite(RelationVO vo);
+
+    int existsCourseFavorite(RelationVO vo);
+
 }

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해봄트립 - 여행코스</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/trip_course.css}">
+</head>
+
+<body>
+<div th:replace="~{main/header :: header}"></div>
+
+<div id="main-wrapper">
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full">
+        <div id="home-view">
+
+            <!-- 왼쪽 메인 리스트 -->
+            <section class="w-full">
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                        <span class="course-top-badge">Easy</span>
+                        <span class="font-medium">코스</span>
+                    </div>
+                    <h2 class="text-[42px] font-black leading-none tracking-tight text-gray-900">
+                        #전체
+                    </h2>
+                </div>
+
+                <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-gray-900">
+                    <div class="text-[15px] font-medium text-gray-900">
+                        총 <span id="total-count" class="text-orange-500 font-bold">0</span>건
+                    </div>
+
+                    <div class="flex items-center gap-3 text-sm text-gray-400 font-medium">
+                        <button type="button" class="sort-btn course-sort-btn active" data-sort="new">최신순</button>
+                        <span>|</span>
+                        <button type="button" class="sort-btn course-sort-btn" data-sort="pop">인기순</button>
+                        
+                    </div>
+                </div>
+
+                <!-- 검색 -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-8">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="여행코스명을 검색하세요"
+                        class="flex-1 border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                        id="reset-btn"
+                        type="button"
+                        class="px-5 py-3 rounded-xl border border-gray-300 bg-white hover:bg-gray-100"
+                    >
+                        초기화
+                    </button>
+                </div>
+
+                <!-- 동적 목록 -->
+                <div id="dest-list" class="course-list-wrap"></div>
+
+                <!-- 동적 페이징 -->
+                <div id="pagination" class="flex justify-center items-center gap-2 mt-10"></div>
+            </section>
+
+           
+            
+            
+        </div>
+
+        <div id="detail-view" class="hidden">
+            <div id="detail-content"></div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{main/footer :: footer}"></div>
+
+<script th:src="@{/javascript/trip_course_cr.js}"></script>
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

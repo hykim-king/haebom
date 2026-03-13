@@ -1,0 +1,638 @@
+  body {
+            margin: 0;
+            background: #f6f6f6;
+            color: #222;
+            font-family: "Pretendard", "Noto Sans KR", sans-serif;
+        }
+
+        .page-wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 30px 24px 100px;
+        }
+
+        .detail-container {
+            background: #fff;
+            border-radius: 18px;
+            padding: 34px 34px 50px;
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.04);
+            border: 1px solid #ececec;
+        }
+
+        .course-top-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .course-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            height: 32px;
+            padding: 0 14px;
+            border-radius: 999px;
+            background: #ff7a00;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .course-title-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .course-title {
+            font-size: 46px;
+            line-height: 1.28;
+            font-weight: 800;
+            color: #222;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .course-meta-line {
+            color: #777;
+            font-size: 18px;
+            margin-bottom: 26px;
+        }
+
+        .course-meta-line .divider {
+            margin: 0 10px;
+            color: #bbb;
+        }
+
+        .icon-stats-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e9e9e9;
+            margin-bottom: 34px;
+        }
+
+        .stats-left,
+        .stats-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .icon-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .icon-item i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .info-blocks {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 22px 10px;
+            padding: 18px 0 28px;
+            border-bottom: 1px solid #ececec;
+            margin-bottom: 28px;
+        }
+
+        .info-row {
+            display: contents;
+        }
+
+        .info-icon-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .info-icon-circle {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f0505f;
+        }
+
+        .info-icon-circle i {
+            width: 28px;
+            height: 28px;
+        }
+
+        .info-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 74px;
+        }
+
+        .info-label {
+            font-size: 15px;
+            color: #777;
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #222;
+            line-height: 1.4;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .tag-item {
+            font-size: 24px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .course-desc-section {
+            padding-top: 8px;
+        }
+
+        .course-desc {
+            font-size: 31px;
+            line-height: 1.9;
+            color: #2d2d2d;
+            white-space: pre-wrap;
+            word-break: keep-all;
+            letter-spacing: -0.01em;
+        }
+
+        .empty-text {
+            color: #9a9a9a;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+            height: 46px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            background: #fff;
+            color: #333;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #f8f8f8;
+        }
+
+        @media (max-width: 1024px) {
+            .course-title {
+                font-size: 34px;
+            }
+
+            .course-desc {
+                font-size: 21px;
+            }
+
+            .info-value {
+                font-size: 22px;
+            }
+
+            .tag-item {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .detail-container {
+                padding: 22px 18px 36px;
+            }
+
+            .course-title {
+                font-size: 28px;
+            }
+
+            .course-meta-line {
+                font-size: 15px;
+            }
+
+            .icon-item {
+                font-size: 15px;
+            }
+
+            .info-blocks {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .info-row {
+                display: block;
+            }
+
+            .info-icon-box {
+                margin-bottom: 10px;
+            }
+
+            .course-desc {
+                font-size: 18px;
+                line-height: 1.8;
+            }
+
+            .info-value {
+                font-size: 18px;
+            }
+
+            .tag-item {
+                font-size: 16px;
+            }
+        }
+
+        .course-map-section {
+    margin-top: 36px;
+}
+
+.section-divider {
+    width: 100%;
+    height: 1px;
+    background: #e9e9e9;
+    margin-bottom: 28px;
+}
+
+.map-placeholder-wrap {
+    margin-bottom: 34px;
+}
+
+.map-placeholder {
+    width: 100%;
+    min-height: 360px;
+    border-radius: 16px;
+    border: 1px dashed #cfcfcf;
+    background: #f8f8f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-placeholder-inner {
+    text-align: center;
+    color: #777;
+}
+
+.map-placeholder-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #444;
+}
+
+.map-placeholder-desc {
+    font-size: 15px;
+    color: #888;
+}
+
+.course-step-section {
+    margin-top: 20px;
+}
+
+.step-section-header {
+    margin-bottom: 22px;
+}
+
+.step-section-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 8px;
+}
+
+.step-section-desc {
+    font-size: 15px;
+    color: #777;
+}
+
+.step-line-area {
+    position: relative;
+    margin-bottom: 22px;
+    padding: 0 8px;
+}
+
+.step-line {
+    position: absolute;
+    top: 19px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: repeating-linear-gradient(
+        to right,
+        #d8d8d8 0 4px,
+        transparent 4px 8px
+    );
+    z-index: 0;
+}
+
+.step-number-list {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.step-number-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    cursor: pointer;
+}
+
+.step-number-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #cfcfcf;
+    color: #777;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-number-item.active .step-number-circle {
+    border-color: #ef5b68;
+    color: #ef5b68;
+}
+
+.step-card-scroll-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.step-nav-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.08);
+    color: #444;
+    font-size: 24px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.step-nav-btn:hover {
+    background: rgba(0, 0, 0, 0.14);
+}
+
+.step-card-list {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 6px 2px 10px;
+    flex: 1;
+}
+
+.step-card-list::-webkit-scrollbar {
+    height: 8px;
+}
+
+.step-card-list::-webkit-scrollbar-thumb {
+    background: #d3d3d3;
+    border-radius: 999px;
+}
+
+.step-card {
+    width: 180px;
+    min-width: 180px;
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.step-card.active {
+    border-color: #ef5b68;
+    box-shadow: 0 6px 16px rgba(239, 91, 104, 0.18);
+}
+
+.step-card-thumb-wrap {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    background: #f1f1f1;
+}
+
+.step-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.step-card-no-image {
+    width: 100%;
+    height: 100%;
+    background: #e8e8e8;
+    color: #8a8a8a;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.45) 0%,
+        rgba(0, 0, 0, 0.1) 45%,
+        rgba(0, 0, 0, 0.05) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 12px;
+}
+
+.step-card-title {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    word-break: keep-all;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.step-empty {
+    margin-top: 20px;
+    padding: 24px;
+    border-radius: 12px;
+    background: #fafafa;
+    border: 1px solid #ececec;
+    color: #888;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .map-placeholder {
+        min-height: 240px;
+    }
+
+    .step-section-title {
+        font-size: 22px;
+    }
+
+    .step-card {
+        width: 150px;
+        min-width: 150px;
+    }
+
+    .step-card-thumb-wrap {
+        height: 150px;
+    }
+
+    .step-card-title {
+        font-size: 16px;
+    }
+
+    .step-nav-btn {
+        display: none;
+    }
+}
+
+.trip-detail-section {
+    margin-top: 42px;
+    padding-top: 24px;
+    border-top: 1px solid #ececec;
+}
+
+.trip-detail-header {
+    margin-bottom: 20px;
+}
+
+.trip-detail-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 8px;
+}
+
+.trip-detail-desc {
+    font-size: 15px;
+    color: #777;
+}
+
+.trip-detail-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.trip-detail-info {
+    margin-bottom: 22px;
+}
+
+.trip-detail-name {
+    font-size: 26px;
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+.trip-detail-address {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.7;
+}
+
+.trip-detail-image-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.trip-detail-image-item {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f3f3f3;
+    border: 1px solid #e6e6e6;
+}
+
+.trip-detail-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.trip-detail-empty-image,
+.trip-detail-empty-thumb {
+    width: 100%;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8a8a8a;
+    background: #f5f5f5;
+    border-radius: 12px;
+    font-size: 14px;
+    text-align: center;
+    padding: 16px;
+}
+
+@media (max-width: 768px) {
+    .trip-detail-title {
+        font-size: 22px;
+    }
+
+    .trip-detail-name {
+        font-size: 22px;
+    }
+
+    .trip-detail-address {
+        font-size: 15px;
+    }
+
+    .trip-detail-image-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+}

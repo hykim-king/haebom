@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,9 +29,13 @@ public class TripVO extends DTO {
     private int tripGungu; // 여행지 군구
     private int tripInqCnt; // 여행지 조회수
 
+        private int cmtStarng;
+    private int cmtNo;
 
     private String orderType;   // 정렬 타입 (new/pop)
     private String tripTagNm;   // DB 에서 끌어와서 모은 tag 값을 저장하는 객체 
+
+        private List<String> imageList; // 상세 페이지에서 이미지를 담을 리스트
 
 
 }

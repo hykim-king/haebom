@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.pcwk.ehr.domain.TripVO;
 import com.pcwk.ehr.domain.UserVO;
+import com.pcwk.ehr.domain.CommentVO;
 import com.pcwk.ehr.cmn.WorkDiv;
-
 
 public interface MyPageService extends WorkDiv<UserVO> {
 
@@ -28,10 +28,25 @@ public interface MyPageService extends WorkDiv<UserVO> {
     int getRelationCount(int userNo, int relClsf);
 
     /** 관계 데이터 삭제 (찜 취소 등) */
-    int deleteRelation(int userNo, int relClsf,Integer tripContsId);
+    int deleteRelation(int userNo, int relClsf, Integer tripContsId);
 
     /** 사용자 정보 단건 조회 (WorkDiv 대용) */
     UserVO doSelectOne(UserVO userVO);
 
+    int deleteCmt(CommentVO commentVO);
+
     int nickCheck(String userNick);
+
+    List<TripVO> selectTripFinishedList(CommentVO vo);
+
+    int selectTripFinishedCount(CommentVO vo);
+
+    int deleteFinishedTrip(CommentVO commentVO, TripVO tripVO);
+
+    /** 회원 탈퇴 관련: 모든 관계 데이터(찜, 여행완료) 삭제 */
+    int deleteRelationByUserNo(int userNo);
+
+    /** 회원 탈퇴 관련: 모든 댓글 삭제 (필요시) */
+    int deleteCommentByUserNo(int userNo);
+
 }

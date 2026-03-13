@@ -31,4 +31,15 @@ public interface RelationMapper extends WorkDiv<RelationVO> {
     int deleteAllByUser(RelationVO vo);
 
     int existsFavorite(RelationVO vo);
+
+        // =========================
+    // 여행코스 찜 관련 (추가)
+    // =========================
+    int favoriteCourse(RelationVO vo);
+
+    int getCourseCount(@Param("courseNo") int courseNo);
+
+    int deleteCourseFavorite(RelationVO vo);
+
+    int existsCourseFavorite(RelationVO vo);
 }

@@ -4,6 +4,15 @@
 
 <mapper namespace="com.pcwk.ehr.attachfile.AttachFileMapper">
 
+
+    	<select id="findImagesByBoardId" resultType="string">
+		SELECT FILE_PATH_NM
+		FROM ATTACH_FILE
+		WHERE BOARD_ID = #{boardId}
+		AND BOARD_CLSF = 'trip'
+		ORDER BY FILE_NO
+	</select> 
+    
     <!-- 파일 등록 -->
     <insert id="doSave" parameterType="AttachFileVO">
         INSERT INTO ATTACH_FILE (

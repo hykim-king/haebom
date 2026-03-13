@@ -18,12 +18,12 @@
 
     <div th:replace="~{main/header :: header}"></div>
 
-    <main class="page-wrap">
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full">
         <div class="top-actions">
             <a th:href="@{/trip_course/trip_course}" class="back-btn">목록으로 돌아가기</a>
         </div>
 
-        <section class="detail-container">
+        <section class="detail-container w-full">
 
             <!-- courseNo를 JS에서 읽기 위한 hidden -->
             <input type="hidden" id="courseNo" th:value="${course != null ? course.courseNo : ''}">

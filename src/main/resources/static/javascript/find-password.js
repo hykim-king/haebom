@@ -16,6 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
       emailEl?.focus();
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("올바른 이메일 형식으로 입력해주세요.");
+      emailEl?.focus();
+      return;
+    }
+
     if (!name) {
       alert("이름을 입력해주세요.");
       nameEl?.focus();

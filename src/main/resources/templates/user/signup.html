@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입 - 해봄트립</title>
-    
+
     <link rel="stylesheet" th:href="@{/css/signup.css}">
 
     <style>
@@ -16,26 +17,47 @@
             outline: none;
             transition: all 0.2s;
         }
+
         .form-input:focus {
             ring: 2px;
             ring-color: #f97316;
         }
-        .hidden { display: none; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .hidden {
+            display: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
 
         /* 캐릭터가 둥둥 떠다니는 애니메이션 */
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         .float-animation {
             animation: float 3s ease-in-out infinite;
         }
     </style>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -52,11 +74,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
+
 <body class="h-screen w-full bg-orange-50/30 flex items-center justify-center py-4 md:py-8">
 
-    <div class="w-full h-full md:max-h-[900px] md:w-[1200px] md:rounded-3xl bg-white shadow-2xl overflow-hidden flex relative">
-        
-        <div class="hidden lg:flex lg:w-5/12 relative items-center justify-center overflow-hidden flex-col bg-orange-50">
+    <div
+        class="w-full h-full md:max-h-[900px] md:w-[1200px] md:rounded-3xl bg-white shadow-2xl overflow-hidden flex relative">
+
+        <div
+            class="hidden lg:flex lg:w-5/12 relative items-center justify-center overflow-hidden flex-col bg-orange-50">
             <div class="absolute w-64 h-64 bg-orange-100 rounded-full -top-10 -left-10 opacity-50"></div>
             <div class="absolute w-96 h-96 bg-orange-200/30 rounded-full -bottom-20 -right-20 opacity-50"></div>
             <div class="relative z-10 mb-8 float-animation">
@@ -73,80 +98,123 @@
                 <div class="flex justify-between items-start mb-8">
                     <div>
                         <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">회원가입</h1>
-                        <p class="text-slate-500">이미 계정이 있으신가요? <a th:href="@{/user/login}" class="text-orange-600 font-bold hover:underline">로그인</a></p>
+                        <p class="text-slate-500">이미 계정이 있으신가요? <a th:href="@{/user/login}"
+                                class="text-orange-600 font-bold hover:underline">로그인</a></p>
                     </div>
-                    <a th:href="@{/}" class="text-slate-400 hover:text-orange-600 transition-colors flex items-center gap-1 text-sm font-medium">
+                    <a th:href="@{/main}"
+                        class="text-slate-400 hover:text-orange-600 transition-colors flex items-center gap-1 text-sm font-medium">
                         <i data-lucide="home" class="w-4 h-4"></i> <span class="hidden sm:inline">홈으로</span>
                     </a>
                 </div>
 
-                <form id="signup-form" th:object="${userVO}" class="space-y-8"> 
-                    
+                <form id="signup-form" th:object="${userVO}" class="space-y-8">
+
                     <div class="space-y-5">
-                        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
-                            <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 1</span> 기본 정보
+                        <h3
+                            class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
+                            <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 1</span> 기본
+                            정보
                         </h3>
 
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700">이메일</label>
+                            <label class="text-sm font-bold text-slate-700">이메일<span
+                                    class="text-red-500">*</span></label>
                             <div class="flex gap-2">
-                                <input type="email" id="email" th:field="*{userEmlAddr}" class="flex-1 px-4 py-3 border border-slate-200 rounded-xl outline-none" placeholder="example@mail.com">
-                                <button type="button" id="btn-send-code" class="px-4 py-3 bg-slate-800 text-white rounded-xl font-bold min-w-[100px]">인증번호 받기</button>
+                                <input type="email" id="email" th:field="*{userEmlAddr}"
+                                    class="flex-1 px-4 py-3 border border-slate-200 rounded-xl outline-none"
+                                    placeholder="example@mail.com">
+                                <button type="button" id="btn-send-code"
+                                    class="px-4 py-3 bg-slate-800 text-white rounded-xl font-bold min-w-[100px]">인증번호
+                                    받기</button>
                             </div>
-                            <p id="email-message" class="text-xs hidden"></p> 
+                            <p id="email-message" class="text-xs hidden"></p>
                         </div>
 
                         <div id="email-verify-area" class="space-y-2 mt-3" style="display:none;">
                             <div class="relative flex gap-2">
                                 <div class="relative flex-1">
-                                    <input type="text" id="verify-code" class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none" placeholder="인증번호 6자리">
-                                    <span id="email-timer" class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 font-medium text-sm hidden">03:00</span>
+                                    <input type="text" id="verify-code"
+                                        class="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none"
+                                        placeholder="인증번호 6자리">
+                                    <span id="email-timer"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500 font-medium text-sm hidden">03:00</span>
                                 </div>
-                                <button type="button" id="btn-verify-code" class="px-4 py-3 bg-slate-800 text-white rounded-xl font-bold">확인</button>
+                                <button type="button" id="btn-verify-code"
+                                    class="px-4 py-3 bg-slate-800 text-white rounded-xl font-bold">확인</button>
                             </div>
                             <p id="email-verify-message" class="text-xs mt-1 hidden"></p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="space-y-1.5">
-                                <label class="text-sm font-bold text-slate-700">비밀번호 *</label>
-                                <input type="password" id="password" th:field="*{userEnpswd}" class="form-input" placeholder="8자 이상" required>
+                                <label class="text-sm font-bold text-slate-700">비밀번호 <span
+                                        class="text-red-500">*</span></label>
+                                <input type="password" id="password" th:field="*{userEnpswd}" class="form-input"
+                                    placeholder="8자 이상" required>
                             </div>
                             <div class="space-y-1.5">
-                                <label class="text-sm font-bold text-slate-700">비밀번호 확인 *</label>
-                                <input type="password" id="password-confirm" class="form-input" placeholder="비밀번호 재입력" required>
+                                <label class="text-sm font-bold text-slate-700">비밀번호 확인 <span
+                                        class="text-red-500">*</span></label>
+                                <input type="password" id="password-confirm" class="form-input" placeholder="비밀번호 재입력"
+                                    required>
                             </div>
                         </div>
-                        <p id="password-message" class="text-xs hidden mt-1"></p> <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700">닉네임 *</label>
+                        <p id="password-message" class="text-xs hidden mt-1"></p>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700">닉네임 <span
+                                    class="text-red-500">*</span></label>
                             <div class="flex gap-2">
-                                <input type="text" id="nickname" th:field="*{userNick}" class="flex-1 px-4 py-3 rounded-xl border border-slate-200" placeholder="닉네임 (2~10자, 한글 초성/모음 불가)" required>
-                                <button type="button" id="btn-check-nickname" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl whitespace-nowrap">중복 확인</button>
+                                <input type="text" id="nickname" th:field="*{userNick}"
+                                    class="flex-1 px-4 py-3 rounded-xl border border-slate-200"
+                                    placeholder="닉네임 (2~10자, 한글 초성/모음 불가)" required>
+                                <button type="button" id="btn-check-nickname"
+                                    class="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl whitespace-nowrap">중복
+                                    확인</button>
                             </div>
                             <input type="hidden" id="nickCheckDone" value="N">
                         </div>
 
                         <div class="space-y-4 pt-2 border-t border-slate-50 mt-4">
-                            <div class="flex gap-2">
-                                <input type="text" id="zipcode" th:field="*{userZip}" class="form-input w-32 bg-slate-50" placeholder="우편번호" readonly>
-                                <button type="button" id="btn-search-address" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold">주소 검색</button>
+                            <div class="space-y-1.5">
+                                <label class="text-sm font-bold text-slate-700">
+                                    주소 <span class="text-red-500">*</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="zipcode" th:field="*{userZip}"
+                                        class="form-input w-32 bg-slate-50" placeholder="우편번호" readonly>
+                                    <button type="button" id="btn-search-address"
+                                        class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold">주소
+                                        검색</button>
+                                </div>
+                                <input type="text" id="addr-basic" th:field="*{userAddr}"
+                                    class="form-input w-full bg-slate-50" placeholder="기본 주소" readonly>
                             </div>
-                            <input type="text" id="addr-basic" th:field="*{userAddr}" class="form-input w-full bg-slate-50" placeholder="기본 주소" readonly>
-                            <input type="text" id="addr-detail" th:field="*{userDaddr}" class="form-input w-full" placeholder="상세 주소">
+
+                            <div class="space-y-1.5">
+                                <label class="text-sm font-bold text-slate-700">
+                                    상세주소 <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="addr-detail" th:field="*{userDaddr}" class="form-input w-full"
+                                    placeholder="상세 주소">
+                            </div>
                         </div>
                     </div>
 
                     <div class="space-y-5 pt-4">
-                        <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
-                            <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 2</span> 개인 정보
+                        <h3
+                            class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-2">
+                            <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 2</span> 개인
+                            정보
                         </h3>
                         <div class="space-y-1.5">
-                            <label class="text-sm font-bold text-slate-700">이름 *</label>
-                            <input type="text" name="userNm" th:field="*{userNm}" class="form-input" placeholder="실명 입력" required>
+                            <label class="text-sm font-bold text-slate-700">이름 <span class="text-red-500">*</span></label>
+                            <input type="text" name="userNm" th:field="*{userNm}" class="form-input" placeholder="실명 입력"
+                                required>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-sm font-bold text-slate-700">전화번호 *</label>
-                            <input type="tel" id="phone" th:field="*{userTelno}" class="form-input" placeholder="010-1234-5678" required>
+                            <label class="text-sm font-bold text-slate-700">전화번호 <span class="text-red-500">*</span></label>
+                            <input type="tel" id="phone" th:field="*{userTelno}" class="form-input"
+                                placeholder="010-1234-5678" required>
                             <p id="phone-error" class="text-xs text-green-600 mt-1 hidden">이미 사용 중인 전화번호입니다.</p>
                             <p id="phone-success" class="text-xs text-green-600 mt-1 hidden">사용 가능한 전화번호입니다.</p>
                             <input type="hidden" id="phoneCheckDone" value="N">
@@ -154,19 +222,22 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-1.5">
-                                <label class="text-sm font-bold text-slate-700">생년월일 *</label>
+                                <label class="text-sm font-bold text-slate-700">생년월일 <span class="text-red-500">*</span></label>
                                 <input type="date" id="birth_picker" class="form-input h-[48px]" required>
                                 <input type="hidden" th:field="*{userBrdt}" id="userBrdt">
                             </div>
                             <div class="space-y-1.5">
-                                <label class="text-sm font-bold text-slate-700 block">성별 *</label>
+                                <label class="text-sm font-bold text-slate-700 block">성별 <span class="text-red-500">*</span></label>
                                 <div class="flex gap-6 items-center h-[48px]">
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" th:field="*{userGndr}" value="M" class="peer h-5 w-5 appearance-none rounded-full border border-slate-300 checked:bg-orange-500" required>
+                                        <input type="radio" th:field="*{userGndr}" value="M"
+                                            class="peer h-5 w-5 appearance-none rounded-full border border-slate-300 checked:bg-orange-500"
+                                            required>
                                         <span class="text-slate-600 font-medium">남성</span>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" th:field="*{userGndr}" value="F" class="peer h-5 w-5 appearance-none rounded-full border border-slate-300 checked:bg-orange-500">
+                                        <input type="radio" th:field="*{userGndr}" value="F"
+                                            class="peer h-5 w-5 appearance-none rounded-full border border-slate-300 checked:bg-orange-500">
                                         <span class="text-slate-600 font-medium">여성</span>
                                     </label>
                                 </div>
@@ -177,7 +248,8 @@
                     <div class="space-y-5 pt-4">
                         <div class="flex justify-between items-end border-b border-slate-100 pb-2">
                             <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 3</span> 여행 테마
+                                <span class="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">Step 3</span>
+                                여행 테마<span class="text-red-500">*</span>
                             </h3>
                             <span class="text-xs text-slate-400 font-medium">관심있는 테마를 3개 이상 선택해주세요</span>
                         </div>
@@ -189,7 +261,8 @@
                     </div>
 
                     <div class="pt-6">
-                        <button type="submit" class="w-full py-4 px-6 bg-orange-600 text-white text-lg font-bold rounded-xl hover:bg-orange-700 shadow-lg transition-all transform hover:-translate-y-1">
+                        <button type="submit"
+                            class="w-full py-4 px-6 bg-orange-600 text-white text-lg font-bold rounded-xl hover:bg-orange-700 shadow-lg transition-all transform hover:-translate-y-1">
                             해봄트립 시작하기
                         </button>
                     </div>
@@ -201,13 +274,14 @@
     <script th:src="@{/javascript/signup.js}"></script>
     <script>
         // 생년월일 처리: 날짜 선택 시 yyyyMMdd 숫자로 변환하여 hidden 필드에 삽입
-        document.getElementById('birth_picker').addEventListener('change', function() {
-            const val = this.value.replace(/-/g, ''); 
-            document.getElementById('userBrdt').value = val; 
+        document.getElementById('birth_picker').addEventListener('change', function () {
+            const val = this.value.replace(/-/g, '');
+            document.getElementById('userBrdt').value = val;
         });
 
         // 아이콘 초기화
         lucide.createIcons();
     </script>
 </body>
+
 </html>

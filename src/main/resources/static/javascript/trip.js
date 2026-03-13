@@ -512,7 +512,7 @@ async function loadDisasterInfo(ctpvNm, gunguNm) {
         if (!data.items || data.items.length === 0) {
             listEl.innerHTML = `
                 <div class="bg-white border border-red-100 rounded-lg p-3">
-                    <p class="text-xs text-gray-600">현재 발령된 재난 문자가 없습니다.</p>
+                    <p class="text-xs text-gray-600">최근 24시간 이내 발송된 재난 문자가 없습니다.</p>
                 </div>
             `;
             return;

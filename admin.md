@@ -10,7 +10,7 @@ templates/admin/*
 
 src/main/com/pcwk/ehr/admin/*
 
-src/resources/mapper/AdminMapper.xml
+src/main/resources/mapper/AdminMapper.xml
 
 
 http://localhost:8080/admin/statisticChart

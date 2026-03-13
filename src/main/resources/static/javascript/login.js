@@ -64,7 +64,7 @@ $(document).ready(function () {
                 }
 
                 if (response.success) {
-                    window.location.href = "/main";
+                    window.location.href = response.redirectUrl || "/main";
                 } else {
                     alert(response.message || "로그인 실패");
                 }

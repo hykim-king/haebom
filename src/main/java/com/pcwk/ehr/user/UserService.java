@@ -2,6 +2,7 @@ package com.pcwk.ehr.user;
 
 import com.pcwk.ehr.domain.UserVO;
 import com.pcwk.ehr.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -119,6 +121,44 @@ public class UserService {
     // 닉네임 중복 확인 (필요시 사용)
     public boolean isNicknameAvailable(String nickname) {
         return !userRepository.existsByUserNick(nickname);
+    }
+
+    //==========================2026/03/11
+    public List<UserEntity> getAllUsers() {
+        return userRepository.findAll(); // JPA의 기본 메서드 사용
+    }
+
+    public UserEntity findByEmail(String email) {
+        // UserRepository에 findByUserEmlAddr 메서드가 있다고 가정합니다.
+        return userRepository.findByUserEmlAddr(email)
+                .orElse(null); // 사용자가 없으면 null 반환
+    }
+
+    @Transactional
+    public void updateUserStatus(Integer userNo, String status) {
+        UserEntity user = userRepository.findById(userNo)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (!"Y".equals(status) && !"N".equals(status)) {
+            throw new IllegalArgumentException("유효하지 않은 상태값입니다.");
+        }
+
+        user.setUserDrmYn(status);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(Integer userNo) {
+        if (!userRepository.existsById(userNo)) {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
+
+        try {
+            userRepository.deleteById(userNo);
+            userRepository.flush(); // 삭제 시점 예외를 여기서 바로 확인
+        } catch (Exception e) {
+            throw new RuntimeException("사용자 삭제 중 오류가 발생했습니다.", e);
+        }
     }
 
 }

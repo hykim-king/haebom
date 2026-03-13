@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initRegionSlider();    // 2. 지역별 추천 슬라이더 (Swiper)
     initPopularSpots();    // 3. 인기 관광지 아이콘 초기화
     initWeather();         // 4. 날씨 기반 BEST 추천 시스템
+    initSearchEvents();    // 5. 검색 이벤트 (엔터키 등)
 });
 
 /* ==========================================
@@ -51,6 +52,23 @@ function initHeroSlider() {
         current = (current + 1) % slides.length;
         slides[current].classList.add("active");
     }, 4000);
+}
+
+function initSearchEvents() {
+    const searchInput = document.getElementById("main-search-input");
+    const searchBtn = document.getElementById("main-search-btn");
+
+    if (searchInput) {
+        searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                handleMainSearch();
+            }
+        });
+    }
+
+    if (searchBtn) {
+        searchBtn.addEventListener("click", handleMainSearch);
+    }
 }
 
 function handleMainSearch() {

@@ -27,7 +27,7 @@ public class WeatherServiceImpl implements WeatherService {
         // test.java의 날짜 계산 로직 적용
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMddHH");
         String now = LocalDateTime.now().format(fmt);
-        String sixHoursAgo = LocalDateTime.now().minusHours(6).format(fmt);
+        String sixHoursAgo = LocalDateTime.now().minusHours(12).format(fmt);
 
         // 1.3 단기예보 육상 (구조화 데이터) 사용
         // test.java에서 성공한 fct_afs_dl.php 경로와 파라미터를 그대로 사용합니다.

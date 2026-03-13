@@ -286,6 +286,7 @@
                      TRIP_ADDR,
                      TRIP_INQ_CNT
                  FROM TRIP
+                 WHERE TRIP_PATH_NM IS NOT NULL  AND TRIP_PATH_NM != ' '
                  ORDER BY TRIP_INQ_CNT DESC
              )
     <![CDATA[ WHERE ROWNUM <= 3 ]]>

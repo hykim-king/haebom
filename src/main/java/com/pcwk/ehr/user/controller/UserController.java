@@ -10,11 +10,17 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -60,6 +66,21 @@ public class UserController {
                 log.info("로그인 성공! 유저 이름: {}", loginUser.getUserNm());
                 log.info("로그인 성공! 유저 닉네임: {}", loginUser.getUserNick());
                 session.setAttribute("user", loginUser);
+
+                // 3. 관리자 권한(userMngrYn) 확인 후 SecurityContext 설정
+                if ("Y".equals(loginUser.getUserMngrYn())) {
+                    log.info("관리자 접속 감지: ROLE_ADMIN 부여");
+                    Authentication auth = new UsernamePasswordAuthenticationToken(
+                            loginUser.getUserEmlAddr(),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    // 세션에 SecurityContext 저장 (다음 요청에서도 인증 유지)
+                    session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+                    response.put("redirectUrl", "/admin/users");
+                }
+
                 response.put("success", true);
                 return ResponseEntity.ok(response); // {"success": true}
             } else {
@@ -119,5 +140,26 @@ public class UserController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/main?logout=true";
+    }
+
+    @GetMapping("/")
+    public String main(Principal principal) {
+        // 1. 비로그인 시 메인 페이지
+        if (principal == null) {
+            return "main/main";
+        }
+
+        // 2. 로그인한 사용자의 이메일(ID)로 조회
+        String email = principal.getName();
+        UserEntity user = userService.findByEmail(email);
+
+        // 3. 관리자 권한(userMngrYn) 확인 후 분기
+        if (user != null && "Y".equals(user.getUserMngrYn())) {
+            log.info("관리자 접속 감지: 관리자 페이지로 리다이렉트");
+            return "redirect:/admin/users";
+        }
+
+        // 4. 일반 회원 메인 페이지
+        return "main/main";
     }
 }

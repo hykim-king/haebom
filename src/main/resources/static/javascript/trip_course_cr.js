@@ -6,6 +6,14 @@ const tripCourseState = {
 };
 
 document.addEventListener("DOMContentLoaded", function () {
+    // URL에서 searchWord 파라미터가 있으면 자동 검색
+    var urlParams = new URLSearchParams(window.location.search);
+    var searchWord = urlParams.get("searchWord");
+    if (searchWord) {
+        tripCourseState.searchWord = searchWord;
+        var searchInput = document.getElementById("search-input");
+        if (searchInput) searchInput.value = searchWord;
+    }
     initEvent();
     doRetrieve();
 });
@@ -120,7 +128,7 @@ function renderDestList(data) {
     let html = "";
 
     data.forEach((item) => {
-        const imagePath = item.coursePathNm ? escapeHtml(item.coursePathNm) : "/images/no-image.png";
+        const imagePath = item.coursePathNm ? escapeHtml(item.coursePathNm) : "/img/no_img.png";
         const courseNm = item.courseNm ? escapeHtml(item.courseNm) : "코스명 없음";
         const courseNo = item.courseNo ?? "";
         const courseInqCnt = item.courseInqCnt ?? 0;
@@ -131,7 +139,7 @@ function renderDestList(data) {
                     <img class="course-thumb"
                         src="${imagePath}"
                         alt="${courseNm}"
-                        onerror="this.onerror=null; this.src='/images/no-image.png';">
+                        onerror="this.onerror=null; this.src='/img/no_img.png';">
                 </div>
 
                 <div class="course-body">

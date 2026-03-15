@@ -34,6 +34,7 @@ public class SecurityConfig {
 
 	// ✅ 생성자 주입 대상(final) - 오류 해결됨
 	private final OAuth2UserServiceImpl oAuth2UserService;
+	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
 	// ✅ 소셜 가입에서 BCryptPasswordEncoder 주입 쓰므로 Bean 유지(필수)
 	@Bean
@@ -143,7 +144,12 @@ public class SecurityConfig {
 
 						// 방식2: 전체 허용 + 차단 목록 (임시적 허용)
 						.requestMatchers("/admin/**").hasRole("ADMIN")
+						.requestMatchers("/ai_trip/**").authenticated()
+						.requestMatchers("/course/ai/**").authenticated()
 						.anyRequest().permitAll())
+
+				.exceptionHandling(ex -> ex
+						.authenticationEntryPoint(customAuthenticationEntryPoint))
 
 				.formLogin(form -> form
 						.loginPage("/user/login") // GET 로그인 화면

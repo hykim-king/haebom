@@ -27,7 +27,7 @@ function initHeroSlider() {
     if (!slider) return;
 
     const heroImages = [
-        "/img/korea_trip1.jpg", "/img/korea_trip2.jpg", "/img/korea_trip3.jpg",
+        "/img/korea_trip12.jpg", "/img/korea_trip1.jpg", "/img/korea_trip2.jpg", "/img/korea_trip3.jpg",
         "/img/korea_trip4.jpg", "/img/korea_trip5.jpg", "/img/korea_trip6.jpg",
         "/img/korea_trip7.jpg", "/img/korea_trip8.jpg", "/img/korea_trip9.jpg",
         "/img/korea_trip10.jpg", "/img/korea_trip11.jpg",
@@ -84,8 +84,8 @@ function handleMainSearch() {
         // 기존 여행지 페이지로 이동
         window.location.href = `/trip/trip?searchWord=${encodeURIComponent(keyword)}`;
     } else if (category === "course") {
-        // 여행코스 페이지(미구현)로 이동
-        window.location.href = `/course/course_list?searchWord=${encodeURIComponent(keyword)}`;
+        // 여행코스 페이지로 이동
+        window.location.href = `/trip_course/trip_course?searchWord=${encodeURIComponent(keyword)}`;
     }
 }
 

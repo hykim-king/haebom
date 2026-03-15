@@ -1,111 +1,135 @@
 :root {
-    --primary-blue: #5b8df4;
-    --text-dark: #333333;
-    --text-gray: #888888;
-    --bg-blue: #a3c2fa;
+	--primary-blue: #5b8df4;
+	--text-dark: #333333;
+	--text-gray: #888888;
+	--bg-blue: #a3c2fa;
 }
 
 body, html {
-    margin: 0;
-    padding: 0;
-    min-height: 100%;
-    background-color: var(--bg-blue);
-    overflow-x: hidden;
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+	background-color: var(--bg-blue);
+	overflow-x: hidden;
 }
 
 .scenery-bg {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(180deg, #9bbdf9 0%, #b8d0fb 100%);
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	pointer-events: none;
+	background: linear-gradient(180deg, #9bbdf9 0%, #b8d0fb 100%);
 }
+
 .clouds {
-    position: absolute;
-    top: 20%; left: 10%;
-    width: 200px; height: 60px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 50px;
-    filter: blur(8px);
+	position: absolute;
+	top: 20%;
+	left: 10%;
+	width: 200px;
+	height: 60px;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 50px;
+	filter: blur(8px);
 }
+
 .mountains-bg {
-    position: absolute;
-    bottom: 0; left: 0; width: 100%; height: 250px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none"><path fill="rgba(255,255,255,0.15)" fill-opacity="1" d="M0,256L48,245.3C96,235,192,213,288,213.3C384,213,480,235,576,234.7C672,235,768,213,864,186.7C960,160,1056,128,1152,133.3C1248,139,1344,181,1392,202.7L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
-    background-size: cover;
-    background-position: bottom;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 250px;
+	background-image:
+		url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none"><path fill="rgba(255,255,255,0.15)" fill-opacity="1" d="M0,256L48,245.3C96,235,192,213,288,213.3C384,213,480,235,576,234.7C672,235,768,213,864,186.7C960,160,1056,128,1152,133.3C1248,139,1344,181,1392,202.7L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+	background-size: cover;
+	background-position: bottom;
 }
 
 .card-wrapper {
-    position: relative;
-    z-index: 10;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
+	position: relative;
+	z-index: 10;
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 20px;
 }
 
 .planner-card {
-    background: #ffffff;
-    width: 100%;
-    max-width: 700px;
-    border-radius: 12px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
-    padding: 40px 50px 50px 50px;
-    position: relative;
+	background: #ffffff;
+	width: 100%;
+	max-width: 700px;
+	border-radius: 12px;
+	box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+	padding: 40px 50px 50px 50px;
+	position: relative;
 }
 
 .card-header-custom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 30px;
 }
+
 .logo-text {
-    color: var(--primary-blue);
-    font-weight: 800;
-    font-size: 1.1rem;
-    letter-spacing: -0.5px;
+	color: var(--primary-blue);
+	font-weight: 800;
+	font-size: 1.1rem;
+	letter-spacing: -0.5px;
 }
+
 .step-indicator {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    font-size: 0.95rem;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-weight: 700;
+	font-size: 0.95rem;
 }
-.step-inactive { color: #bbbbbb; }
-.step-active { color: #000000; }
-.step-line { width: 40px; height: 2px; background-color: #000000; }
+
+.step-inactive {
+	color: #bbbbbb;
+}
+
+.step-active {
+	color: #000000;
+}
+
+.step-line {
+	width: 40px;
+	height: 2px;
+	background-color: #000000;
+}
 
 .sub-title {
-    color: var(--text-gray);
-    font-size: 0.95rem;
-    font-weight: 500;
-    margin-bottom: 8px;
+	color: var(--text-gray);
+	font-size: 0.95rem;
+	font-weight: 500;
+	margin-bottom: 8px;
 }
+
 .main-title {
-    color: var(--text-dark);
-    font-size: 1.6rem;
-    font-weight: 800;
-    line-height: 1.35;
-    margin-bottom: 35px;
+	color: var(--text-dark);
+	font-size: 1.6rem;
+	font-weight: 800;
+	line-height: 1.35;
+	margin-bottom: 35px;
 }
 
 .theme-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-    margin-bottom: 40px;
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 15px;
 }
 
 .theme-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
 }
 
 .theme-circle {
@@ -117,64 +141,76 @@ body, html {
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
-    border: 3px solid transparent;
+
+    border: 2px solid #d9dee8;   /* ← 외곽선 추가 */
+
     overflow: hidden;
     transition: all 0.2s ease;
 }
 
 .theme-circle .icon-box {
-    font-size: 2rem;
-    color: var(--primary-blue);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	font-size: 2rem;
+	color: var(--primary-blue);
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .theme-text {
-    font-weight: 600;
-    color: #999;
-    font-size: 0.9rem;
-    text-align: center;
+	font-weight: 600;
+	color: #999;
+	font-size: 0.9rem;
+	text-align: center;
 }
 
 .theme-item.selected .theme-circle {
-    border-color: var(--primary-blue);
-    background-color: #ffffff;
-    box-shadow: 0 8px 15px rgba(91, 141, 244, 0.2);
-    transform: translateY(-5px);
+	border-color: var(--primary-blue);
+	background-color: #ffffff;
+	box-shadow: 0 8px 15px rgba(91, 141, 244, 0.2);
+	transform: translateY(-5px);
 }
+
 .theme-item.selected .theme-text {
-    color: var(--primary-blue);
-    font-weight: 800;
+	color: var(--primary-blue);
+	font-weight: 800;
 }
 
 .btn-group-custom {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+	display: flex;
+	justify-content: space-between;
+	margin-top: 20px;
 }
+
 .btn-prev {
-    background-color: #ffffff;
-    color: #333;
-    border: 1px solid #ddd;
-    padding: 12px 35px;
-    border-radius: 4px;
-    font-weight: 700;
+	background-color: #ffffff;
+	color: #333;
+	border: 1px solid #ddd;
+	padding: 12px 35px;
+	border-radius: 4px;
+	font-weight: 700;
 }
+
 .btn-finish {
-    background-color: #222222;
-    color: white;
-    border: none;
-    padding: 12px 35px;
-    border-radius: 4px;
-    font-weight: 700;
+	background-color: #222222;
+	color: white;
+	border: none;
+	padding: 12px 35px;
+	border-radius: 4px;
+	font-weight: 700;
 }
-.btn-finish:disabled { background-color: #cccccc; cursor: not-allowed; }
 
-#footer, #header { position: relative; z-index: 10; }
+.btn-finish:disabled {
+	background-color: #cccccc;
+	cursor: not-allowed;
+}
 
-@media (max-width: 600px) {
-    .planner-card { padding: 30px 20px; }
-    .theme-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-    .main-title { font-size: 1.3rem; }
+#footer, #header {
+	position: relative;
+	z-index: 10;
+}
+
+@media ( max-width :600px) {
+	.theme-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
 }

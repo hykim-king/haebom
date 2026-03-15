@@ -3,7 +3,11 @@
     "allow": [
       "Bash(find c:/ACON_20250916/haebomP/junyeop -name *Mapper.xml -o -name *mapper.xml)",
       "Bash(xargs grep:*)",
-      "Bash(grep -E \"\\\\.\\(html|js|properties\\)$\")"
+      "Bash(grep -E \"\\\\.\\(html|js|properties\\)$\")",
+      "Bash(/c/Users/wnsdu/AppData/Local/Programs/Python/Python313/python.exe -c \"import oracledb; print\\(''oracledb OK''\\)\")",
+      "Bash(/c/Users/wnsdu/AppData/Local/Programs/Python/Python313/python.exe -m pip install oracledb)",
+      "Bash(winget install:*)",
+      "WebFetch(domain:www.safetydata.go.kr)"
     ]
   }
 }

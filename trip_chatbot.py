@@ -1,5 +1,6 @@
 import oracledb
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from openai import OpenAI
 from pydantic import BaseModel, Field
 from fastapi.middleware.cors import CORSMiddleware
@@ -78,6 +79,103 @@ def chat(req: ChatReq):
     q, rows, answer = ask_and_search(req.message, user_code)
     add_history(user_code, "assistant", answer)
     return ChatRes(reply=answer)
+
+
+@app.post("/api/v1/chat/stream")
+def chat_stream(req: ChatReq):
+    """SSE 스트리밍 챗봇 엔드포인트"""
+    user_code = req.userCode
+    add_history(user_code, "user", req.message)
+
+    # 1단계: 쿼리 파싱 (빠름)
+    history = chat_histories.get(user_code, [])
+    history = [m for m in history if isinstance(m, dict) and "role" in m and "content" in m]
+    history = history[-10:]
+
+    parsed = client.responses.parse(
+        model="gpt-4o-mini",
+        input=[
+            {"role": "system", "content":
+                "너는 여행지 DB 검색을 위한 쿼리 생성기야. 사용자의 질문을 분석해 검색 조건을 생성해."
+                "관광타입(trip_clsf) 매핑 규칙:"
+                "- 관광지: 12, 문화시설: 14, 축제/공연: 15, 코스: 25, 레포츠: 28, 숙박: 32, 쇼핑: 38, 음식점: 39"
+                "사용자가 '맛집'이나 '식당'을 언급하면 trip_clsf '39'로 설정해."
+                "지역명으로 검색하면 trip_clsf '99'로 설정해"
+                "지역명이나 특정 장소는 keywords 리스트에 넣어."
+            },
+            *history,
+            {"role": "user", "content": req.message},
+        ],
+        text_format=TripSearchQuery,
+    ).output_parsed
+
+    rows = oracle_search_ss_trip(parsed)
+
+    if not rows:
+        no_result = f"죄송합니다. '{req.message}'에 대한 검색 결과가 없습니다."
+        add_history(user_code, "assistant", no_result)
+        def empty_gen():
+            yield f"data: {json.dumps({'token': no_result}, ensure_ascii=False)}\n\n"
+            yield "data: [DONE]\n\n"
+        return StreamingResponse(empty_gen(), media_type="text/event-stream")
+
+    # 2단계: 답변 생성 (스트리밍)
+    def generate():
+        full_answer = []
+        stream = client.responses.create(
+            model="gpt-4o-mini",
+            input=[
+                {
+                    "role": "system",
+                    "content": """
+                    너는 친절한 여행 안내원이야. DB에서 조회된 검색 결과(rows)를 바탕으로 사용자에게 여행지를 추천해줘.
+
+                    [중요]
+                    - rows는 'dict의 리스트'이며, CONTENTID는 항상 row["CONTENTID"]에 있다. (없으면 링크 생략)
+                    - 과장/추측 금지. rows에 있는 값만 사용.
+
+                    [출력 언어]
+                    - 한국어만
+
+                    [출력 형식]
+                    - 번호 매긴 추천 목록
+
+                    (일반/관광지일 때: row에 TRIP_NM 같은 키가 있는 경우)
+                    1) {row["TRIP_NM"]}
+                    - 주소: {row["TRIP_ADDR"]}
+                    - 내용: {row.get("TRIPDTL_INFO","정보 없음")}
+                    - 링크: (CONTENTID가 있을 때만)
+                    http://localhost:8080/trip/trip_view?tripContsId={row["CONTENTID"]} 내용 보러가기 (새창 하이퍼링크)
+
+                    (코스일 때: row에 COURSE_NM 같은 키가 있는 경우)
+                    1) {row["COURSE_NM"]}
+                    - 경로: {row["COURSE_PATH_NM"]}
+                    - 설명: {row["COURSE_INFO"]}
+                    - 거리: {row["COURSE_DSTNC"]}
+                    - 소요시간: {row["COURSE_REQ_TM"]}
+                    - 링크: (CONTENTID가 있을 때만)
+                    http://localhost:8080/trip_course/detail?courseNo={row["CONTENTID"]} 내용 보러가기 (새창 하이퍼링크)
+
+                    [빈값 규칙]
+                    - 값이 null/빈문자면 '정보 없음'으로 출력
+                    """
+                },
+                *history,
+                {"role": "user", "content": f"질문: {req.message}\nrows: {rows}"}
+            ],
+            stream=True,
+        )
+
+        for event in stream:
+            if event.type == "response.output_text.delta":
+                token = event.delta
+                full_answer.append(token)
+                yield f"data: {json.dumps({'token': token}, ensure_ascii=False)}\n\n"
+
+        add_history(user_code, "assistant", "".join(full_answer))
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
 
 class TripResultItem(BaseModel):
     contentid: int
@@ -554,8 +652,13 @@ def load_food_candidates(region_code: str, gungu_code: Optional[str]) -> pd.Data
         params["gungu"] = gungu_code
     sql = f"""
     SELECT TRIP_CONTS_ID, TRIP_NM, TRIP_ADDR, TRIP_LAT, TRIP_LOT, TRIP_INQ_CNT
-    FROM TRIP
+    FROM TRIP t
     WHERE {where}
+    AND EXISTS (
+            SELECT 1
+            FROM ATTACH_FILE a
+            WHERE a.BOARD_ID = t.TRIP_CONTS_ID
+    )
     ORDER BY TRIP_INQ_CNT DESC NULLS LAST
     """
     with get_connection() as conn:
@@ -599,9 +702,14 @@ def load_trip_candidates(region_code: str, gungu_code: Optional[str], selected_c
             where_clause += " AND TRIP_TAG = :tag"
             sql = f"""
             SELECT TRIP_CONTS_ID, TRIP_NM, TRIP_ADDR, TRIP_TAG, TRIP_LAT, TRIP_LOT, TRIP_INQ_CNT
-            FROM TRIP
+            FROM TRIP t
             WHERE {where_clause}
               AND TRIP_CLSF NOT IN (32, 38, 39)
+              AND EXISTS (
+                    SELECT 1
+                    FROM ATTACH_FILE a
+                    WHERE a.BOARD_ID = t.TRIP_CONTS_ID
+            )
             ORDER BY TRIP_INQ_CNT DESC NULLS LAST
             """
             temp_df = pd.read_sql(sql, conn, params=params)
@@ -614,10 +722,15 @@ def load_trip_candidates(region_code: str, gungu_code: Optional[str], selected_c
             popular_params["gungu"] = gungu_code
         popular_sql = f"""
         SELECT TRIP_CONTS_ID, TRIP_NM, TRIP_ADDR, TRIP_TAG, TRIP_LAT, TRIP_LOT, TRIP_INQ_CNT
-        FROM TRIP
+        FROM TRIP t
         WHERE {popular_where}
           AND TRIP_CLSF NOT IN (32, 38, 39)
           AND TRIP_TAG NOT IN ('A02020500')
+          AND EXISTS (
+                SELECT 1
+                FROM ATTACH_FILE a
+                WHERE a.BOARD_ID = t.TRIP_CONTS_ID
+        )
         ORDER BY TRIP_INQ_CNT DESC NULLS LAST
         """
         popular_df = pd.read_sql(popular_sql, conn, params=popular_params).head(20)
@@ -637,10 +750,15 @@ def load_trip_candidates(region_code: str, gungu_code: Optional[str], selected_c
                 more_params["gungu"] = gungu_code
             more_sql = f"""
             SELECT TRIP_CONTS_ID, TRIP_NM, TRIP_ADDR, TRIP_TAG, TRIP_LAT, TRIP_LOT, TRIP_INQ_CNT
-            FROM TRIP
+            FROM TRIP t
             WHERE {more_where}
               AND TRIP_CLSF NOT IN (32, 38, 39)
               AND TRIP_TAG NOT IN ('A02020500')
+              AND EXISTS (
+                    SELECT 1
+                    FROM ATTACH_FILE a
+                    WHERE a.BOARD_ID = t.TRIP_CONTS_ID
+            )
             ORDER BY TRIP_INQ_CNT DESC NULLS LAST
             """
             more_df = pd.read_sql(more_sql, conn, params=more_params)

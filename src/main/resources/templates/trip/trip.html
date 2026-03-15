@@ -61,19 +61,22 @@
                         </div>
                     
                     <div class="bg-red-50 border border-red-100 p-4 rounded-xl mb-4">
-                        <h5 class="text-red-700 font-bold text-sm flex items-center gap-2">
+                        <h5 class="text-red-700 font-bold text-sm flex items-center gap-2 mb-2">
                             <i data-lucide="alert-triangle" size="16"></i> 기상/재난 특보
                         </h5>
-                        <p class="text-red-600 text-xs mt-1">현재 발령된 특보가 없습니다.</p>
+                        <div id="disaster-summary">
+                            <p class="text-red-600 text-xs">지역을 선택하면 실시간 특보를 불러옵니다.</p>
+                        </div>
+                        <div id="disaster-list" class="mt-2 space-y-2 max-h-60 overflow-y-auto"></div>
                     </div>
                     <div class="bg-white border border-gray-100 p-4 rounded-xl shadow-sm text-sm">
                         <div class="flex justify-between items-center mb-2">
-                            <p class="font-bold" id="weather-city">전국 날씨</p>
-                            <i data-lucide="sun" class="text-orange-400"></i>
+                            <p class="font-bold" id="weather-city">날씨 로딩중...</p>
+                            <i id="weather-icon" data-lucide="sun" class="text-orange-400"></i>
                         </div>
                         <div class="flex justify-between text-gray-500">
                             <span>현재 기온</span>
-                            <span class="font-bold text-gray-900">24°C</span>
+                            <span id="weather-temp" class="font-bold text-gray-900">-</span>
                         </div>
                     </div>
                 </div>

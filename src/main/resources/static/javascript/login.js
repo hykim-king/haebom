@@ -60,6 +60,7 @@ $(document).ready(function () {
                 } catch (e) {
                     console.error("서버 응답이 JSON 형식이 아닙니다:", res);
                     alert("서버 응답 오류가 발생했습니다.");
+                    toggleButtonLoading(submitBtn, false, originalText);
                     return;
                 }
 
@@ -67,7 +68,16 @@ $(document).ready(function () {
                     window.location.href = response.redirectUrl || "/main";
                 } else {
                     alert(response.message || "로그인 실패");
+                    toggleButtonLoading(submitBtn, false, originalText);
                 }
+            },
+            error: function (xhr) {
+                if (xhr.status === 0) {
+                    alert("서버와 연결할 수 없습니다. 다시 시도해 주세요.");
+                } else {
+                    alert("이메일 또는 비밀번호를 잘못 입력했습니다. 다시 확인해 주세요.");
+                }
+                toggleButtonLoading(submitBtn, false, originalText);
             }
         });
     });

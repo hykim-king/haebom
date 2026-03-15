@@ -62,9 +62,9 @@
         </div>
 
         <div class="flex-grow-1">
-          <p class="card-text text-muted small mb-3 text-truncate" th:text="${trip.tripAddr}">주소</p>
+          <p class="card-text text-muted small mb-3 text-truncate fw-semibold" th:text="${trip.tripAddr}">주소</p>
 
-          <p class="card-text text-muted small mb-3 text-truncate"
+          <p class="card-text text-muted small mb-3 text-truncate fw-semibold"
              th:text="${#strings.arraySplit(trip.tripAddr, ' ')[0]} + ' ' + ${#strings.arraySplit(trip.tripAddr, ' ')[1]}">
             지역명
           </p>

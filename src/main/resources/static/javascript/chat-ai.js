@@ -15,7 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
             </header>
             <ul class="chatbox">
             <li class="chat incoming">
-                <p>안녕하세요! 무엇을 도와드릴까요? 😊</p>
+                <img src="/img/haebom_ai.png" alt="해봄" class="chat-avatar">
+                <p>안녕하세요! 무엇을 도와드릴까요?</p>
             </li>
             </ul>
             <div class="chat-input">
@@ -48,7 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const createChatLi = (message, className) => {
         const chatLi = document.createElement("li");
         chatLi.classList.add("chat", className);
-        chatLi.innerHTML = `<p>${message}</p>`;
+        if (className === "incoming") {
+            chatLi.innerHTML = `<img src="/img/haebom_ai.png" alt="해봄" class="chat-avatar"><p>${message}</p>`;
+        } else {
+            chatLi.innerHTML = `<p>${message}</p>`;
+        }
         return chatLi;
     }
 
@@ -66,47 +71,63 @@ document.addEventListener("DOMContentLoaded", () => {
         // 메시지 추가 로직...
         chatbox.appendChild(createChatLi(userMessage, "outgoing"));
 
-        // 서버 응답이 오거나 딜레이가 끝난 후 해제
-        setTimeout(() => {
-            
+        const incomingChatLi = createChatLi("<span class=\"shine-text\">검색 중 입니다.</span>", "incoming");
+        chatbox.appendChild(incomingChatLi);
+        chatbox.scrollTo(0, chatbox.scrollHeight);
 
-            const incomingChatLi = createChatLi("<span class=\"shine-text\">검색 중 입니다.</span>", "incoming");
-            chatbox.appendChild(incomingChatLi);
-            chatbox.scrollTo(0, chatbox.scrollHeight);
-            
-            // 실제 API 연동 시 이 부분을 fetch()로 교체
+        // SSE 스트리밍 방식
+        fetch("http://localhost:8000/api/v1/chat/stream", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: userMessage, userCode: userCode })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('서버 응답 에러');
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let fullText = "";
+            const pEl = incomingChatLi.querySelector("p");
+            pEl.textContent = "";
 
-            // fetch("http://192.168.100.195:8000/api/v1/chat", {
-            // fetch("http://localhost:8000/api/v1/chat", {
-			// fetch("http://16.16.36.57:8000/api/v1/chat", {
-            fetch("http://localhost:8000/api/v1/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: userMessage, userCode: userCode }) // userCode는 실제로는 로그인한 사용자 ID 등으로 대체
-            })
-            .then(res => {
-                if (!res.ok) throw new Error('서버 응답 에러');
-                return res.json();
-            })
-            .then(data => {
-            const rawReply = data.reply;
-            const formattedReply = rawReply.replace(/\[(.*?)\]\((http[s]?:\/\/[^\s]+)\)/g, '<a href="$2" target="_blank" style="color: #007bff; text-decoration: underline;">$1</a>');
+            function read() {
+                reader.read().then(({ done, value }) => {
+                    if (done) {
+                        // 스트리밍 완료 후 링크 변환
+                        const formatted = fullText.replace(/\[(.*?)\]\((http[s]?:\/\/[^\s]+)\)/g,
+                            '<a href="$2" target="_blank" style="color: #f97316; text-decoration: underline;">$1</a>');
+                        pEl.innerHTML = formatted;
+                        isSending = false;
+                        chatbox.scrollTo(0, chatbox.scrollHeight);
+                        return;
+                    }
 
-            // 2. textContent 대신 innerHTML을 사용하여 HTML 태그를 렌더링합니다.
-            incomingChatLi.querySelector("p").innerHTML = formattedReply;
-            //sincomingChatLi.querySelector("p").textContent = data.reply;
-            isSending = false; // 잠금 해제
-            })
-            .catch(error => {
-                console.error('에러 발생:', error);
-                incomingChatLi.querySelector("p").textContent = "서버와 연결할 수 없습니다. 다시 시도해 주세요.";
-            })
-            .finally(() => {
-                isSending = false; // 전송 완료 후 잠금 해제 (setTimeout 밖으로 뺄 수도 있음)
-                chatbox.scrollTo(0, chatbox.scrollHeight);
-            });
-            //incomingChatLi.querySelector("p").textContent = "답변을 준비 중입니다!";
-        }, 500); 
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split("\n");
+
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            const data = line.slice(6);
+                            if (data === "[DONE]") continue;
+                            try {
+                                const parsed = JSON.parse(data);
+                                if (parsed.token) {
+                                    fullText += parsed.token;
+                                    pEl.textContent = fullText;
+                                    chatbox.scrollTo(0, chatbox.scrollHeight);
+                                }
+                            } catch(e) {}
+                        }
+                    }
+                    read();
+                });
+            }
+            read();
+        })
+        .catch(error => {
+            console.error('에러 발생:', error);
+            incomingChatLi.querySelector("p").textContent = "서버와 연결할 수 없습니다. 다시 시도해 주세요.";
+            isSending = false;
+        }); 
         
         // 챗박스의 전체 높이값만큼 스크롤을 아래로 내림
         chatbox.scrollTo({

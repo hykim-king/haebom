@@ -20,9 +20,11 @@ import jakarta.servlet.http.HttpSession;
 
 import com.pcwk.ehr.area.AreaService;
 import com.pcwk.ehr.domain.AreaVO;
+import com.pcwk.ehr.domain.DisasterResponseVO;
 import com.pcwk.ehr.domain.RelationVO;
 import com.pcwk.ehr.domain.TripDetailVO;
 import com.pcwk.ehr.relation.RelationService;
+import com.pcwk.ehr.util.disaster.DisasterService;
 
 @Controller
 @RequestMapping("/trip")
@@ -34,6 +36,7 @@ public class TripController {
     private final AreaService areaService;
     private final TripDetailService tripDetailService;
     private final RelationService relationService;
+    private final DisasterService disasterService;
 
     /**
      * 1. 여행지 목록 화면 (초기 로딩용)
@@ -207,6 +210,17 @@ public class TripController {
     public TripVO getTripVO(TripVO tripVO) {
         // 우리가 만든 imageList가 포함된 데이터를 JSON으로 반환
         return tripService.doSelectOne(tripVO);
+    }
+
+    /**
+     * 9. 재난 정보 조회 API
+     */
+    @GetMapping("/disaster/current.do")
+    @ResponseBody
+    public DisasterResponseVO getDisasterInfo(
+            @RequestParam String ctpvNm,
+            @RequestParam(defaultValue = "전체") String sggNm) {
+        return disasterService.getDisasterByRegion(ctpvNm, sggNm);
     }
 
 }

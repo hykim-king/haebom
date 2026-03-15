@@ -44,7 +44,7 @@ function activateUserAgeTab() {
 }
 
 /**
- * [AI 핵심] 데이터 로딩 함수
+ * [AI 핵심] 데이터 로딩 함수 - 문자열 응답 처리 로직 추가
  */
 function loadAiData(endpoint, params, container, isSmall = false) {
     if (isDataLoading) return;
@@ -71,7 +71,20 @@ function loadAiData(endpoint, params, container, isSmall = false) {
         },
         success: function (response) {
             console.log("AI 추천 수신 성공:", response);
-            renderCards(container, response, isSmall);
+            
+            let finalData = response;
+
+            // [수정 포인트] 서버 응답이 "가평, 경주, 부산" 같은 문자열인 경우 객체 배열로 변환
+            if (typeof response === 'string') {
+                finalData = response.split(',').map(name => ({
+                    tripNm: name.trim(),
+                    tripAddr: "추천 지역",
+                    tripPathNm: "../img/no_image.png", // 기본 이미지 경로
+                    tripContsId: "" // 상세페이지 연동용 ID (문자열 응답 시 비워둠)
+                }));
+            }
+
+            renderCards(container, finalData, isSmall);
             isDataLoading = false;
         },
         error: function (xhr, status, error) {
@@ -103,7 +116,7 @@ function renderCards(container, data, isSmall = false) {
 
 function createCardHTML(item, isSmall = false) {
     const name = item.tripNm || '추천 여행지';
-    const img = item.tripPathNm || '';
+    const img = item.tripPathNm || '../img/no_image.png';
     const addr = formatAddress(item.tripAddr);
     const id = item.tripContsId || '';
     const colClass = isSmall ? "col-6 col-md-3" : "col-12 col-md-4";
@@ -252,6 +265,7 @@ if (refreshBtn) {
         const icon = refreshBtn.querySelector('i');
         icon.style.transition = 'transform 0.5s';
         icon.style.transform = 'rotate(360deg)';
+        // 엔드포인트를 로그와 일치시킴 (/ai/recommend 또는 /ai_trip/recommend)
         loadAiData("/ai_trip/recommend", { "user_input": "추천 여행지", "user_tag": "일반" }, mainGrid, false);
         setTimeout(() => { icon.style.transform = 'rotate(0deg)'; }, 500);
     });

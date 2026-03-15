@@ -166,7 +166,8 @@ public class DisasterServiceImpl implements DisasterService {
         urlBuilder.append("&pageNo=1");
         urlBuilder.append("&returnType=").append(encode(RETURN_TYPE));
         urlBuilder.append("&crtDt=").append(encode(crtDt));
-        urlBuilder.append("&rgnNm=").append(encode(requestRegionName));
+        // rgnNm 제거: API 서버측 필터가 정확 매칭이라 결과가 0건으로 나옴
+        // 대신 전체 조회 후 matchesRegion()으로 코드에서 필터링
         return urlBuilder.toString();
     }
 

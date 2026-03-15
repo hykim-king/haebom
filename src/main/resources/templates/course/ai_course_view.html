@@ -140,27 +140,7 @@
         </div>
     </div>
 
-    <div class="mt-12">
-        <h3 class="text-lg font-bold mb-6">
-            후기 및 댓글
-            <span id="comment-count" class="text-orange-500 ml-1 text-sm">0</span>
-        </h3>
-
-        <div class="bg-gray-50 border rounded-2xl p-8 mb-10">
-            <textarea id="comment-input"
-                      class="w-full p-4 border rounded-xl h-28 outline-none focus:ring-2 focus:ring-orange-500"
-                      placeholder="코스 후기를 남겨주세요."></textarea>
-
-            <div class="flex justify-end mt-4">
-                <button onclick="submitComment()"
-                        class="bg-orange-500 text-white px-8 py-2 rounded-lg font-bold hover:bg-orange-600">
-                    등록
-                </button>
-            </div>
-        </div>
-
-        <div id="comment-list" class="divide-y"></div>
-    </div>
+   
 
 </main>
 
@@ -401,21 +381,45 @@
             const image = safeText(trip.tripPathNm,'');
 
             slide.innerHTML = `
-        <div class="course-card ${index===0?'active':''}">
-            ${
-                image
-                    ? `<img src="${image}" alt="${title}">`
-                    : `<div class="no-image-box">이미지 없음</div>`
-            }
-            <div class="course-card-overlay">
-                <span class="course-card-title">${title}</span>
+            <div class="course-card ${index===0?'active':''}">
+                <div class="card-image">
+                    ${
+                        image
+                        ? `<img src="${image}" alt="${title}">`
+                        : `<div class="no-image-box loading-image">이미지 불러오는 중...</div>`
+                    }
+                </div>
+                <div class="course-card-overlay">
+                    <span class="course-card-title">${title}</span>
+                </div>
             </div>
-        </div>
-        `;
+            `;
 
             slide.addEventListener('click',()=>selectCourse(index));
-
             wrapper.appendChild(slide);
+
+            // tripPathNm 없으면 attach_file 이미지 가져오기
+            if(!image){
+
+                fetch(`/course/trip/images?boardId=${trip.tripContsId}`)
+                    .then(res=>res.json())
+                    .then(images=>{
+
+                        const imgBox = slide.querySelector('.card-image');
+
+                        if(images && images.length > 0){
+                            imgBox.innerHTML = `<img src="${images[0]}" alt="${title}">`;
+                        }else{
+                            imgBox.innerHTML = `<div class="no-image-box">이미지 없음</div>`;
+                        }
+
+                    })
+                    .catch(()=>{
+                        const imgBox = slide.querySelector('.card-image');
+                        imgBox.innerHTML = `<div class="no-image-box">이미지 없음</div>`;
+                    });
+
+            }
 
         });
 

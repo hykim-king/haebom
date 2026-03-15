@@ -103,6 +103,7 @@
     border: none;
     outline: none;
     flex-grow: 1;
+    min-width: 280px;
     background: transparent;
     padding: 12px 20px;
     font-size: 15px;
@@ -273,6 +274,7 @@
     transition: all 0.3s ease;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     position: relative;
+    text-decoration: none;
     overflow: hidden;
 }
 

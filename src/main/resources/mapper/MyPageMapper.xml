@@ -73,6 +73,8 @@
     DELETE FROM relation WHERE USER_NO = #{userNo}
     </delete>
 
+    
+
 
     <delete id="deleteCommentByUserNo" parameterType="int">
     DELETE FROM cmt 

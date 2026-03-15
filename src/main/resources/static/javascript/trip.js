@@ -20,7 +20,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // 1. Lucide 아이콘 초기화 (공통)
     if (window.lucide) lucide.createIcons();
 
-    // 2. 리스트 페이지 전용 초기화 (요소가 있을 때만 실행)
+    // 2. 사이드바 날씨 로딩
+    if (document.getElementById("weather-city")) {
+        loadSidebarWeather();
+    }
+
+    // 3. 리스트 페이지 전용 초기화 (요소가 있을 때만 실행)
     if (document.getElementById("search-input")) {
         initListPage();
     }
@@ -280,6 +285,10 @@ function handleCityClick(ctpvCode, ctpvNm, btnElem) {
     disasterState.gunguNm = "전체";
 
     document.getElementById("view-title").innerText = ctpvNm;
+
+    // 사이드바 날씨 업데이트
+    const weatherCity = ctpvToWeatherCity[ctpvNm] || "서울";
+    updateSidebarWeather(weatherCity);
 
     const subContainer = document.getElementById("sub-region-tags");
 
@@ -668,4 +677,100 @@ function fetchAreaTags() {
                 });
             }
         });
+}
+
+// ─────────────────────────────────────────
+// 사이드바 날씨 로딩
+// ─────────────────────────────────────────
+const sidebarRegionMap = {
+    "11B10101": "서울", "11B20201": "인천", "11B20601": "수원",
+    "11C20401": "대전", "11H10701": "대구", "11F20501": "광주",
+    "11H20201": "부산", "11H20101": "울산", "11C20404": "세종",
+    "11G00201": "제주", "11D10301": "춘천", "11C10301": "청주",
+    "11F10201": "전주", "11H20301": "창원", "11H10201": "포항",
+    "11B20102": "김포", "11B20302": "고양", "11B20605": "성남",
+    "11B20612": "용인", "11B20604": "화성", "11B20606": "평택",
+    "11D10401": "원주", "11D20501": "강릉", "11D20401": "속초",
+    "11C10101": "충주", "11C10201": "제천",
+    "11C20101": "서산", "11C20301": "천안", "11C20302": "아산",
+    "11H10501": "안동", "11H10601": "김천", "11H10602": "구미",
+    "11H10202": "경주",
+    "11H20304": "김해", "11H20401": "통영", "11H20601": "밀양",
+    "11F10203": "정읍", "21F10501": "군산",
+    "11F20401": "여수", "11F20603": "순천", "21F20801": "목포",
+    "11G00401": "서귀포"
+};
+
+// 지역명(ctpvNm) → 날씨 API에서 찾을 대표 도시명 매핑
+const ctpvToWeatherCity = {
+    "서울": "서울", "인천": "인천", "대전": "대전", "대구": "대구",
+    "광주": "광주", "부산": "부산", "울산": "울산", "세종": "세종",
+    "경기": "수원", "경기도": "수원",
+    "강원": "춘천", "강원도": "춘천", "강원특별자치도": "춘천",
+    "충북": "청주", "충청북도": "청주",
+    "충남": "천안", "충청남도": "천안",
+    "경북": "대구", "경상북도": "대구",
+    "경남": "창원", "경상남도": "창원",
+    "전북": "전주", "전북특별자치도": "전주", "전라북도": "전주",
+    "전남": "목포", "전라남도": "목포",
+    "제주": "제주", "제주도": "제주", "제주특별자치도": "제주"
+};
+
+// 캐싱용: 전체 날씨 파싱 결과
+let cachedWeatherData = null;
+
+async function loadSidebarWeather() {
+    try {
+        const response = await fetch('/main/weather/api');
+        const rawData = await response.text();
+        if (!rawData || !rawData.includes("#START")) return;
+
+        const lines = rawData.split("\n");
+        cachedWeatherData = [];
+
+        for (const line of lines) {
+            const row = line.trim();
+            if (!row || row.startsWith("#")) continue;
+            const f = row.split(",");
+            if (f.length >= 16) {
+                const regionName = sidebarRegionMap[f[0].trim()];
+                if (regionName && f[4].trim() === "1") {
+                    cachedWeatherData.push({
+                        region: regionName,
+                        temp: parseFloat(f[12] || 0),
+                        sky: f[14]?.trim() || ""
+                    });
+                }
+            }
+        }
+
+        // 초기: 서울 날씨 표시
+        updateSidebarWeather("서울");
+    } catch (error) {
+        console.error("사이드바 날씨 로딩 실패:", error);
+    }
+}
+
+function updateSidebarWeather(cityName) {
+    if (!cachedWeatherData || cachedWeatherData.length === 0) return;
+
+    let weatherItem = cachedWeatherData.find(w => w.region === cityName);
+    if (!weatherItem) weatherItem = cachedWeatherData[0];
+
+    const cityEl = document.getElementById("weather-city");
+    const tempEl = document.getElementById("weather-temp");
+    const iconEl = document.getElementById("weather-icon");
+
+    if (cityEl) cityEl.textContent = weatherItem.region + " 날씨";
+    if (tempEl) tempEl.textContent = weatherItem.temp + "°C";
+
+    if (iconEl) {
+        let iconName = "sun";
+        if (weatherItem.sky === "DB04") iconName = "cloud-rain";
+        else if (weatherItem.sky === "DB03") iconName = "cloud";
+        else if (weatherItem.sky === "DB02") iconName = "cloud-sun";
+
+        iconEl.setAttribute("data-lucide", iconName);
+        if (window.lucide) lucide.createIcons();
+    }
 }

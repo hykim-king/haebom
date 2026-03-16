@@ -15,6 +15,8 @@ public interface MyPageMapper extends WorkDiv<UserVO> {
 
     int deleteCommentByUserNo(int userNo);
 
+    int deleteSupportByUserNo(int userNo);
+
     /**
      * 회원 정보 수정 (닉네임)
      */

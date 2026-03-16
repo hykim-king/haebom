@@ -44,6 +44,8 @@ public class MyPageServiceImpl implements MyPageService {
         // 2. 자식 데이터(댓글) 삭제
         deleteCommentByUserNo(userNo);
 
+        deleteSupportByUserNo(userNo);
+
         // 3. 부모 데이터(사용자) 삭제
         log.info("최종 회원 삭제 진행: userNo={}", userNo);
         return myPageMapper.doDelete(userVO);
@@ -156,4 +158,11 @@ public class MyPageServiceImpl implements MyPageService {
         log.info("여행 완료 통합 삭제 결과 (댓글+관계): {}", result);
         return result;
     }
+
+    @Override
+public int deleteSupportByUserNo(int userNo) {
+    return myPageMapper.deleteSupportByUserNo(userNo);
+}
+
+
 }

@@ -12,6 +12,9 @@ public interface MyPageService extends WorkDiv<UserVO> {
     /** 회원 정보 수정 (닉네임) */
     int doUpdateNick(UserVO userVO);
 
+    int deleteSupportByUserNo(int userNo);
+
+    
     /** 회원 정보 수정 (태그) */
     int doUpdateTag(UserVO userVO);
 

@@ -167,4 +167,10 @@
      WHERE CMT_NO = #{cmtNo}       
        AND REG_NO = #{regNo} </delete>
 
+           <delete id="deleteSupportByUserNo" parameterType="int">
+    DELETE FROM support WHERE REG_NO = #{userNo}
+</delete>
+
+
+
 </mapper>

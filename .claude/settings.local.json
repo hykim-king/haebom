@@ -7,7 +7,8 @@
       "Bash(/c/Users/wnsdu/AppData/Local/Programs/Python/Python313/python.exe -c \"import oracledb; print\\(''oracledb OK''\\)\")",
       "Bash(/c/Users/wnsdu/AppData/Local/Programs/Python/Python313/python.exe -m pip install oracledb)",
       "Bash(winget install:*)",
-      "WebFetch(domain:www.safetydata.go.kr)"
+      "WebFetch(domain:www.safetydata.go.kr)",
+      "Bash(find /c/ACON_20250916/haebomP/main/haebom -type f \\\\\\(-name *team* -o -name *about* -o -name *intro* \\\\\\))"
     ]
   }
 }

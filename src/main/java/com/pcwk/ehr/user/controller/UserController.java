@@ -76,9 +76,17 @@ public class UserController {
                             List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
                     );
                     SecurityContextHolder.getContext().setAuthentication(auth);
-                    // 세션에 SecurityContext 저장 (다음 요청에서도 인증 유지)
                     session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
                     response.put("redirectUrl", "/admin/users");
+                } else {
+                    log.info("일반 유저 접속: ROLE_USER 부여");
+                    Authentication auth = new UsernamePasswordAuthenticationToken(
+                            loginUser.getUserEmlAddr(),
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
                 }
 
                 response.put("success", true);
